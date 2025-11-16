@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/resumes")
@@ -33,7 +34,7 @@ public class ResumeController {
 
     @GetMapping("/{id}/download")
     public ResponseEntity<?> download(@PathVariable String id) throws Exception {
-        ResumeMeta meta = resumeService.findById(id).orElseThrow();
+        ResumeMeta meta = resumeService.findById(id).orElseThrow(() -> new NoSuchElementException("Resume not found"));
         GridFsResource resource = resumeService.getFileResourceByGridId(meta.getGridFsId());
         if (resource == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok()

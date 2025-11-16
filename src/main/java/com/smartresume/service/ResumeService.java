@@ -24,7 +24,12 @@ public class ResumeService {
     private final GridFsTemplate gridFsTemplate;
 
     public ResumeMeta store(MultipartFile file, User owner) throws IOException {
-        ObjectId gridId = gridFsTemplate.store(file.getInputStream(), file.getOriginalFilename(), file.getContentType());
+        ObjectId gridId;
+        try {
+            gridId = gridFsTemplate.store(file.getInputStream(), file.getOriginalFilename(), file.getContentType());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to store file in GridFS", e);
+        }
         ResumeMeta meta = new ResumeMeta();
         meta.setFilename(file.getOriginalFilename());
         meta.setContentType(file.getContentType());
