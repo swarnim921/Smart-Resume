@@ -25,7 +25,7 @@ public class ResumeController {
     private final UserRepository userRepository;
 
     @PostMapping("/upload")
-    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file, Authentication auth) throws Exception {
+    public ResponseEntity<?> upload(@RequestParam("resume") MultipartFile file, Authentication auth) throws Exception {
         String email = auth.getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         ResumeMeta meta = resumeService.store(file, user);

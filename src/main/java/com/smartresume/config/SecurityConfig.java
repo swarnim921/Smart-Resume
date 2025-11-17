@@ -23,10 +23,22 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/**", "/api/auth/**", "/error").permitAll()
+
+                        // PUBLIC ENDPOINTS
+                        .requestMatchers(
+                                "/actuator/**",
+                                "/api/auth/**",
+                                "/api/admin/create-initial",   // 🔥 allow first admin creation
+                                "/error"
+                        ).permitAll()
+
+                        // ADMIN PROTECTED ENDPOINTS
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // ALL OTHER SECURED ENDPOINTS
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
