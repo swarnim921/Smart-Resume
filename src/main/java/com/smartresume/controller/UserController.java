@@ -7,18 +7,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
-public class AdminController {
+public class UserController {
 
     private final UserRepository userRepository;
 
-    // 🔥 Admin-only endpoint to list all users
-    @GetMapping("/users")
+    // ADMIN ONLY: Get all users
+    @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllUsers() {
-        System.out.println("AdminController: getAllUsers called by: " + org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication());
-        return ResponseEntity.ok(userRepository.findAll());
+        List<User> users = userRepository.findAll();
+        return ResponseEntity.ok(users);
     }
 }

@@ -45,16 +45,22 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (token != null && jwtUtil.validate(token)) {
             String subject = jwtUtil.getSubject(token);
+            String role = jwtUtil.getRole(token);
+            if (role == null) role = "USER"; // default
+            System.out.println("JWT Filter: Valid token for subject: " + subject + ", role: " + role);
 
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(
                             subject,
                             null,
-                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                            List.of(new SimpleGrantedAuthority("ROLE_" + role))
                     );
 
+            System.out.println("JWT Filter: Setting authorities: " + auth.getAuthorities());
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(auth);
+        } else {
+            System.out.println("JWT Filter: No valid token found for path: " + path);
         }
 
         filterChain.doFilter(request, response);
