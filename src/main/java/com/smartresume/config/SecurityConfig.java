@@ -31,16 +31,18 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/actuator/**",
                                 "/api/auth/**",
-                                "/api/admin/create-initial",   // 🔥 allow first admin creation
-                                "/error"
-                        ).permitAll()
+                                "/api/oauth2/**",
+                                "/oauth2/**",
+                                "/login/oauth2/**",
+                                "/api/admin/create-initial", // 🔥 allow first admin creation
+                                "/error")
+                        .permitAll()
 
                         // ADMIN PROTECTED ENDPOINTS
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // ALL OTHER SECURED ENDPOINTS
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
