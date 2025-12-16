@@ -23,16 +23,56 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http.csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/**", "/api/auth/**", "/error").permitAll()
+
+                        // PUBLIC ENDPOINTS
+                        .requestMatchers(
+                                "/actuator/**",
+                                "/api/auth/**",
+                                "/api/oauth2/**",
+                                "/oauth2/**",
+                                "/login/oauth2/**",
+                                "/api/admin/create-initial", // 🔥 allow first admin creation
+                                "/error")
+                        .permitAll()
+
+                        // ADMIN PROTECTED ENDPOINTS
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
+
+                        // ALL OTHER SECURED ENDPOINTS
+                        .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // Allow local development origins
+        configuration.setAllowedOrigins(java.util.Arrays.asList(
+                "http://localhost:3000",
+                "http://localhost:5500",
+                "http://127.0.0.1:5500",
+                "http://localhost:8080",
+                "file://"));
+
+        configuration.setAllowedMethods(java.util.Arrays.asList(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
+        configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 
     @Bean
