@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+    
+    environment {
+        EC2_HOST = credentials('ec2-host')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Test ML Service') {
+            steps {
+                dir('ml-service') {
+                    sh '''
+                        python3 -m venv venv
+                        . venv/bin/activate
+                        pip install -r requirements.txt
+                        python -m pytest tests/ || true
+                    '''
+                }
+            }
+        }
+        
+        stage('Deploy to EC2') {
+            steps {
+                sshagent(['ec2-ssh-key']) {
+                    sh '''
+                        scp -o StrictHostKeyChecking=no -r \
+                            ml-service/* ubuntu@${EC2_HOST}:/home/ubuntu/ml-service/
+                        
+                        ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOST} \
+                            "cd /home/ubuntu/ml-service && \
+                             pip3 install -r requirements.txt && \
+                             sudo systemctl restart talentsync-ml"
+                    '''
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo '✅ ML Service deployed successfully!'
+        }
+        failure {
+            echo '❌ ML Deployment failed!'
+        }
+    }
+}

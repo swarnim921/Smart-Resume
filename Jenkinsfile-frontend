@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+    
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
+        S3_BUCKET = 'talentsync-frontend'
+        AWS_REGION = 'us-east-1'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Deploy to S3') {
+            steps {
+                sh '''
+                    aws s3 sync . s3://${S3_BUCKET} \
+                        --exclude "*" \
+                        --include "*.html" \
+                        --include "*.css" \
+                        --include "*.js" \
+                        --delete \
+                        --region ${AWS_REGION}
+                '''
+            }
+        }
+        
+        stage('Invalidate CloudFront') {
+            when {
+                expression { env.CLOUDFRONT_DIST_ID != null }
+            }
+            steps {
+                sh '''
+                    aws cloudfront create-invalidation \
+                        --distribution-id ${CLOUDFRONT_DIST_ID} \
+                        --paths "/*"
+                '''
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo '✅ Frontend deployed successfully!'
+        }
+        failure {
+            echo '❌ Frontend deployment failed!'
+        }
+    }
+}
