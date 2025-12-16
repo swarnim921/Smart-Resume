@@ -252,11 +252,8 @@
             submitBtn.textContent = 'Creating account...';
 
             try {
-                const endpoint = selectedRole === 'candidate'
-                    ? '/api/auth/signup/candidate'
-                    : '/api/auth/signup/recruiter';
-
-                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                // Use the single signup endpoint and set role in the request body
+                const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -264,32 +261,30 @@
                     body: JSON.stringify({
                         name: name,
                         email: email,
-                        password: password
+                        password: password,
+                        role: selectedRole === 'candidate' ? 'ROLE_USER' : 'ROLE_RECRUITER'
                     })
                 });
 
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.message || 'Signup failed');
-                }
-
                 const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Signup failed');
+                }
 
                 // Store token and user info
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify({
-                    name: data.name,
-                    email: data.email,
-                    role: data.role
+                    name: name,
+                    email: email,
+                    role: selectedRole
                 }));
 
-                alert(`Welcome to TalentSync, ${data.name}!`);
-
-                // Redirect based on role
-                if (data.role === 'recruiter') {
-                    window.location.href = '/recruiter-dashboard.html';
-                } else {
+                // Redirect to appropriate dashboard
+                if (selectedRole === 'candidate') {
                     window.location.href = '/candidate-dashboard.html';
+                } else {
+                    window.location.href = '/recruiter-dashboard.html';
                 }
 
             } catch (error) {
