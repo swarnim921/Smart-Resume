@@ -66,7 +66,7 @@ public class OAuth2Controller {
             }
 
             // Generate JWT token
-            String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+            String token = jwtUtil.generateToken(user.getEmail());
 
             // Determine user type for frontend
             String role = "candidate";
