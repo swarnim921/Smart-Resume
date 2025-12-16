@@ -43,12 +43,12 @@ pipeline {
         
         stage('Deploy to EC2') {
             steps {
-                sshagent(['ec2-ssh-key']) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
                     sh '''
-                        scp -o StrictHostKeyChecking=no \
+                        scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no \
                             target/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/talentsync-backend/
                         
-                        ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} \
+                        ssh -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} \
                             "sudo systemctl restart talentsync-backend"
                     '''
                 }
