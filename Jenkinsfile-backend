@@ -7,7 +7,7 @@ pipeline {
     }
     
     environment {
-        EC2_HOST = credentials('ec2-host')
+        EC2_HOST = credentials('talentsync-ec2-host')
         MONGODB_URI = credentials('mongodb-uri')
         JWT_SECRET = credentials('jwt-secret')
         GOOGLE_CLIENT_ID = credentials('google-client-id')
@@ -38,9 +38,9 @@ pipeline {
                 sshagent(['ec2-ssh-key']) {
                     sh '''
                         scp -o StrictHostKeyChecking=no \
-                            target/*.jar ubuntu@${EC2_HOST}:/home/ubuntu/backend/
+                            target/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/talentsync-backend/
                         
-                        ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOST} \
+                        ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} \
                             "sudo systemctl restart talentsync-backend"
                     '''
                 }
