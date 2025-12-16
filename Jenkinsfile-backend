@@ -23,18 +23,21 @@ pipeline {
         
         stage('Build') {
             steps {
-                script {
-                    def javaHome = tool 'JDK-21'
-                    env.JAVA_HOME = javaHome
-                    env.PATH = "${javaHome}/bin:${env.PATH}"
-                }
-                sh 'mvn clean package -DskipTests'
+                sh '''
+                    export JAVA_HOME=/var/lib/jenkins/tools/hudson.model.JDK/JDK-21/jdk-21.0.5+11
+                    export PATH=$JAVA_HOME/bin:$PATH
+                    mvn clean package -DskipTests
+                '''
             }
         }
         
         stage('Test') {
             steps {
-                sh 'mvn test'
+                sh '''
+                    export JAVA_HOME=/var/lib/jenkins/tools/hudson.model.JDK/JDK-21/jdk-21.0.5+11
+                    export PATH=$JAVA_HOME/bin:$PATH
+                    mvn test
+                '''
             }
         }
         
