@@ -7,6 +7,8 @@ pipeline {
     }
     
     environment {
+        JAVA_HOME = tool 'JDK-21'
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"
         EC2_HOST = credentials('talentsync-ec2-host')
         MONGODB_URI = credentials('mongodb-uri')
         JWT_SECRET = credentials('jwt-secret')
