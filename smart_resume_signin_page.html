@@ -438,35 +438,130 @@
     </div>
 
     <script>
-        // Form submission handler
-        document.getElementById('signInForm').addEventListener('submit', function(e) {
+        // Configuration
+        const API_BASE_URL = 'http://localhost:8080';
+        
+        // Add role selection UI
+        const formElement = document.getElementById('signInForm');
+        const roleSelectionHTML = `
+            <div class="form-group">
+                <label>Sign in as</label>
+                <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                    <button type="button" class="btn-social" id="candidateRole" style="flex: 1; background: var(--button-bg); color: white;">
+                        Candidate
+                    </button>
+                    <button type="button" class="btn-social" id="recruiterRole" style="flex: 1;">
+                        Recruiter
+                    </button>
+                </div>
+            </div>
+        `;
+        formElement.insertAdjacentHTML('afterbegin', roleSelectionHTML);
+        
+        // Role selection state
+        let selectedRole = 'candidate';
+        const candidateBtn = document.getElementById('candidateRole');
+        const recruiterBtn = document.getElementById('recruiterRole');
+        
+        candidateBtn.addEventListener('click', function() {
+            selectedRole = 'candidate';
+            candidateBtn.style.background = 'var(--button-bg)';
+            candidateBtn.style.color = 'white';
+            recruiterBtn.style.background = 'var(--input-bg)';
+            recruiterBtn.style.color = 'var(--text-primary)';
+        });
+        
+        recruiterBtn.addEventListener('click', function() {
+            selectedRole = 'recruiter';
+            recruiterBtn.style.background = 'var(--button-bg)';
+            recruiterBtn.style.color = 'white';
+            candidateBtn.style.background = 'var(--input-bg)';
+            candidateBtn.style.color = 'var(--text-primary)';
+        });
+
+        // Form submission handler with real backend integration
+        document.getElementById('signInForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const submitBtn = this.querySelector('.btn-primary');
             
-            // API placeholder - replace with actual API call
-            console.log('Sign in attempt:', { email, password });
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Signing in...';
             
-            // Dummy authentication logic
-            if (email && password) {
-                alert('Sign in functionality would be implemented here.\n\nEmail: ' + email);
-                // window.location.href = '/dashboard'; // Redirect after successful login
+            try {
+                // Call backend signin API
+                const response = await fetch(`${API_BASE_URL}/api/auth/signin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Invalid email or password');
+                }
+                
+                const data = await response.json();
+                
+                // Verify role matches selection
+                if ((selectedRole === 'candidate' && data.role !== 'candidate') ||
+                    (selectedRole === 'recruiter' && data.role !== 'recruiter')) {
+                    throw new Error(`This account is registered as ${data.role}. Please select the correct role.`);
+                }
+                
+                // Store token and user info
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify({
+                    name: data.name,
+                    email: data.email,
+                    role: data.role
+                }));
+                
+                // Show success message
+                alert(`Welcome back, ${data.name}!`);
+                
+                // Redirect based on role
+                if (data.role === 'recruiter') {
+                    window.location.href = '/recruiter-dashboard.html';
+                } else {
+                    window.location.href = '/candidate-dashboard.html';
+                }
+                
+            } catch (error) {
+                console.error('Sign in error:', error);
+                alert('Sign in failed: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign In';
             }
         });
 
-        // Google sign-in handler
+        // Google sign-in handler with real OAuth integration
         document.getElementById('googleBtn').addEventListener('click', function() {
-            console.log('Google sign-in clicked');
-            alert('Google OAuth integration would be implemented here.');
-            // Implement Google OAuth flow
+            console.log('Google sign-in clicked for role:', selectedRole);
+            
+            // Redirect to backend OAuth2 endpoint with role parameter
+            window.location.href = `${API_BASE_URL}/oauth2/authorization/google?userType=${selectedRole}`;
         });
 
-        // GitHub sign-in handler
+        // GitHub sign-in handler (placeholder for future implementation)
         document.getElementById('githubBtn').addEventListener('click', function() {
             console.log('GitHub sign-in clicked');
-            alert('GitHub OAuth integration would be implemented here.');
-            // Implement GitHub OAuth flow
+            alert('GitHub OAuth integration coming soon!\\n\\nCurrently only Google Sign-In is available.');
+        });
+        
+        // Update register link to include role selection
+        const registerLink = document.querySelector('.register-link a');
+        registerLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Redirect to signup page with selected role
+            window.location.href = `/signup.html?role=${selectedRole}`;
         });
 
         // Add smooth input animations
@@ -479,6 +574,42 @@
                 this.parentElement.style.transform = 'translateX(0)';
             });
         });
+        
+        // Check if user is already logged in
+        window.addEventListener('load', function() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (confirm(`You are already signed in as ${user.name}. Go to dashboard?`)) {
+                    if (user.role === 'recruiter') {
+                        window.location.href = '/recruiter-dashboard.html';
+                    } else {
+                        window.location.href = '/candidate-dashboard.html';
+                    }
+                }
+            }
+        });
+        
+        // Handle OAuth callback (if redirected back from Google)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('token')) {
+            const token = urlParams.get('token');
+            const name = urlParams.get('name');
+            const email = urlParams.get('email');
+            const role = urlParams.get('role');
+            
+            // Store credentials
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify({ name, email, role }));
+            
+            // Redirect to dashboard
+            alert(`Welcome, ${name}!`);
+            if (role === 'recruiter') {
+                window.location.href = '/recruiter-dashboard.html';
+            } else {
+                window.location.href = '/candidate-dashboard.html';
+            }
+        }
     </script>
 </body>
 </html>
