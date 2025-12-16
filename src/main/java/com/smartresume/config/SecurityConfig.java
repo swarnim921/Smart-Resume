@@ -44,6 +44,9 @@ public class SecurityConfig {
 
                         // ALL OTHER SECURED ENDPOINTS
                         .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/api/oauth2/google/success", true)
+                        .failureUrl("/api/oauth2/failure"))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
