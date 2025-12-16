@@ -7,8 +7,6 @@ pipeline {
     }
     
     environment {
-        JAVA_HOME = tool 'JDK-21'
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"
         EC2_HOST = credentials('talentsync-ec2-host')
         MONGODB_URI = credentials('mongodb-uri')
         JWT_SECRET = credentials('jwt-secret')
@@ -25,6 +23,11 @@ pipeline {
         
         stage('Build') {
             steps {
+                script {
+                    def javaHome = tool 'JDK-21'
+                    env.JAVA_HOME = javaHome
+                    env.PATH = "${javaHome}/bin:${env.PATH}"
+                }
                 sh 'mvn clean package -DskipTests'
             }
         }
