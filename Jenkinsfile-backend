@@ -9,6 +9,9 @@ pipeline {
     environment {
         EC2_HOST = credentials('ec2-host')
         MONGODB_URI = credentials('mongodb-uri')
+        JWT_SECRET = credentials('jwt-secret')
+        GOOGLE_CLIENT_ID = credentials('google-client-id')
+        GOOGLE_CLIENT_SECRET = credentials('google-client-secret')
     }
     
     stages {
