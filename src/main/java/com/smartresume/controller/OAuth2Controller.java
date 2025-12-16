@@ -26,14 +26,15 @@ public class OAuth2Controller {
      * Google OAuth2 Success Handler
      * Called after successful Google authentication
      */
-    @GetMapping("/google/success")
+    // @GetMapping("/google/success")
     public void googleLoginSuccess(
             @AuthenticationPrincipal OAuth2User principal,
             @RequestParam(required = false) String userType,
             HttpServletResponse response) throws IOException {
 
         if (principal == null) {
-            response.sendRedirect("http://localhost:5500/smart_resume_signin_page.html?error=auth_failed");
+            response.sendRedirect(
+                    "file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/smart_resume_signin_page.html?error=auth_failed");
             return;
         }
 
@@ -76,9 +77,9 @@ public class OAuth2Controller {
                 role = "recruiter";
             }
 
-            // Redirect to frontend with credentials as URL parameters
+            // Redirect to HTTP-served success page with credentials
             String redirectUrl = String.format(
-                    "http://localhost:5500/smart_resume_signin_page.html?token=%s&name=%s&email=%s&role=%s",
+                    "http://localhost:8080/oauth-success.html?token=%s&name=%s&email=%s&role=%s",
                     URLEncoder.encode(token, "UTF-8"),
                     URLEncoder.encode(user.getName(), "UTF-8"),
                     URLEncoder.encode(user.getEmail(), "UTF-8"),
@@ -88,7 +89,8 @@ public class OAuth2Controller {
 
         } catch (Exception e) {
             log.error("Error processing Google OAuth login", e);
-            response.sendRedirect("http://localhost:5500/smart_resume_signin_page.html?error=processing_failed");
+            response.sendRedirect(
+                    "file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/smart_resume_signin_page.html?error=processing_failed");
         }
     }
 
@@ -100,6 +102,7 @@ public class OAuth2Controller {
             @RequestParam(required = false) String error,
             HttpServletResponse response) throws IOException {
         log.warn("OAuth2 login failed: {}", error);
-        response.sendRedirect("http://localhost:5500/smart_resume_signin_page.html?error=oauth_failed");
+        response.sendRedirect(
+                "file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/smart_resume_signin_page.html?error=oauth_failed");
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
         private final JwtFilter jwtFilter;
+        private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,6 +39,9 @@ public class SecurityConfig {
                                                                 "/api/oauth2/**",
                                                                 "/oauth2/**",
                                                                 "/login/oauth2/**",
+                                                                "/*.html",
+                                                                "/*.css",
+                                                                "/*.js",
                                                                 "/api/admin/create-initial", // 🔥 allow first admin
                                                                                              // creation
                                                                 "/error")
@@ -49,6 +53,8 @@ public class SecurityConfig {
                                                 // ALL OTHER SECURED ENDPOINTS
                                                 .anyRequest().authenticated())
                                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .oauth2Login(oauth2 -> oauth2
+                                                .successHandler(oAuth2SuccessHandler))
                                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
