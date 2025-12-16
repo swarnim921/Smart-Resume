@@ -43,7 +43,7 @@ pipeline {
         
         stage('Deploy to EC2') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'upi-ec2-key', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
                     sh '''
                         scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no \
                             target/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/talentsync-backend/
