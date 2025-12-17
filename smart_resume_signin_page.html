@@ -583,6 +583,9 @@
         document.getElementById('googleBtn').addEventListener('click', function () {
             console.log('Google sign-in clicked for role:', selectedRole);
 
+            // Store selected role in cookie to preserve through OAuth flow
+            document.cookie = `oauth_role=${selectedRole}; path=/; max-age=300`; // 5 minutes
+
             // Redirect to backend OAuth2 endpoint with role parameter
             window.location.href = `${API_BASE_URL}/oauth2/authorization/google?userType=${selectedRole}`;
         });

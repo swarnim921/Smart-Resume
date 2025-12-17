@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 import java.io.IOException;
 import java.net.URLEncoder;
 
@@ -36,8 +37,17 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
-        // Get userType from original request (if available)
-        String userType = request.getParameter("userType");
+        // Get userType from cookie (since URL parameters are lost during OAuth
+        // redirect)
+        String userType = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("oauth_role".equals(cookie.getName())) {
+                    userType = cookie.getValue();
+                    break;
+                }
+            }
+        }
 
         // Check if user exists, create if not
         User user = userService.findByEmail(email);
