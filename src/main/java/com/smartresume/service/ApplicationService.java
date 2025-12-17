@@ -2,9 +2,11 @@ package com.smartresume.service;
 
 import com.smartresume.model.Application;
 import com.smartresume.model.Job;
+import com.smartresume.model.ResumeMeta;
 import com.smartresume.model.User;
 import com.smartresume.repository.ApplicationRepository;
 import com.smartresume.repository.JobRepository;
+import com.smartresume.repository.ResumeRepository;
 import com.smartresume.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
+    private final ResumeRepository resumeRepository;
 
     public Application applyToJob(String jobId, String candidateEmail) {
         // Check if job exists
@@ -34,16 +37,20 @@ public class ApplicationService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Check if user has uploaded resume
-        if (user.getResumeId() == null || user.getResumeId().isEmpty()) {
+        List<ResumeMeta> resumes = resumeRepository.findByOwnerId(user.getId());
+        if (resumes.isEmpty()) {
             throw new RuntimeException("Please upload your resume first");
         }
+
+        // Get the most recent resume
+        ResumeMeta resume = resumes.get(resumes.size() - 1);
 
         // Create application
         Application application = new Application();
         application.setJobId(jobId);
         application.setCandidateEmail(candidateEmail);
         application.setCandidateName(user.getName());
-        application.setResumeId(user.getResumeId());
+        application.setResumeId(resume.getId());
         application.setStatus("PENDING");
         application.setAppliedAt(LocalDateTime.now());
 
