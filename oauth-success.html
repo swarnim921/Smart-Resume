@@ -28,23 +28,32 @@
                 const role = urlParams.get('role');
 
                 if (token && name && email) {
-                    // Store in localStorage
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('user', JSON.stringify({
-                        name: decodeURIComponent(name),
-                        email: decodeURIComponent(email),
-                        role: role || 'candidate'
-                    }));
+                // Debug logging
+                console.log('OAuth Success - Token:', token ? 'present' : 'missing');
+                console.log('OAuth Success - Name:', name);
+                console.log('OAuth Success - Email:', email);
+                console.log('OAuth Success - Role:', role);
+                console.log('OAuth Success - Role type:', typeof role);
+                
+                // Store in localStorage
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify({
+                    name: decodeURIComponent(name),
+                    email: decodeURIComponent(email),
+                    role: role || 'candidate'
+                }));
 
-                    // Determine dashboard URL
-                    const dashboardFile = role === 'recruiter' ? 'recruiter-dashboard.html' : 'candidate-dashboard.html';
+                // Determine dashboard URL
+                const dashboardFile = role === 'recruiter' ? 'recruiter-dashboard.html' : 'candidate-dashboard.html';
+                console.log('OAuth Success - Redirecting to:', dashboardFile);
 
-                    // IMMEDIATE redirect using replace (doesn't add to history)
-                    window.location.replace(`/${dashboardFile}`);
-                } else {
-                    // Error case - redirect to sign-in
-                    window.location.replace('/smart_resume_signin_page.html');
-                }
+                // IMMEDIATE redirect using replace (doesn't add to history)
+                window.location.replace(`/${dashboardFile}`);
+            } else {
+                console.error('OAuth Success - Missing parameters:', { token: !!token, name, email, role });
+                // Error case - redirect to sign-in
+                window.location.replace('/smart_resume_signin_page.html');
+            }
             } catch (error) {
                 // Fallback on any error
                 console.error('OAuth redirect error:', error);
