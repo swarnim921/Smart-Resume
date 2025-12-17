@@ -439,7 +439,11 @@
                     }
                 });
 
-                if (!response.ok) throw new Error('Failed to load jobs');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error:', response.status, errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to load jobs'}`);
+                }
 
                 const jobs = await response.json();
                 const jobsList = document.getElementById('jobsList');
@@ -465,8 +469,9 @@
                     </div>
                 `).join('');
             } catch (error) {
+                console.error('Load jobs error:', error);
                 document.getElementById('jobsList').innerHTML =
-                    '<p style="text-align:center; color: var(--danger);">Failed to load jobs. Please refresh the page.</p>';
+                    `<p style="text-align:center; color: var(--danger);">Failed to load jobs: ${error.message}<br><small>Check console for details. Make sure you're logged in as a recruiter.</small></p>`;
             }
         }
 
