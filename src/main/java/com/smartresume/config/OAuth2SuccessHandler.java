@@ -56,35 +56,25 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             }
         }
 
-        // Check if user exists, create if not
+        // Check if user exists
         User user = userService.findByEmail(email);
 
         if (user == null) {
+            // Create new user
             user = new User();
             user.setEmail(email);
             user.setName(name);
             user.setPassword(""); // OAuth users don't have passwords
-
-            // Set role based on state parameter
-            if ("recruiter".equalsIgnoreCase(roleFromState)) {
-                user.setRole("ROLE_RECRUITER");
-            } else {
-                user.setRole("ROLE_USER");
-            }
-
-            user = userService.register(user);
-            log.info("Created new OAuth user with role: {}", user.getRole());
-        } else {
-            // Update role if state parameter is provided and different from current role
-            if (roleFromState != null && !roleFromState.isEmpty()) {
-                String newRole = "recruiter".equalsIgnoreCase(roleFromState) ? "ROLE_RECRUITER" : "ROLE_USER";
-                if (!newRole.equals(user.getRole())) {
-                    user.setRole(newRole);
-                    user = userService.register(user); // Save updated role
-                    log.info("Updated existing user role to: {}", user.getRole());
-                }
-            }
         }
+
+        // ALWAYS update role from state parameter (force-update for OAuth)
+        // This allows users to switch between candidate and recruiter roles
+        String roleToSet = "recruiter".equalsIgnoreCase(roleFromState) ? "ROLE_RECRUITER" : "ROLE_USER";
+        user.setRole(roleToSet);
+
+        // Save user (create or update)
+        user = userService.register(user);
+        log.info("OAuth user saved with role: {} (email: {})", user.getRole(), email);
 
         // Generate JWT token
         String token = jwtUtil.generateToken(user.getEmail());
