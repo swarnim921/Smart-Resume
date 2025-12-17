@@ -579,15 +579,15 @@
             passwordField.type = this.checked ? 'text' : 'password';
         });
 
-        // Google sign-in handler with real OAuth integration
+        // Google sign-in handler with OAuth state parameter (industry standard)
         document.getElementById('googleBtn').addEventListener('click', function () {
             console.log('Google sign-in clicked for role:', selectedRole);
 
-            // Store selected role in cookie to preserve through OAuth flow
-            document.cookie = `oauth_role=${selectedRole}; path=/; max-age=300`; // 5 minutes
+            // Encode role in OAuth state parameter (secure, reliable method)
+            const state = btoa(JSON.stringify({ role: selectedRole }));
 
-            // Redirect to backend OAuth2 endpoint with role parameter
-            window.location.href = `${API_BASE_URL}/oauth2/authorization/google?userType=${selectedRole}`;
+            // Redirect to backend OAuth2 endpoint with state parameter
+            window.location.href = `${API_BASE_URL}/oauth2/authorization/google?state=${state}`;
         });
 
         // Update register link to include role selection

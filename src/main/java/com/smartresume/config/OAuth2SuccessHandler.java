@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Cookie;
 import java.io.IOException;
 import java.net.URLEncoder;
 
@@ -37,15 +36,23 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
-        // Get userType from cookie (since URL parameters are lost during OAuth
-        // redirect)
-        String userType = null;
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("oauth_role".equals(cookie.getName())) {
-                    userType = cookie.getValue();
-                    break;
+        // Get role from OAuth state parameter (industry standard approach)
+        String roleFromState = null;
+        String state = request.getParameter("state");
+
+        if (state != null && !state.isEmpty()) {
+            try {
+                // Decode Base64 state parameter
+                String decoded = new String(java.util.Base64.getDecoder().decode(state));
+                // Parse JSON to extract role
+                if (decoded.contains("\"role\"")) {
+                    // Simple JSON parsing (for production, use Jackson or Gson)
+                    roleFromState = decoded.substring(decoded.indexOf("\"role\":\"") + 8);
+                    roleFromState = roleFromState.substring(0, roleFromState.indexOf("\""));
                 }
+                log.info("OAuth state decoded - role: {}", roleFromState);
+            } catch (Exception e) {
+                log.error("Failed to decode OAuth state parameter", e);
             }
         }
 
@@ -58,21 +65,23 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             user.setName(name);
             user.setPassword(""); // OAuth users don't have passwords
 
-            // Set role based on userType
-            if ("recruiter".equalsIgnoreCase(userType)) {
+            // Set role based on state parameter
+            if ("recruiter".equalsIgnoreCase(roleFromState)) {
                 user.setRole("ROLE_RECRUITER");
             } else {
                 user.setRole("ROLE_USER");
             }
 
             user = userService.register(user);
+            log.info("Created new OAuth user with role: {}", user.getRole());
         } else {
-            // Update role if userType is provided and different from current role
-            if (userType != null && !userType.isEmpty()) {
-                String newRole = "recruiter".equalsIgnoreCase(userType) ? "ROLE_RECRUITER" : "ROLE_USER";
+            // Update role if state parameter is provided and different from current role
+            if (roleFromState != null && !roleFromState.isEmpty()) {
+                String newRole = "recruiter".equalsIgnoreCase(roleFromState) ? "ROLE_RECRUITER" : "ROLE_USER";
                 if (!newRole.equals(user.getRole())) {
                     user.setRole(newRole);
                     user = userService.register(user); // Save updated role
+                    log.info("Updated existing user role to: {}", user.getRole());
                 }
             }
         }
