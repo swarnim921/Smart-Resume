@@ -20,40 +20,49 @@
         // Immediate execution - no delays
         (function () {
             try {
-                // Get URL parameters
+                // Get token from URL
                 const urlParams = new URLSearchParams(window.location.search);
                 const token = urlParams.get('token');
                 const name = urlParams.get('name');
                 const email = urlParams.get('email');
-                const role = urlParams.get('role');
 
-                if (token && name && email) {
-                // Debug logging
-                console.log('OAuth Success - Token:', token ? 'present' : 'missing');
-                console.log('OAuth Success - Name:', name);
-                console.log('OAuth Success - Email:', email);
-                console.log('OAuth Success - Role:', role);
-                console.log('OAuth Success - Role type:', typeof role);
-                
+                if (!token) {
+                    console.error('OAuth Success - No token provided');
+                    window.location.replace('/smart_resume_signin_page.html');
+                    return;
+                }
+
+                // 🔥 CRITICAL: Decode role from JWT (NOT from URL parameter)
+                // JWT is the ONLY source of truth
+                let role = 'candidate'; // default fallback
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    console.log('OAuth Success - JWT Payload:', payload);
+
+                    // Extract role from JWT
+                    if (payload.role) {
+                        role = payload.role.toLowerCase().replace('role_', '');
+                    }
+
+                    console.log('OAuth Success - Role from JWT:', role);
+                } catch (e) {
+                    console.error('OAuth Success - Failed to decode JWT:', e);
+                }
+
                 // Store in localStorage
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify({
-                    name: decodeURIComponent(name),
-                    email: decodeURIComponent(email),
-                    role: role || 'candidate'
+                    name: name ? decodeURIComponent(name) : 'User',
+                    email: email ? decodeURIComponent(email) : '',
+                    role: role
                 }));
 
-                // Determine dashboard URL
+                // Determine dashboard URL based on JWT role
                 const dashboardFile = role === 'recruiter' ? 'recruiter-dashboard.html' : 'candidate-dashboard.html';
                 console.log('OAuth Success - Redirecting to:', dashboardFile);
 
                 // IMMEDIATE redirect using replace (doesn't add to history)
                 window.location.replace(`/${dashboardFile}`);
-            } else {
-                console.error('OAuth Success - Missing parameters:', { token: !!token, name, email, role });
-                // Error case - redirect to sign-in
-                window.location.replace('/smart_resume_signin_page.html');
-            }
             } catch (error) {
                 // Fallback on any error
                 console.error('OAuth redirect error:', error);
