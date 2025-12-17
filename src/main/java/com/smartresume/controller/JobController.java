@@ -63,7 +63,13 @@ public class JobController {
     @GetMapping("/my-jobs")
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<List<Job>> getMyJobs(Authentication auth) {
-        String recruiterEmail = auth.getName();
-        return ResponseEntity.ok(jobService.getJobsByRecruiter(recruiterEmail));
+        try {
+            String recruiterEmail = auth.getName();
+            List<Job> jobs = jobService.getJobsByRecruiter(recruiterEmail);
+            return ResponseEntity.ok(jobs != null ? jobs : List.of());
+        } catch (Exception e) {
+            // Return empty list instead of error if something goes wrong
+            return ResponseEntity.ok(List.of());
+        }
     }
 }
