@@ -80,6 +80,16 @@
             color: var(--text-primary);
         }
 
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
         .container {
             max-width: 1200px;
             margin: 2rem auto;
@@ -145,7 +155,8 @@
         }
 
         .form-group input,
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid var(--border);
@@ -197,6 +208,16 @@
             color: var(--success);
         }
 
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -218,10 +239,39 @@
             background: white;
             padding: 2rem;
             border-radius: 12px;
-            max-width: 600px;
+            max-width: 800px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .application-card {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
         }
 
         .loading {
@@ -311,8 +361,21 @@
         </div>
     </div>
 
+    <!-- Applications Modal -->
+    <div id="applicationsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalJobTitle">Applications</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="applicationsList">
+                <div class="loading">Loading applications...</div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const API_BASE_URL = 'http://localhost:8080';
+        const API_BASE_URL = 'https://api.talentsynctech.in';
         let token = localStorage.getItem('token');
         let user = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -370,7 +433,7 @@
 
         async function loadJobs() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/jobs`, {
+                const response = await fetch(`${API_BASE_URL}/api/jobs/my-jobs`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -384,7 +447,7 @@
                 document.getElementById('totalJobs').textContent = jobs.length;
 
                 if (jobs.length === 0) {
-                    jobsList.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No jobs posted yet</p>';
+                    jobsList.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No jobs posted yet. Click "+ New Job" to create your first job posting!</p>';
                     return;
                 }
 
@@ -398,16 +461,20 @@
                             <span class="badge badge-success">${job.salary}</span>
                         </div>
                         <p style="color: var(--text-secondary); margin-bottom: 1rem;">${job.description}</p>
-                        <button class="btn btn-outline" onclick="viewApplications('${job.id}')">View Applications</button>
+                        <button class="btn btn-outline" onclick="viewApplications('${job.id}', '${job.title}')">View Applications</button>
                     </div>
                 `).join('');
             } catch (error) {
                 document.getElementById('jobsList').innerHTML =
-                    '<p style="text-align:center; color: var(--danger);">Failed to load jobs</p>';
+                    '<p style="text-align:center; color: var(--danger);">Failed to load jobs. Please refresh the page.</p>';
             }
         }
 
-        async function viewApplications(jobId) {
+        async function viewApplications(jobId, jobTitle) {
+            document.getElementById('modalJobTitle').textContent = `Applications for: ${jobTitle}`;
+            document.getElementById('applicationsModal').classList.add('active');
+            document.getElementById('applicationsList').innerHTML = '<div class="loading">Loading applications...</div>';
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/applications/job/${jobId}`, {
                     headers: {
@@ -418,11 +485,101 @@
                 if (!response.ok) throw new Error('Failed to load applications');
 
                 const applications = await response.json();
-                alert(`This job has ${applications.length} application(s)`);
+                const applicationsList = document.getElementById('applicationsList');
+
+                // Update stats
+                document.getElementById('totalApplications').textContent = applications.length;
+                const pending = applications.filter(app => app.status === 'PENDING').length;
+                document.getElementById('pendingApplications').textContent = pending;
+
+                if (applications.length === 0) {
+                    applicationsList.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No applications yet for this job.</p>';
+                    return;
+                }
+
+                applicationsList.innerHTML = applications.map(app => `
+                    <div class="application-card">
+                        <div class="application-header">
+                            <div>
+                                <strong>${app.candidateName}</strong>
+                                <div style="color: var(--text-secondary); font-size: 14px;">${app.candidateEmail}</div>
+                            </div>
+                            <span class="badge badge-${getStatusColor(app.status)}">${app.status}</span>
+                        </div>
+                        <div style="margin: 1rem 0; font-size: 14px; color: var(--text-secondary);">
+                            Applied: ${new Date(app.appliedAt).toLocaleDateString()}
+                        </div>
+                        ${app.reviewNotes ? `<div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--bg); border-radius: 4px; font-size: 14px;">Notes: ${app.reviewNotes}</div>` : ''}
+                        <div style="display: flex; gap: 0.5rem;">
+                            <select id="status-${app.id}" class="form-group" style="flex: 1; padding: 0.5rem;">
+                                <option value="PENDING" ${app.status === 'PENDING' ? 'selected' : ''}>Pending</option>
+                                <option value="REVIEWING" ${app.status === 'REVIEWING' ? 'selected' : ''}>Under Review</option>
+                                <option value="SHORTLISTED" ${app.status === 'SHORTLISTED' ? 'selected' : ''}>Shortlisted</option>
+                                <option value="REJECTED" ${app.status === 'REJECTED' ? 'selected' : ''}>Rejected</option>
+                                <option value="ACCEPTED" ${app.status === 'ACCEPTED' ? 'selected' : ''}>Accepted</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="updateApplicationStatus('${app.id}')">Update</button>
+                        </div>
+                    </div>
+                `).join('');
             } catch (error) {
-                alert('Failed to load applications: ' + error.message);
+                document.getElementById('applicationsList').innerHTML =
+                    '<p style="text-align:center; color: var(--danger);">Failed to load applications</p>';
             }
         }
+
+        async function updateApplicationStatus(applicationId) {
+            const statusSelect = document.getElementById(`status-${applicationId}`);
+            const newStatus = statusSelect.value;
+            const notes = prompt('Add review notes (optional):') || '';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/applications/${applicationId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        notes: notes
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to update status');
+
+                alert('Application status updated successfully!');
+                // Reload the applications to show updated status
+                const jobId = new URLSearchParams(window.location.search).get('jobId');
+                if (jobId) {
+                    viewApplications(jobId, '');
+                }
+            } catch (error) {
+                alert('Failed to update status: ' + error.message);
+            }
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'PENDING': 'warning',
+                'REVIEWING': 'primary',
+                'SHORTLISTED': 'success',
+                'REJECTED': 'danger',
+                'ACCEPTED': 'success'
+            };
+            return colors[status] || 'primary';
+        }
+
+        function closeModal() {
+            document.getElementById('applicationsModal').classList.remove('active');
+        }
+
+        // Close modal on outside click
+        document.getElementById('applicationsModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
 
         loadJobs();
     </script>
