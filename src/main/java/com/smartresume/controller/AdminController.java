@@ -30,7 +30,7 @@ public class AdminController {
             return ResponseEntity.badRequest().body(java.util.Map.of("error", "Email and role are required"));
         }
 
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             return ResponseEntity.badRequest().body(java.util.Map.of("error", "User not found"));
         }
