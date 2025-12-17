@@ -56,6 +56,15 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             }
 
             user = userService.register(user);
+        } else {
+            // Update role if userType is provided and different from current role
+            if (userType != null && !userType.isEmpty()) {
+                String newRole = "recruiter".equalsIgnoreCase(userType) ? "ROLE_RECRUITER" : "ROLE_USER";
+                if (!newRole.equals(user.getRole())) {
+                    user.setRole(newRole);
+                    user = userService.register(user); // Save updated role
+                }
+            }
         }
 
         // Generate JWT token
