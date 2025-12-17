@@ -25,13 +25,16 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+            FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getServletPath();
 
-        // Allow auth and actuator endpoints without token
-        if (path.startsWith("/api/auth") || path.startsWith("/actuator")) {
+        // Allow auth, OAuth2, login, and actuator endpoints without token
+        if (path.startsWith("/api/auth") ||
+                path.startsWith("/actuator") ||
+                path.startsWith("/oauth2") ||
+                path.startsWith("/login/oauth2") ||
+                path.equals("/error")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -46,12 +49,10 @@ public class JwtFilter extends OncePerRequestFilter {
         if (token != null && jwtUtil.validate(token)) {
             String subject = jwtUtil.getSubject(token);
 
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(
-                            subject,
-                            null,
-                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
-                    );
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                    subject,
+                    null,
+                    List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(auth);
