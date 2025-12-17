@@ -4,144 +4,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OAuth Success - Redirecting...</title>
+    <title>Redirecting...</title>
     <style>
+        /* Minimal invisible page - user won't see this */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            max-width: 500px;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        h2 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        p {
-            color: #666;
-            margin: 10px 0;
-        }
-
-        .success-icon {
-            font-size: 60px;
-            color: #4CAF50;
-            margin-bottom: 20px;
-        }
-
-        .manual-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        .manual-link:hover {
-            background-color: #5a6fd1;
+            padding: 0;
+            background: #f8fafc;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="success-icon">✓</div>
-        <h2>Google Sign-In Successful!</h2>
-        <p>Redirecting to your dashboard...</p>
-        <div class="spinner"></div>
-        <p id="message">Please wait...</p>
-
-        <div id="manual-redirect" style="display: none;">
-            <p>If you are not redirected automatically, please click below:</p>
-            <a href="#" id="dashboard-link" class="manual-link">Go to Dashboard</a>
-        </div>
-    </div>
-
     <script>
-        // Get URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        const name = urlParams.get('name');
-        const email = urlParams.get('email');
-        const role = urlParams.get('role');
+        // Immediate execution - no delays
+        (function () {
+            try {
+                // Get token from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const token = urlParams.get('token');
+                const name = urlParams.get('name');
+                const email = urlParams.get('email');
 
-        if (token && name && email) {
-            // Store in localStorage
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify({
-                name: decodeURIComponent(name),
-                email: decodeURIComponent(email),
-                role: role || 'candidate'
-            }));
+                if (!token) {
+                    console.error('OAuth Success - No token provided');
+                    window.location.replace('/smart_resume_signin_page.html');
+                    return;
+                }
 
-            // Determine dashboard URL
-            const dashboardFile = role === 'recruiter' ? 'recruiter-dashboard.html' : 'candidate-dashboard.html';
-            const dashboardPath = `file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/${dashboardFile}`;
+                // 🔥 CRITICAL: Decode role from JWT (NOT from URL parameter)
+                // JWT is the ONLY source of truth
+                let role = 'candidate'; // default fallback
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    console.log('OAuth Success - JWT Payload:', payload);
 
-            // Show success message
-            document.getElementById('message').textContent = `Welcome, ${decodeURIComponent(name)}!`;
+                    // Extract role from JWT
+                    if (payload.role) {
+                        role = payload.role.toLowerCase().replace('role_', '');
+                    }
 
-            // Setup manual link just in case
-            const link = document.getElementById('dashboard-link');
-            link.href = dashboardPath;
+                    console.log('OAuth Success - Role from JWT:', role);
+                } catch (e) {
+                    console.error('OAuth Success - Failed to decode JWT:', e);
+                }
 
-            // Show manual link after 2 seconds if not redirected
-            setTimeout(() => {
-                document.getElementById('manual-redirect').style.display = 'block';
-                document.querySelector('.spinner').style.display = 'none';
-                document.getElementById('message').textContent = 'Automatic redirect might be blocked by your browser.';
-            }, 2500);
+                // Store in localStorage
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify({
+                    name: name ? decodeURIComponent(name) : 'User',
+                    email: email ? decodeURIComponent(email) : '',
+                    role: role
+                }));
 
-            // Attempt automatic redirect
-            setTimeout(() => {
-                window.location.href = dashboardPath;
-            }, 1000);
-        } else {
-            // Error case
-            document.querySelector('.success-icon').textContent = '✗';
-            document.querySelector('.success-icon').style.color = '#f44336';
-            document.querySelector('h2').textContent = 'Authentication Failed';
-            document.getElementById('message').textContent = 'Missing authentication data. Redirecting to sign-in...';
+                // Determine dashboard URL based on JWT role
+                const dashboardFile = role === 'recruiter' ? 'recruiter-dashboard.html' : 'candidate-dashboard.html';
+                console.log('OAuth Success - Redirecting to:', dashboardFile);
 
-            setTimeout(() => {
-                window.location.href = 'file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/smart_resume_signin_page.html';
-            }, 3000);
-        }
+                // IMMEDIATE redirect using replace (doesn't add to history)
+                window.location.replace(`/${dashboardFile}`);
+            } catch (error) {
+                // Fallback on any error
+                console.error('OAuth redirect error:', error);
+                window.location.replace('/smart_resume_signin_page.html');
+            }
+        })();
     </script>
 </body>
 
