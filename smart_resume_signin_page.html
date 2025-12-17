@@ -469,7 +469,7 @@
 
     <script>
         // Configuration
-        const API_BASE_URL = 'http://localhost:8080';
+        const API_BASE_URL = 'https://api.talentsynctech.in';
 
         // Add role selection UI
         const formElement = document.getElementById('signInForm');
@@ -559,9 +559,9 @@
 
                 // Redirect based on role
                 if (data.role === 'recruiter') {
-                    window.location.href = 'file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/recruiter-dashboard.html';
+                    window.location.href = '/recruiter-dashboard.html';
                 } else {
-                    window.location.href = 'file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/candidate-dashboard.html';
+                    window.location.href = '/candidate-dashboard.html';
                 }
 
             } catch (error) {
@@ -612,9 +612,9 @@
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 if (confirm(`You are already signed in as ${user.name}. Go to dashboard?`)) {
                     if (user.role === 'recruiter') {
-                        window.location.href = 'file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/recruiter-dashboard.html';
+                        window.location.href = '/recruiter-dashboard.html';
                     } else {
-                        window.location.href = 'file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/candidate-dashboard.html';
+                        window.location.href = '/candidate-dashboard.html';
                     }
                 }
             }
@@ -635,13 +635,14 @@
             // Redirect to dashboard
             alert(`Welcome, ${name}!`);
             if (role === 'recruiter') {
-                window.location.href = 'file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/recruiter-dashboard.html';
+                window.location.href = '/recruiter-dashboard.html';
             } else {
-                window.location.href = 'file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/candidate-dashboard.html';
+                window.location.href = '/candidate-dashboard.html';
             }
         }
     </script>
 </body>
 
-</html>< ! - -   T e s t   - - >  
+</html>< ! - -   T e s t   - - > 
+ 
  
