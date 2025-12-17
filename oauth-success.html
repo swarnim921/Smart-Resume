@@ -127,10 +127,10 @@
                 document.getElementById('message').textContent = 'Automatic redirect might be blocked by your browser.';
             }, 2500);
 
-            // Attempt automatic redirect (reduced to 300ms for faster UX)
+            // Attempt automatic redirect (50ms for near-instant UX)
             setTimeout(() => {
                 window.location.href = dashboardPath;
-            }, 300);
+            }, 50);
         } else {
             // Error case
             document.querySelector('.success-icon').textContent = '✗';
