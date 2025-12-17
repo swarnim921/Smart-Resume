@@ -64,9 +64,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // Determine role for frontend
         String role = user.getRole().equals("ROLE_RECRUITER") ? "recruiter" : "candidate";
 
-        // Redirect to HTTP success page with token
+        // Redirect to HTTPS success page with token
         String redirectUrl = String.format(
-                "http://localhost:8080/oauth-success.html?token=%s&name=%s&email=%s&role=%s",
+                "https://www.talentsynctech.in/oauth-success.html?token=%s&name=%s&email=%s&role=%s",
                 URLEncoder.encode(token, "UTF-8"),
                 URLEncoder.encode(user.getName(), "UTF-8"),
                 URLEncoder.encode(user.getEmail(), "UTF-8"),
