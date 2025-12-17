@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Resume Matcher Portal - Sign In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ===== GLOBAL RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ===== ROOT VARIABLES ===== */
+        :root {
+            --bg-gradient-start: #1e3a8a;
+            --bg-gradient-end: #1e40af;
+            --card-bg: rgba(255, 255, 255, 0.15);
+            --card-border: rgba(255, 255, 255, 0.3);
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --input-bg: rgba(255, 255, 255, 0.25);
+            --input-border: rgba(255, 255, 255, 0.4);
+            --button-bg: #2563eb;
+            --button-hover: #1d4ed8;
+            --link-color: #1e40af;
+            --blob-1: rgba(37, 99, 235, 0.4);
+            --blob-2: rgba(29, 78, 216, 0.4);
+            --blob-3: rgba(30, 64, 175, 0.4);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== DARK MODE VARIABLES ===== */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-gradient-start: #0f172a;
+                --bg-gradient-end: #1e293b;
+                --card-bg: rgba(255, 255, 255, 0.08);
+                --card-border: rgba(255, 255, 255, 0.18);
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --input-bg: rgba(255, 255, 255, 0.1);
+                --input-border: rgba(255, 255, 255, 0.2);
+                --button-bg: #3b82f6;
+                --button-hover: #2563eb;
+                --link-color: #60a5fa;
+                --blob-1: rgba(59, 130, 246, 0.3);
+                --blob-2: rgba(37, 99, 235, 0.3);
+                --blob-3: rgba(29, 78, 216, 0.3);
+                --shadow-color: rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        /* ===== BODY & BACKGROUND ===== */
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ===== FLOATING BLOBS ===== */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        .blob-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--blob-1);
+            top: 10%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--blob-2);
+            bottom: 15%;
+            right: 10%;
+            animation-delay: 7s;
+        }
+
+        .blob-3 {
+            width: 350px;
+            height: 350px;
+            background: var(--blob-3);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 14s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== GLASS CARD ===== */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: 0 8px 32px var(--shadow-color),
+                0 0 1px rgba(255, 255, 255, 0.1) inset,
+                0 0 60px rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 48px var(--shadow-color),
+                0 0 1px rgba(255, 255, 255, 0.15) inset,
+                0 0 80px rgba(255, 255, 255, 0.08);
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .header h2 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        /* ===== FORM ===== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        input[type="email"]::placeholder,
+        input[type="password"]::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--button-bg);
+            background: var(--input-bg);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* ===== PASSWORD TOGGLE ===== */
+        .password-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .password-toggle input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        /* ===== FORGOT PASSWORD ===== */
+        .forgot-password {
+            text-align: right;
+            margin-top: 12px;
+            margin-bottom: 24px;
+        }
+
+        .forgot-password a {
+            color: var(--link-color);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--button-bg);
+            color: white;
+            box-shadow: 0 4px 14px rgba(74, 144, 226, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--button-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* ===== DIVIDER ===== */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 28px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--input-border);
+        }
+
+        .divider span {
+            padding: 0 16px;
+        }
+
+        /* ===== SOCIAL BUTTONS ===== */
+        .social-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .btn-social {
+            flex: 1;
+            padding: 12px 20px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-social:hover {
+            background: var(--input-border);
+            transform: translateY(-2px);
+            border-color: var(--button-bg);
+        }
+
+        .btn-social svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ===== REGISTER LINK ===== */
+        .register-link {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .register-link a {
+            color: var(--link-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.3s ease;
+        }
+
+        .register-link a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 36px 28px;
+                border-radius: 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header h2 {
+                font-size: 24px;
+            }
+
+            .blob-1,
+            .blob-2,
+            .blob-3 {
+                width: 200px;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Floating Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="glass-card">
+            <!-- Header -->
+            <div class="header">
+                <h1><span>Talent<span style="color:#e94f4f;">S</span>ync</span></h1>
+                <h2>Sign In</h2>
+            </div>
+
+            <!-- Sign In Form -->
+            <form id="signInForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="your.email@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                    <div class="password-toggle">
+                        <input type="checkbox" id="showPassword">
+                        <label for="showPassword" style="margin: 0; cursor: pointer;">Show password</label>
+                    </div>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#forgot">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider">
+                <span>or continue with</span>
+            </div>
+
+            <!-- Social Login Buttons -->
+            <div class="social-buttons">
+                <button class="btn-social" id="googleBtn" style="width: 100%;">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                            fill="#4285F4" />
+                        <path
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            fill="#34A853" />
+                        <path
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                            fill="#FBBC05" />
+                        <path
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                            fill="#EA4335" />
+                    </svg>
+                    Sign in with Google
+                </button>
+            </div>
+
+            <!-- Register Link -->
+            <div class="register-link">
+                Don't have an account? <a href="#register">Register</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'https://api.talentsynctech.in';
+
+        // Add role selection UI
+        const formElement = document.getElementById('signInForm');
+        const roleSelectionHTML = `
+            <div class="form-group">
+                <label>Sign in as</label>
+                <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                    <button type="button" class="btn-social" id="candidateRole" style="flex: 1; background: var(--button-bg); color: white;">
+                        Candidate
+                    </button>
+                    <button type="button" class="btn-social" id="recruiterRole" style="flex: 1;">
+                        Recruiter
+                    </button>
+                </div>
+            </div>
+        `;
+        formElement.insertAdjacentHTML('afterbegin', roleSelectionHTML);
+
+        // Role selection state
+        let selectedRole = 'candidate';
+        const candidateBtn = document.getElementById('candidateRole');
+        const recruiterBtn = document.getElementById('recruiterRole');
+
+        candidateBtn.addEventListener('click', function () {
+            selectedRole = 'candidate';
+            candidateBtn.style.background = 'var(--button-bg)';
+            candidateBtn.style.color = 'white';
+            recruiterBtn.style.background = 'var(--input-bg)';
+            recruiterBtn.style.color = 'var(--text-primary)';
+        });
+
+        recruiterBtn.addEventListener('click', function () {
+            selectedRole = 'recruiter';
+            recruiterBtn.style.background = 'var(--button-bg)';
+            recruiterBtn.style.color = 'white';
+            candidateBtn.style.background = 'var(--input-bg)';
+            candidateBtn.style.color = 'var(--text-primary)';
+        });
+
+        // Form submission handler with real backend integration
+        document.getElementById('signInForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const submitBtn = this.querySelector('.btn-primary');
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Signing in...';
+
+            try {
+                // Call backend signin API
+                const response = await fetch(`${API_BASE_URL}/api/auth/signin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Invalid email or password');
+                }
+
+                const data = await response.json();
+
+                // Verify role matches selection
+                if ((selectedRole === 'candidate' && data.role !== 'candidate') ||
+                    (selectedRole === 'recruiter' && data.role !== 'recruiter')) {
+                    throw new Error(`This account is registered as ${data.role}. Please select the correct role.`);
+                }
+
+                // Store token and user info
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify({
+                    name: data.name,
+                    email: data.email,
+                    role: data.role
+                }));
+
+                // Show success message
+                alert(`Welcome back, ${data.name}!`);
+
+                // Redirect based on role
+                if (data.role === 'recruiter') {
+                    window.location.href = '/recruiter-dashboard.html';
+                } else {
+                    window.location.href = '/candidate-dashboard.html';
+                }
+
+            } catch (error) {
+                console.error('Sign in error:', error);
+                alert('Sign in failed: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign In';
+            }
+        });
+
+        // Show/hide password toggle
+        document.getElementById('showPassword').addEventListener('change', function () {
+            const passwordField = document.getElementById('password');
+            passwordField.type = this.checked ? 'text' : 'password';
+        });
+
+        // Google sign-in handler with real OAuth integration
+        document.getElementById('googleBtn').addEventListener('click', function () {
+            console.log('Google sign-in clicked for role:', selectedRole);
+
+            // Redirect to backend OAuth2 endpoint with role parameter
+            window.location.href = `${API_BASE_URL}/oauth2/authorization/google?userType=${selectedRole}`;
+        });
+
+        // Update register link to include role selection
+        const registerLink = document.querySelector('.register-link a');
+        registerLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            // Redirect to signup page with selected role
+            window.location.href = `/signup.html?role=${selectedRole}`;
+        });
+
+        // Add smooth input animations
+        const inputs = document.querySelectorAll('input[type="email"], input[type="password"]');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function () {
+                this.parentElement.style.transform = 'translateX(2px)';
+            });
+            input.addEventListener('blur', function () {
+                this.parentElement.style.transform = 'translateX(0)';
+            });
+        });
+
+        // Check if user is already logged in
+        window.addEventListener('load', function () {
+            const token = localStorage.getItem('token');
+            if (token) {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (confirm(`You are already signed in as ${user.name}. Go to dashboard?`)) {
+                    if (user.role === 'recruiter') {
+                        window.location.href = '/recruiter-dashboard.html';
+                    } else {
+                        window.location.href = '/candidate-dashboard.html';
+                    }
+                }
+            }
+        });
+
+        // Handle OAuth callback (if redirected back from Google)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('token')) {
+            const token = urlParams.get('token');
+            const name = urlParams.get('name');
+            const email = urlParams.get('email');
+            const role = urlParams.get('role');
+
+            // Store credentials
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify({ name, email, role }));
+
+            // Redirect to dashboard
+            alert(`Welcome, ${name}!`);
+            if (role === 'recruiter') {
+                window.location.href = '/recruiter-dashboard.html';
+            } else {
+                window.location.href = '/candidate-dashboard.html';
+            }
+        }
+    </script>
+</body>
+
+</html>< ! - -   T e s t   - - > 
+ 
+ 
