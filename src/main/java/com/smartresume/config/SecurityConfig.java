@@ -64,8 +64,12 @@ public class SecurityConfig {
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
 
-                // Allow all origins for development (including file:// and localhost)
-                configuration.setAllowedOriginPatterns(java.util.Arrays.asList("*"));
+                // Allow HTTPS origins for production
+                configuration.setAllowedOrigins(java.util.Arrays.asList(
+                                "https://www.talentsynctech.in",
+                                "https://talentsynctech.in",
+                                "http://localhost:3000" // For local development
+                ));
 
                 configuration.setAllowedMethods(java.util.Arrays.asList(
                                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
