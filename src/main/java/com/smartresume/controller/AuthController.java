@@ -65,6 +65,10 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Failed to generate token"));
         }
-        return ResponseEntity.ok(Map.of("token", token));
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "name", user.getName(),
+                "email", user.getEmail(),
+                "role", user.getRole().replace("ROLE_", "").toLowerCase()));
     }
 }
