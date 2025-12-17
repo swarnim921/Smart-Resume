@@ -111,7 +111,7 @@
 
             // Determine dashboard URL
             const dashboardFile = role === 'recruiter' ? 'recruiter-dashboard.html' : 'candidate-dashboard.html';
-            const dashboardPath = `file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/${dashboardFile}`;
+            const dashboardPath = `/${dashboardFile}`;
 
             // Show success message
             document.getElementById('message').textContent = `Welcome, ${decodeURIComponent(name)}!`;
@@ -139,7 +139,7 @@
             document.getElementById('message').textContent = 'Missing authentication data. Redirecting to sign-in...';
 
             setTimeout(() => {
-                window.location.href = 'file:///c:/Users/swarn/OneDrive/Desktop/smart-resume-backend-final/smart_resume_signin_page.html';
+                window.location.href = '/smart_resume_signin_page.html';
             }, 3000);
         }
     </script>
