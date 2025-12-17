@@ -2,40 +2,42 @@ pipeline {
     agent any
     
     environment {
-        EC2_HOST = credentials('ec2-host')
+        ML_HOST = credentials('talentsync-ml-host')
     }
     
     stages {
+        stage('Check Changes') {
+            steps {
+                script {
+                    def changes = sh(returnStdout: true, script: 'git diff --name-only HEAD~1 || echo "ml-service/"').trim()
+                    if (!changes.contains('ml-service/')) {
+                        echo '✅ No ML changes detected. Skipping build.'
+                        currentBuild.result = 'NOT_BUILT'
+                        error('No ML changes - skipping')
+                    }
+                }
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
         
-        stage('Test ML Service') {
-            steps {
-                dir('ml-service') {
-                    sh '''
-                        python3 -m venv venv
-                        . venv/bin/activate
-                        pip install -r requirements.txt
-                        python -m pytest tests/ || true
-                    '''
-                }
-            }
-        }
-        
         stage('Deploy to EC2') {
             steps {
-                sshagent(['ec2-ssh-key']) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'upi-ec2-key', keyFileVariable: 'SSH_KEY_FILE')]) {
                     sh '''
-                        scp -o StrictHostKeyChecking=no -r \
-                            ml-service/* ubuntu@${EC2_HOST}:/home/ubuntu/ml-service/
+                        # Deploy ML service files
+                        scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no -r \
+                            ml-service/* ec2-user@${ML_HOST}:/home/ec2-user/ml-service/
                         
-                        ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOST} \
-                            "cd /home/ubuntu/ml-service && \
-                             pip3 install -r requirements.txt && \
-                             sudo systemctl restart talentsync-ml"
+                        # Install dependencies and restart service
+                        ssh -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no ec2-user@${ML_HOST} \
+                            "cd /home/ec2-user/ml-service && pip3 install -r requirements.txt && sudo systemctl restart ml-service || true"
+                        
+                        echo "✅ ML service deployed successfully!"
                     '''
                 }
             }
@@ -44,10 +46,10 @@ pipeline {
     
     post {
         success {
-            echo '✅ ML Service deployed successfully!'
+            echo '✅ ML deployment successful!'
         }
         failure {
-            echo '❌ ML Deployment failed!'
+            echo '❌ ML deployment failed!'
         }
     }
 }

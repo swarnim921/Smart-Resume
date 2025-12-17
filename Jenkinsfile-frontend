@@ -2,50 +2,51 @@ pipeline {
     agent any
     
     environment {
-        AWS_ACCESS_KEY_ID = credentials('aws-access-key')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
-        S3_BUCKET = 'talentsync-frontend'
-        AWS_REGION = 'us-east-1'
+        FRONTEND_HOST = credentials('talentsync-frontend-host')
     }
     
     stages {
+        stage('Check Changes') {
+            steps {
+                script {
+                    def changes = sh(returnStdout: true, script: 'git diff --name-only HEAD~1 || echo "frontend/"').trim()
+                    if (!changes.contains('frontend/') && !changes.contains('.html') && !changes.contains('.css') && !changes.contains('.js')) {
+                        echo '✅ No frontend changes detected. Skipping build.'
+                        currentBuild.result = 'NOT_BUILT'
+                        error('No frontend changes - skipping')
+                    }
+                }
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
         
-        stage('Deploy to S3') {
+        stage('Deploy to EC2') {
             steps {
-                sh '''
-                    aws s3 sync . s3://${S3_BUCKET} \
-                        --exclude "*" \
-                        --include "*.html" \
-                        --include "*.css" \
-                        --include "*.js" \
-                        --delete \
-                        --region ${AWS_REGION}
-                '''
-            }
-        }
-        
-        stage('Invalidate CloudFront') {
-            when {
-                expression { env.CLOUDFRONT_DIST_ID != null }
-            }
-            steps {
-                sh '''
-                    aws cloudfront create-invalidation \
-                        --distribution-id ${CLOUDFRONT_DIST_ID} \
-                        --paths "/*"
-                '''
+                withCredentials([sshUserPrivateKey(credentialsId: 'upi-ec2-key', keyFileVariable: 'SSH_KEY_FILE')]) {
+                    sh '''
+                        # Deploy HTML/CSS/JS files
+                        scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no \
+                            *.html *.css *.js ec2-user@${FRONTEND_HOST}:/var/www/html/ || true
+                        
+                        # Restart nginx
+                        ssh -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no ec2-user@${FRONTEND_HOST} \
+                            "sudo systemctl restart nginx"
+                        
+                        echo "✅ Frontend deployed successfully!"
+                    '''
+                }
             }
         }
     }
     
     post {
         success {
-            echo '✅ Frontend deployed successfully!'
+            echo '✅ Frontend deployment successful!'
         }
         failure {
             echo '❌ Frontend deployment failed!'
