@@ -6,8 +6,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.util.SerializationUtils;
 
 import java.util.Base64;
+import java.util.Optional;
 
 /**
  * Cookie-based OAuth2 authorization request repository.
@@ -24,7 +26,7 @@ public class CookieOAuth2AuthorizationRequestRepository
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
         return getCookie(request, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME)
-                .map(this::deserialize)
+                .map(cookie -> deserialize(cookie, OAuth2AuthorizationRequest.class))
                 .orElse(null);
     }
 
@@ -37,9 +39,10 @@ public class CookieOAuth2AuthorizationRequestRepository
             return;
         }
 
-        addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, serialize(authorizationRequest),
-                COOKIE_EXPIRE_SECONDS);
-        String redirectUriAfterLogin = request.getParameter("redirect_uri");
+        String value = Base64.getUrlEncoder().encodeToString(SerializationUtils.serialize(authorizationRequest));
+        addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, value, COOKIE_EXPIRE_SECONDS);
+
+        String redirectUriAfterLogin = request.getParameter(REDIRECT_URI_PARAM_COOKIE_NAME);
         if (redirectUriAfterLogin != null && !redirectUriAfterLogin.isBlank()) {
             addCookie(response, REDIRECT_URI_PARAM_COOKIE_NAME, redirectUriAfterLogin, COOKIE_EXPIRE_SECONDS);
         }
@@ -48,50 +51,31 @@ public class CookieOAuth2AuthorizationRequestRepository
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
             HttpServletResponse response) {
-        OAuth2AuthorizationRequest authorizationRequest = loadAuthorizationRequest(request);
-        deleteCookie(request, response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
-        deleteCookie(request, response, REDIRECT_URI_PARAM_COOKIE_NAME);
-        return authorizationRequest;
+        return this.loadAuthorizationRequest(request);
     }
 
-    private String serialize(OAuth2AuthorizationRequest authorizationRequest) {
-        // Simple serialization - in production, use proper JSON serialization
-        String json = String.format("{\"authorizationUri\":\"%s\",\"state\":\"%s\"}",
-                authorizationRequest.getAuthorizationUri(),
-                authorizationRequest.getState());
-        return Base64.getUrlEncoder().encodeToString(json.getBytes());
+    private static <T> T deserialize(String cookie, Class<T> cls) {
+        return cls.cast(SerializationUtils.deserialize(Base64.getUrlDecoder().decode(cookie)));
     }
 
-    private OAuth2AuthorizationRequest deserialize(String value) {
-        try {
-            String json = new String(Base64.getUrlDecoder().decode(value));
-            // This is simplified - in production, properly deserialize the full
-            // OAuth2AuthorizationRequest
-            // For now, we'll return null and rely on state parameter in the callback
-            return null;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private java.util.Optional<String> getCookie(HttpServletRequest request, String name) {
+    private Optional<String> getCookie(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(name)) {
-                    return java.util.Optional.of(cookie.getValue());
+                    return Optional.of(cookie.getValue());
                 }
             }
         }
-        return java.util.Optional.empty();
+        return Optional.empty();
     }
 
     private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setSecure(true); // HTTPS only
         cookie.setMaxAge(maxAge);
+        // cookie.setSecure(true); // Uncomment for production HTTPS
         response.addCookie(cookie);
     }
 
