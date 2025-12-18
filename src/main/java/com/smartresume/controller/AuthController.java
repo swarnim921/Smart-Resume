@@ -44,7 +44,13 @@ public class AuthController {
             user.setRole("ROLE_USER");
         }
 
+        // Log role for debugging
+        System.out.println("Signup: Creating user with email=" + user.getEmail() + " role=" + user.getRole());
+
         User saved = userService.register(user);
+
+        // Verify role was preserved
+        System.out.println("Signup: User saved with role=" + saved.getRole());
 
         // Send Verification Email - CRITICAL: Rollback if this fails
         try {

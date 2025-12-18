@@ -13,9 +13,15 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public User register(User user) {
+        // Log incoming role
+        System.out.println("UserService.register: Received user with role=" + user.getRole());
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (user.getRole() == null)
             user.setRole("ROLE_USER");
+
+        // Log final role before saving
+        System.out.println("UserService.register: Saving user with role=" + user.getRole());
 
         // Generate verification code
         String code = String.valueOf((int) ((Math.random() * 900000) + 100000));
