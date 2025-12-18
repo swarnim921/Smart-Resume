@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TalentSync - Sign Up</title>
+    <title>Smart Resume Matcher Portal - Sign Up</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -34,6 +34,27 @@
             --blob-2: rgba(29, 78, 216, 0.4);
             --blob-3: rgba(30, 64, 175, 0.4);
             --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== DARK MODE VARIABLES ===== */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-gradient-start: #0f172a;
+                --bg-gradient-end: #1e293b;
+                --card-bg: rgba(255, 255, 255, 0.08);
+                --card-border: rgba(255, 255, 255, 0.18);
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --input-bg: rgba(255, 255, 255, 0.1);
+                --input-border: rgba(255, 255, 255, 0.2);
+                --button-bg: #3b82f6;
+                --button-hover: #2563eb;
+                --link-color: #60a5fa;
+                --blob-1: rgba(59, 130, 246, 0.3);
+                --blob-2: rgba(37, 99, 235, 0.3);
+                --blob-3: rgba(29, 78, 216, 0.3);
+                --shadow-color: rgba(0, 0, 0, 0.3);
+            }
         }
 
         /* ===== BODY & BACKGROUND ===== */
@@ -156,14 +177,18 @@
             font-size: 30px;
             font-weight: 600;
             margin-bottom: 8px;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
         }
 
         .header h2 {
             font-size: 26px;
             font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
         }
 
-        /* ===== FORM ELEMENTS ===== */
+        /* ===== FORM ===== */
         .form-group {
             margin-bottom: 20px;
         }
@@ -189,38 +214,37 @@
             color: var(--text-primary);
             outline: none;
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        input[type="text"]::placeholder,
+        input[type="email"]::placeholder,
+        input[type="password"]::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
         }
 
         input[type="text"]:focus,
         input[type="email"]:focus,
         input[type="password"]:focus {
             border-color: var(--button-bg);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        input[type="text"]::placeholder,
-        input[type="email"]::placeholder,
-        input[type="password"]::placeholder {
-            color: rgba(74, 74, 74, 0.6);
+            background: var(--input-bg);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+            transform: translateY(-1px);
         }
 
         /* ===== PASSWORD TOGGLE ===== */
         .password-toggle {
-            margin-top: 8px;
             display: flex;
             align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
         }
 
         .password-toggle input[type="checkbox"] {
-            width: auto;
-            margin-right: 6px;
             cursor: pointer;
-        }
-
-        .password-toggle label {
-            margin: 0;
-            cursor: pointer;
-            font-size: 13px;
         }
 
         /* ===== BUTTONS ===== */
@@ -240,24 +264,27 @@
         .btn-primary {
             background: var(--button-bg);
             color: white;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 14px rgba(74, 144, 226, 0.3);
         }
 
         .btn-primary:hover {
             background: var(--button-hover);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
         }
 
         .btn-primary:active {
             transform: translateY(0);
         }
 
+        /* ===== SOCIAL BUTTONS (used for Roles) ===== */
         .btn-social {
+            flex: 1;
             padding: 12px 20px;
             background: var(--input-bg);
             border: 1px solid var(--input-border);
             border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
             font-size: 14px;
             font-weight: 500;
             color: var(--text-primary);
@@ -267,18 +294,13 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            backdrop-filter: blur(10px);
         }
 
         .btn-social:hover {
             background: var(--input-border);
             transform: translateY(-2px);
-        }
-
-        /* ===== ROLE SELECTOR ===== */
-        .role-selector {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
+            border-color: var(--button-bg);
         }
 
         /* ===== LINKS ===== */
@@ -298,27 +320,55 @@
 
         .signin-link a:hover {
             opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 36px 28px;
+                border-radius: 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header h2 {
+                font-size: 24px;
+            }
+
+            .blob-1,
+            .blob-2,
+            .blob-3 {
+                width: 200px;
+                height: 200px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <!-- Animated Background Blobs -->
+    <!-- Floating Blobs (Exactly matching sign-in page) -->
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
     <div class="blob blob-3"></div>
 
+    <!-- Main Container -->
     <div class="container">
         <div class="glass-card">
+            <!-- Header -->
             <div class="header">
                 <h1><span>Talent<span style="color:#e94f4f;">S</span>ync</span></h1>
                 <h2>Create Account</h2>
             </div>
 
+            <!-- Sign Up Form -->
             <form id="signupForm">
+                <!-- Role Selection -->
                 <div class="form-group">
                     <label>I want to sign up as</label>
-                    <div class="role-selector">
+                    <div style="display: flex; gap: 12px; margin-bottom: 20px;">
                         <button type="button" class="btn-social" id="candidateRole"
                             style="flex: 1; background: var(--button-bg); color: white;">
                             Candidate
@@ -344,11 +394,11 @@
                     <input type="password" id="password" placeholder="Create a strong password" required>
                     <div class="password-toggle">
                         <input type="checkbox" id="showPassword">
-                        <label for="showPassword">Show password</label>
+                        <label for="showPassword" style="margin: 0; cursor: pointer;">Show password</label>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Create Account</button>
+                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Create Account</button>
             </form>
 
             <div class="signin-link">
@@ -440,6 +490,17 @@
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Create Account';
             }
+        });
+
+        // Add smooth input animations (Copied from signin page)
+        const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function () {
+                this.parentElement.style.transform = 'translateX(2px)';
+            });
+            input.addEventListener('blur', function () {
+                this.parentElement.style.transform = 'translateX(0)';
+            });
         });
     </script>
 </body>
