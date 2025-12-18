@@ -59,6 +59,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // Determine role from cookie
         String roleToSet = "recruiter".equalsIgnoreCase(roleFromCookie) ? "ROLE_RECRUITER" : "ROLE_USER";
+        log.info("🔍 Role mapping: cookie='{}' → roleToSet='{}'", roleFromCookie, roleToSet);
 
         // CRITICAL FIX: Use dedicated OAuth method instead of register()
         // OAuth users are pre-verified and must NOT have OTP codes or TTL expiry
