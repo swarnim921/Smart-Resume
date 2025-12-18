@@ -69,9 +69,12 @@ public class ApplicationService {
                     job.getRequirements());
 
             application.setMatchScore(mlResult.getMatchScore());
+            System.out.println("✅ ML match score calculated: " + mlResult.getMatchScore());
         } catch (Exception e) {
             // If ML service or PDF extraction fails, set null score (will show as "-" in
             // UI)
+            System.err.println("❌ ML integration failed: " + e.getClass().getName() + " - " + e.getMessage());
+            e.printStackTrace();
             application.setMatchScore(null);
         }
 
