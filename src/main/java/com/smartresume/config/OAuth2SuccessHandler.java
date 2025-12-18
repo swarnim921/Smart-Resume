@@ -66,22 +66,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // Check if user exists
         User user = userService.findByEmail(email);
 
-        if (user == null) {
-            // Create new user
-            user = new User();
-            user.setEmail(email);
-            user.setName(name);
-            user.setPassword(""); // OAuth users don't have passwords
-        }
-
-        // ALWAYS update role from state parameter (force-update for OAuth)
-        // This allows users to switch between candidate and recruiter roles
+        // Determine role from state parameter
         String roleToSet = "recruiter".equalsIgnoreCase(roleFromState) ? "ROLE_RECRUITER" : "ROLE_USER";
-        user.setRole(roleToSet);
 
-        // Save user (create or update)
-        user = userService.register(user);
-        log.info("OAuth user saved with role: {} (email: {})", user.getRole(), email);
+        // CRITICAL FIX: Use dedicated OAuth method instead of register()
+        // OAuth users are pre-verified and must NOT have OTP codes or TTL expiry
+        user = userService.createOrUpdateOAuthUser(email, name, roleToSet);
+        log.info("✅ OAuth user created/updated with role: {} (email: {})", user.getRole(), email);
 
         // Generate JWT token with role claim included
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
