@@ -40,8 +40,13 @@
                     console.log('OAuth Success - JWT Payload:', payload);
 
                     // Extract role from JWT
+                    // Extract role from JWT
                     if (payload.role) {
-                        role = payload.role.toLowerCase().replace('role_', '');
+                        if (payload.role === 'ROLE_RECRUITER') {
+                            role = 'recruiter';
+                        } else {
+                            role = 'candidate'; // Handle ROLE_USER or any other as candidate
+                        }
                     }
 
                     console.log('OAuth Success - Role from JWT:', role);
