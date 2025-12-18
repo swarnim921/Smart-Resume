@@ -45,17 +45,20 @@ public class UserService {
      */
     public User createOrUpdateOAuthUser(String email, String name, String role) {
         User user = findByEmail(email);
+        boolean isNewUser = (user == null);
 
-        if (user == null) {
+        if (isNewUser) {
             // Create new OAuth user
             user = new User();
             user.setEmail(email);
             user.setPassword(""); // OAuth users don't have passwords
+            user.setRole(role); // Set role ONLY for new users
         }
 
-        // Update user details (allows role switching for existing users)
+        // Update user details (name can change, but preserve existing role)
         user.setName(name);
-        user.setRole(role);
+        // DO NOT overwrite role for existing users - they may have signed up as
+        // recruiter
 
         // CRITICAL: OAuth users are pre-verified
         user.setVerified(true);
