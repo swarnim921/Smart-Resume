@@ -561,13 +561,13 @@
                 localStorage.setItem('user', JSON.stringify({
                     name: data.name,
                     email: registeredEmail,
-                    role: selectedRole
+                    role: data.role  // Use role from backend, not frontend selectedRole
                 }));
 
                 alert('Email verified successfully!');
 
-                // Redirect
-                if (selectedRole === 'candidate') {
+                // Redirect based on backend role
+                if (data.role === 'candidate') {
                     window.location.href = '/candidate-dashboard.html';
                 } else {
                     window.location.href = '/recruiter-dashboard.html';
