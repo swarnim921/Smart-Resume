@@ -294,8 +294,30 @@
         let user = JSON.parse(localStorage.getItem('user') || '{}');
 
         // Check authentication
-        if (!token || user.role !== 'candidate') {
-            alert('Debug: Access Denied.\nToken found: ' + (!!token) + '\nRole found: ' + user.role + '\nExpected: candidate');
+        if (!token) {
+            window.location.href = '/smart_resume_signin_page.html';
+        }
+
+        try {
+            // Decode JWT to verify role
+            const payload = JSON.parse(atob(token.split('.')[1]));
+
+            // Check expiry
+            if (payload.exp && payload.exp * 1000 < Date.now()) {
+                console.log('Token expired');
+                localStorage.clear();
+                window.location.href = '/smart_resume_signin_page.html';
+            }
+
+            // Check Role (Allow ROLE_USER for candidate dashboard)
+            if (payload.role !== 'ROLE_USER') {
+                console.log('Role mismatch: ' + payload.role);
+                // alert('Access Denied: You are not a candidate.'); // Optional
+                localStorage.clear();
+                window.location.href = '/smart_resume_signin_page.html';
+            }
+        } catch (e) {
+            console.error('Invalid token', e);
             localStorage.clear();
             window.location.href = '/smart_resume_signin_page.html';
         }
