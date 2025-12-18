@@ -295,6 +295,7 @@
 
         // Check authentication
         if (!token || user.role !== 'candidate') {
+            localStorage.clear();
             window.location.href = '/smart_resume_signin_page.html';
         }
 
