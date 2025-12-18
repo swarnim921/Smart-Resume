@@ -63,4 +63,16 @@ public class ApplicationController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @GetMapping("/{id}/resume")
+    @PreAuthorize("hasRole('RECRUITER')")
+    public ResponseEntity<?> getApplicationResume(@PathVariable String id, Authentication auth) {
+        try {
+            String recruiterEmail = auth.getName();
+            // Get resume for this application (validates recruiter owns the job)
+            return applicationService.getApplicationResume(id, recruiterEmail);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

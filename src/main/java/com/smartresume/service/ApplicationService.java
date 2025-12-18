@@ -91,4 +91,32 @@ public class ApplicationService {
 
         return applicationRepository.save(application);
     }
+
+    public org.springframework.http.ResponseEntity<?> getApplicationResume(String applicationId,
+            String recruiterEmail) {
+        // Get the application
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        // Verify the job belongs to this recruiter
+        Job job = jobRepository.findById(application.getJobId())
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        if (!job.getPostedBy().equals(recruiterEmail)) {
+            throw new RuntimeException("Not authorized to view this resume");
+        }
+
+        // Get the resume
+        String resumeId = application.getResumeId();
+        if (resumeId == null) {
+            throw new RuntimeException("No resume found for this application");
+        }
+
+        // Redirect to the resume download endpoint
+        String resumeUrl = "/api/resumes/" + resumeId + "/download";
+        return org.springframework.http.ResponseEntity
+                .status(org.springframework.http.HttpStatus.FOUND)
+                .header("Location", resumeUrl)
+                .build();
+    }
 }
