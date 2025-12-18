@@ -12,6 +12,8 @@ pipeline {
         JWT_SECRET = credentials('jwt-secret1')
         GOOGLE_CLIENT_ID = credentials('google-client-id1')
         GOOGLE_CLIENT_SECRET = credentials('google-client-secret1')
+        MAIL_USERNAME = credentials('mail-username')
+        MAIL_PASSWORD = credentials('mail-password')
     }
     
     stages {
@@ -46,10 +48,10 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'upi-ec2-key', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
                     sh '''
                         scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no \
-                            target/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/talentsync-backend/
+                            target/*.jar scripts/update_env.sh ec2-user@${EC2_HOST}:/home/ec2-user/talentsync-backend/
                         
                         ssh -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} \
-                            "sudo systemctl restart talentsync-backend"
+                            "chmod +x /home/ec2-user/talentsync-backend/update_env.sh && /home/ec2-user/talentsync-backend/update_env.sh '${MAIL_USERNAME}' '${MAIL_PASSWORD}'"
                     '''
                 }
             }
