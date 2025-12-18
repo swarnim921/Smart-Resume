@@ -39,9 +39,17 @@ public class SecurityConfig {
                                                                 "/api/oauth2/**",
                                                                 "/oauth2/**",
                                                                 "/login/oauth2/**",
-                                                                "/*.html",
-                                                                "/*.css",
-                                                                "/*.js",
+
+                                                                // ✅ STATIC FILES (CRITICAL FIX - allow all
+                                                                // subdirectories)
+                                                                "/**/*.html",
+                                                                "/**/*.css",
+                                                                "/**/*.js",
+                                                                "/**/*.png",
+                                                                "/**/*.jpg",
+                                                                "/**/*.svg",
+                                                                "/**/*.ico",
+
                                                                 "/api/admin/create-initial", // 🔥 allow first admin
                                                                                              // creation
                                                                 "/error")
