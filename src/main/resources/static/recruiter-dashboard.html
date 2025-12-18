@@ -515,6 +515,9 @@
                             Applied: ${new Date(app.appliedAt).toLocaleDateString()}
                         </div>
                         ${app.reviewNotes ? `<div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--bg); border-radius: 4px; font-size: 14px;">Notes: ${app.reviewNotes}</div>` : ''}
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <button class="btn btn-primary" onclick="viewResume('${app.id}')" style="flex: 1;">📄 View Resume</button>
+                        </div>
                         <div style="display: flex; gap: 0.5rem;">
                             <select id="status-${app.id}" class="form-group" style="flex: 1; padding: 0.5rem;">
                                 <option value="PENDING" ${app.status === 'PENDING' ? 'selected' : ''}>Pending</option>
@@ -573,6 +576,32 @@
                 'ACCEPTED': 'success'
             };
             return colors[status] || 'primary';
+        }
+
+        async function viewResume(applicationId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/applications/${applicationId}/resume`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch resume');
+                }
+
+                // Get the resume as a blob
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+
+                // Open in new tab
+                window.open(url, '_blank');
+
+                // Clean up
+                setTimeout(() => window.URL.revokeObjectURL(url), 100);
+            } catch (error) {
+                alert('Failed to load resume: ' + error.message);
+            }
         }
 
         function closeModal() {
