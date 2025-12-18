@@ -40,20 +40,27 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String roleFromState = null;
         String state = request.getParameter("state");
 
+        log.info("🔍 OAuth state parameter received: {}", state != null ? "YES" : "NULL");
+        log.info("🔍 OAuth state value: {}", state);
+
         if (state != null && !state.isEmpty()) {
             try {
                 // Decode Base64 state parameter
                 String decoded = new String(java.util.Base64.getDecoder().decode(state));
+                log.info("🔍 OAuth state decoded: {}", decoded);
+
                 // Parse JSON to extract role
                 if (decoded.contains("\"role\"")) {
                     // Simple JSON parsing (for production, use Jackson or Gson)
                     roleFromState = decoded.substring(decoded.indexOf("\"role\":\"") + 8);
                     roleFromState = roleFromState.substring(0, roleFromState.indexOf("\""));
                 }
-                log.info("OAuth state decoded - role: {}", roleFromState);
+                log.info("✅ OAuth state decoded - role extracted: {}", roleFromState);
             } catch (Exception e) {
-                log.error("Failed to decode OAuth state parameter", e);
+                log.error("❌ Failed to decode OAuth state parameter", e);
             }
+        } else {
+            log.warn("⚠️ OAuth state parameter is NULL or empty - role will default to ROLE_USER");
         }
 
         // Check if user exists
