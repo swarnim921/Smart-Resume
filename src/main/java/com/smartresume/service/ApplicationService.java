@@ -22,6 +22,7 @@ public class ApplicationService {
     private final UserRepository userRepository;
     private final ResumeRepository resumeRepository;
     private final MLIntegrationService mlIntegrationService;
+    private final ResumeService resumeService;
 
     public Application applyToJob(String jobId, String candidateEmail) {
         // Check if job exists
@@ -57,9 +58,8 @@ public class ApplicationService {
 
         // Calculate ML match score
         try {
-            // TODO: Implement PDF text extraction
-            // For now, use resume filename as placeholder
-            String resumeText = "Resume: " + resume.getFilename();
+            // Extract text from PDF resume
+            String resumeText = resumeService.extractTextFromResume(resume.getId());
             String jobDescription = job.getDescription() + " " + job.getRequirements();
 
             var mlResult = mlIntegrationService.analyzeMatch(
@@ -70,7 +70,8 @@ public class ApplicationService {
 
             application.setMatchScore(mlResult.getMatchScore());
         } catch (Exception e) {
-            // If ML service fails, set null score (will show as "-" in UI)
+            // If ML service or PDF extraction fails, set null score (will show as "-" in
+            // UI)
             application.setMatchScore(null);
         }
 

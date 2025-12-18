@@ -42,11 +42,42 @@ public class ResumeService {
 
     public GridFsResource getFileResourceByGridId(String gridId) {
         GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(new ObjectId(gridId))));
-        if (gridFSFile == null) return null;
+        if (gridFSFile == null)
+            return null;
         return gridFsTemplate.getResource(gridFSFile);
     }
 
     public Optional<ResumeMeta> findById(String id) {
         return resumeRepository.findById(id);
+    }
+
+    /**
+     * Extract text from PDF resume for ML analysis
+     */
+    public String extractTextFromResume(String resumeId) throws IOException {
+        // Get resume metadata
+        Optional<ResumeMeta> resumeMetaOpt = resumeRepository.findById(resumeId);
+        if (resumeMetaOpt.isEmpty()) {
+            throw new RuntimeException("Resume not found");
+        }
+
+        ResumeMeta resumeMeta = resumeMetaOpt.get();
+
+        // Get file from GridFS
+        GridFsResource resource = getFileResourceByGridId(resumeMeta.getGridFsId());
+        if (resource == null) {
+            throw new RuntimeException("Resume file not found in GridFS");
+        }
+
+        // Extract text from PDF
+        try (InputStream inputStream = resource.getInputStream()) {
+            org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.pdmodel.PDDocument.load(inputStream);
+            org.apache.pdfbox.text.PDFTextStripper stripper = new org.apache.pdfbox.text.PDFTextStripper();
+            String text = stripper.getText(document);
+            document.close();
+            return text;
+        } catch (Exception e) {
+            throw new IOException("Failed to extract text from PDF: " + e.getMessage(), e);
+        }
     }
 }
