@@ -76,8 +76,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         user = userService.register(user);
         log.info("OAuth user saved with role: {} (email: {})", user.getRole(), email);
 
-        // Generate JWT token
-        String token = jwtUtil.generateToken(user.getEmail());
+        // Generate JWT token with role claim included
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
 
         // Determine role for frontend
         String role = user.getRole().equals("ROLE_RECRUITER") ? "recruiter" : "candidate";

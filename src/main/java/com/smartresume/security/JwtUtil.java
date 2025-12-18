@@ -28,6 +28,20 @@ public class JwtUtil {
                 .compact();
     }
 
+    /**
+     * Generate JWT token with role claim included.
+     * This is used by OAuth2SuccessHandler to pass role to frontend.
+     */
+    public String generateToken(String subject, String role) {
+        return Jwts.builder()
+                .setSubject(subject)
+                .claim("role", role) // Include role in JWT payload
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     public String getSubject(String token) {
         return Jwts.parserBuilder().setSigningKey(getKey()).build().parseClaimsJws(token).getBody().getSubject();
     }
