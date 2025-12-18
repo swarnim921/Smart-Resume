@@ -18,5 +18,6 @@ public class User {
     private String role; // ROLE_USER or ROLE_RECRUITER
     private boolean isVerified;
     private String verificationCode;
+    @org.springframework.data.mongodb.core.index.Indexed(expireAfterSeconds = 0)
     private java.time.LocalDateTime verificationCodeExpiresAt;
 }
