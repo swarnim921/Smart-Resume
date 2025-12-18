@@ -204,6 +204,11 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" placeholder="Create a strong password" required>
+                    <div class="password-toggle" style="margin-top: 8px;">
+                        <input type="checkbox" id="showPassword" style="width: auto; margin-right: 6px;">
+                        <label for="showPassword" style="margin: 0; cursor: pointer; font-size: 13px;">Show
+                            password</label>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Create Account</button>
@@ -237,6 +242,12 @@
             recruiterBtn.style.color = 'white';
             candidateBtn.style.background = 'var(--input-bg)';
             candidateBtn.style.color = 'var(--text-primary)';
+        });
+
+        // Show/Hide password toggle
+        document.getElementById('showPassword').addEventListener('change', function () {
+            const passwordInput = document.getElementById('password');
+            passwordInput.type = this.checked ? 'text' : 'password';
         });
 
         // Form submission
