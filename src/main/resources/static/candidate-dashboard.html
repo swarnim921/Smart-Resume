@@ -451,6 +451,13 @@
 
                 document.getElementById('totalApplications').textContent = applications.length;
 
+                // Update match score from most recent application
+                if (applications.length > 0 && applications[0].matchScore !== null) {
+                    document.getElementById('matchScore').textContent = applications[0].matchScore.toFixed(1) + '%';
+                } else {
+                    document.getElementById('matchScore').textContent = '-';
+                }
+
                 if (applications.length === 0) {
                     appsList.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No applications yet</p>';
                     return;
@@ -462,6 +469,7 @@
                         <div class="job-meta">
                             <span class="badge badge-${app.status === 'PENDING' ? 'primary' : 'success'}">${app.status}</span>
                             <span class="badge badge-primary">Applied: ${new Date(app.appliedAt).toLocaleDateString()}</span>
+                            ${app.matchScore !== null ? `<span class="badge badge-success">Match: ${app.matchScore.toFixed(1)}%</span>` : ''}
                         </div>
                         <button class="btn btn-outline" style="margin-top: 1rem; background: var(--danger); color: white;" onclick="withdrawApplication('${app.id}')">Withdraw Application</button>
                     </div>
