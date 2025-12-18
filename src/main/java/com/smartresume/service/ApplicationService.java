@@ -140,4 +140,18 @@ public class ApplicationService {
                 .header("Location", resumeUrl)
                 .build();
     }
+
+    public void withdrawApplication(String applicationId, String candidateEmail) {
+        // Get the application
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        // Verify the application belongs to this candidate
+        if (!application.getCandidateEmail().equals(candidateEmail)) {
+            throw new RuntimeException("Not authorized to withdraw this application");
+        }
+
+        // Delete the application
+        applicationRepository.deleteById(applicationId);
+    }
 }

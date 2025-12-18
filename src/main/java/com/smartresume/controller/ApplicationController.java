@@ -75,4 +75,15 @@ public class ApplicationController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> withdrawApplication(@PathVariable String id, Authentication auth) {
+        try {
+            String candidateEmail = auth.getName();
+            applicationService.withdrawApplication(id, candidateEmail);
+            return ResponseEntity.ok(Map.of("message", "Application withdrawn successfully"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
