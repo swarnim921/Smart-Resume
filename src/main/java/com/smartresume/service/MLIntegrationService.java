@@ -26,34 +26,30 @@ public class MLIntegrationService {
             String jobRequirements) {
         log.info("Analyzing resume-job match for job: {}", jobTitle);
 
-        // TODO: Uncomment this when ML service is ready
-        /*
-         * try {
-         * String url = mlServiceUrl + "/api/ml/analyze";
-         * 
-         * Map<String, String> request = new HashMap<>();
-         * request.put("resumeText", resumeText);
-         * request.put("jobDescription", jobDescription);
-         * request.put("jobTitle", jobTitle);
-         * request.put("jobRequirements", jobRequirements);
-         * 
-         * HttpHeaders headers = new HttpHeaders();
-         * headers.setContentType(MediaType.APPLICATION_JSON);
-         * HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
-         * 
-         * ResponseEntity<Map> response = restTemplate.postForEntity(url, entity,
-         * Map.class);
-         * 
-         * if (response.getStatusCode() == HttpStatus.OK) {
-         * Map<String, Object> mlResponse = response.getBody();
-         * return convertToMLResult(mlResponse);
-         * }
-         * } catch (Exception e) {
-         * log.error("Error calling ML service: {}", e.getMessage());
-         * }
-         */
+        try {
+            String url = mlServiceUrl + "/api/ml/analyze";
 
-        // MOCK DATA - Remove when ML service is ready
+            Map<String, String> request = new HashMap<>();
+            request.put("resumeText", resumeText);
+            request.put("jobDescription", jobDescription);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
+
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                Map<String, Object> mlResponse = response.getBody();
+                return convertToMLResult(mlResponse);
+            }
+        } catch (Exception e) {
+            log.error("Error calling ML service: {}", e.getMessage());
+            // Fall back to mock data if ML service fails
+            return createMockResult(resumeText, jobTitle);
+        }
+
+        // Fallback if response wasn't OK
         return createMockResult(resumeText, jobTitle);
     }
 

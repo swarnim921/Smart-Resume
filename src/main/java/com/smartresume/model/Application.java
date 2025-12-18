@@ -19,6 +19,7 @@ public class Application {
     private String candidateName;
     private String resumeId;
     private String status; // PENDING, REVIEWED, ACCEPTED, REJECTED
+    private Double matchScore; // ML-calculated match score (0-100)
     private LocalDateTime appliedAt;
     private LocalDateTime reviewedAt;
     private String reviewNotes;

@@ -21,6 +21,8 @@ public class ApplicationService {
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
     private final ResumeRepository resumeRepository;
+    private final MLIntegrationService mlIntegrationService;
+    private final ResumeService resumeService;
 
     public Application applyToJob(String jobId, String candidateEmail) {
         // Check if job exists
@@ -53,6 +55,23 @@ public class ApplicationService {
         application.setResumeId(resume.getId());
         application.setStatus("PENDING");
         application.setAppliedAt(LocalDateTime.now());
+
+        // Calculate ML match score
+        try {
+            String resumeText = resumeService.extractTextFromResume(resume.getId());
+            String jobDescription = job.getDescription() + " " + job.getRequirements();
+
+            var mlResult = mlIntegrationService.analyzeMatch(
+                    resumeText,
+                    jobDescription,
+                    job.getTitle(),
+                    job.getRequirements());
+
+            application.setMatchScore(mlResult.getMatchScore());
+        } catch (Exception e) {
+            // If ML service fails, set null score (will show as "-" in UI)
+            application.setMatchScore(null);
+        }
 
         return applicationRepository.save(application);
     }
