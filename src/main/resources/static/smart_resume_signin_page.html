@@ -541,25 +541,27 @@
 
                 const data = await response.json();
 
+                // Normalize roles: backend returns 'user' for candidates, frontend uses 'candidate'
+                const backendRole = data.role === 'user' ? 'candidate' : data.role;
+
                 // Verify role matches selection
-                if ((selectedRole === 'candidate' && data.role !== 'candidate') ||
-                    (selectedRole === 'recruiter' && data.role !== 'recruiter')) {
-                    throw new Error(`This account is registered as ${data.role}. Please select the correct role.`);
+                if (selectedRole !== backendRole) {
+                    throw new Error(`This account is registered as ${backendRole}. Please select the correct role.`);
                 }
 
-                // Store token and user info
+                // Store token and user info (use normalized role)
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify({
                     name: data.name,
                     email: data.email,
-                    role: data.role
+                    role: backendRole  // Store as 'candidate' or 'recruiter'
                 }));
 
                 // Show success message
                 alert(`Welcome back, ${data.name}!`);
 
                 // Redirect based on role
-                if (data.role === 'recruiter') {
+                if (backendRole === 'recruiter') {
                     window.location.href = '/recruiter-dashboard.html';
                 } else {
                     window.location.href = '/candidate-dashboard.html';
