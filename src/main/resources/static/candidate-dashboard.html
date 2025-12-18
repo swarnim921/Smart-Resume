@@ -312,11 +312,12 @@
             // Check Role (Allow ROLE_USER for candidate dashboard)
             if (payload.role !== 'ROLE_USER') {
                 console.log('Role mismatch: ' + payload.role);
-                // alert('Access Denied: You are not a candidate.'); // Optional
+                alert('DEBUG ERROR\n\nRole Mismatch!\nFound: ' + payload.role + '\nExpected: ROLE_USER\n\n(Full Payload: ' + JSON.stringify(payload) + ')');
                 localStorage.clear();
                 window.location.href = '/smart_resume_signin_page.html';
             }
         } catch (e) {
+            alert('DEBUG ERROR: Invalid Token\n' + e.message);
             console.error('Invalid token', e);
             localStorage.clear();
             window.location.href = '/smart_resume_signin_page.html';
