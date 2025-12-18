@@ -29,12 +29,18 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        // Allow auth, OAuth2, login, and actuator endpoints without token
+        // Allow auth, OAuth2, login, actuator endpoints, and static files without token
         if (path.startsWith("/api/auth") ||
                 path.startsWith("/actuator") ||
                 path.startsWith("/oauth2") ||
                 path.startsWith("/login/oauth2") ||
-                path.equals("/error")) {
+                path.equals("/error") ||
+                path.endsWith(".html") ||
+                path.endsWith(".css") ||
+                path.endsWith(".js") ||
+                path.startsWith("/css/") ||
+                path.startsWith("/js/") ||
+                path.startsWith("/images/")) {
             filterChain.doFilter(request, response);
             return;
         }
