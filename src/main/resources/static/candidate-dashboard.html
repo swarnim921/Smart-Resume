@@ -463,11 +463,35 @@
                             <span class="badge badge-${app.status === 'PENDING' ? 'primary' : 'success'}">${app.status}</span>
                             <span class="badge badge-primary">Applied: ${new Date(app.appliedAt).toLocaleDateString()}</span>
                         </div>
+                        <button class="btn btn-outline" style="margin-top: 1rem; background: var(--danger); color: white;" onclick="withdrawApplication('${app.id}')">Withdraw Application</button>
                     </div>
                 `).join('');
             } catch (error) {
                 document.getElementById('applicationsList').innerHTML =
                     '<p style="text-align:center; color: var(--danger);">Failed to load applications</p>';
+            }
+        }
+
+        // Withdraw Application
+        async function withdrawApplication(applicationId) {
+            if (!confirm('Are you sure you want to withdraw this application?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/applications/${applicationId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to withdraw application');
+
+                alert('Application withdrawn successfully!');
+                loadApplications();
+            } catch (error) {
+                alert('Failed to withdraw application: ' + error.message);
             }
         }
 
