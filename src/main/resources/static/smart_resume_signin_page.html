@@ -581,18 +581,18 @@
             passwordField.type = this.checked ? 'text' : 'password';
         });
 
-        // Google sign-in handler with OAuth state parameter (industry standard)
+        // Google sign-in handler with role stored in cookie
         document.getElementById('googleBtn').addEventListener('click', function () {
             console.log('Google sign-in clicked for role:', selectedRole);
 
             // Clear old tokens and data before OAuth
             localStorage.clear();
 
-            // Encode role in OAuth state parameter (secure, reliable method)
-            const state = btoa(JSON.stringify({ role: selectedRole }));
+            // Store role in cookie (Spring Security OAuth2 doesn't preserve custom state)
+            document.cookie = `oauth_role=${selectedRole}; path=/; max-age=300; SameSite=Lax`;
 
-            // Redirect to backend OAuth2 endpoint with state parameter
-            window.location.href = `${API_BASE_URL}/oauth2/authorization/google?state=${state}`;
+            // Redirect to backend OAuth2 endpoint
+            window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
         });
 
         // Update register link to include role selection

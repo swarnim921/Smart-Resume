@@ -36,38 +36,29 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
-        // Get role from OAuth state parameter (industry standard approach)
-        String roleFromState = null;
-        String state = request.getParameter("state");
+        // Get role from cookie (Spring Security OAuth2 doesn't preserve custom state)
+        String roleFromCookie = "candidate"; // default
+        jakarta.servlet.http.Cookie[] cookies = request.getCookies();
 
-        log.info("🔍 OAuth state parameter received: {}", state != null ? "YES" : "NULL");
-        log.info("🔍 OAuth state value: {}", state);
+        log.info("🔍 OAuth cookies received: {}", cookies != null ? cookies.length : 0);
 
-        if (state != null && !state.isEmpty()) {
-            try {
-                // Decode Base64 state parameter
-                String decoded = new String(java.util.Base64.getDecoder().decode(state));
-                log.info("🔍 OAuth state decoded: {}", decoded);
-
-                // Parse JSON to extract role
-                if (decoded.contains("\"role\"")) {
-                    // Simple JSON parsing (for production, use Jackson or Gson)
-                    roleFromState = decoded.substring(decoded.indexOf("\"role\":\"") + 8);
-                    roleFromState = roleFromState.substring(0, roleFromState.indexOf("\""));
+        if (cookies != null) {
+            for (jakarta.servlet.http.Cookie cookie : cookies) {
+                if ("oauth_role".equals(cookie.getName())) {
+                    roleFromCookie = cookie.getValue();
+                    log.info("✅ OAuth role from cookie: {}", roleFromCookie);
+                    break;
                 }
-                log.info("✅ OAuth state decoded - role extracted: {}", roleFromState);
-            } catch (Exception e) {
-                log.error("❌ Failed to decode OAuth state parameter", e);
             }
         } else {
-            log.warn("⚠️ OAuth state parameter is NULL or empty - role will default to ROLE_USER");
+            log.warn("⚠️ No cookies found - role will default to candidate");
         }
 
         // Check if user exists
         User user = userService.findByEmail(email);
 
-        // Determine role from state parameter
-        String roleToSet = "recruiter".equalsIgnoreCase(roleFromState) ? "ROLE_RECRUITER" : "ROLE_USER";
+        // Determine role from cookie
+        String roleToSet = "recruiter".equalsIgnoreCase(roleFromCookie) ? "ROLE_RECRUITER" : "ROLE_USER";
 
         // CRITICAL FIX: Use dedicated OAuth method instead of register()
         // OAuth users are pre-verified and must NOT have OTP codes or TTL expiry
