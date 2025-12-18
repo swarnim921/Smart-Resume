@@ -29,9 +29,12 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'upi-ec2-key', keyFileVariable: 'SSH_KEY_FILE')]) {
                     sh '''
-                        # Deploy HTML/CSS/JS files
+                        # Deploy HTML/CSS/JS files from correct location
                         scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no \
-                            *.html *.css *.js ec2-user@${FRONTEND_HOST}:/var/www/html/ || true
+                            src/main/resources/static/*.html \
+                            src/main/resources/static/*.css \
+                            src/main/resources/static/*.js \
+                            ec2-user@${FRONTEND_HOST}:/var/www/html/ 2>/dev/null || true
                         
                         # Restart nginx
                         ssh -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no ec2-user@${FRONTEND_HOST} \
