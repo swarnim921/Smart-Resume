@@ -26,8 +26,17 @@ public class AuthController {
         if (user.getPassword() == null || user.getPassword().isBlank())
             return ResponseEntity.badRequest().body(Map.of("error", "Password is required"));
 
-        if (userService.findByEmail(user.getEmail()) != null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
+        // Check if user already exists
+        User existingUser = userService.findByEmail(user.getEmail());
+        if (existingUser != null) {
+            if (existingUser.isVerified()) {
+                // Verified user exists - block signup
+                return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
+            } else {
+                // Unverified user exists - allow overwrite (user retrying signup)
+                // Delete old unverified record to start fresh
+                userService.deleteUser(existingUser);
+            }
         }
 
         // Set default role if not provided
@@ -37,12 +46,16 @@ public class AuthController {
 
         User saved = userService.register(user);
 
-        // Send Verification Email
+        // Send Verification Email - CRITICAL: Rollback if this fails
         try {
             emailService.sendVerificationEmail(saved.getEmail(), saved.getVerificationCode());
         } catch (Exception e) {
-            // Log error but allow signup to proceed (user can resend later)
-            System.err.println("Failed to send email: " + e.getMessage());
+            // ROLLBACK: Delete the user we just created
+            userService.deleteUser(saved);
+            System.err.println("Failed to send verification email: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of(
+                    "error", "Failed to send verification email. Please try again.",
+                    "details", e.getMessage()));
         }
 
         return ResponseEntity.ok(Map.of(
