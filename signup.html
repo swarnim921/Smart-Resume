@@ -10,13 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <style>
-        /* Reuse same styles from signin page */
+        /* ===== GLOBAL RESET ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* ===== ROOT VARIABLES ===== */
         :root {
             --bg-gradient-start: #1e3a8a;
             --bg-gradient-end: #1e40af;
@@ -29,9 +30,13 @@
             --button-bg: #2563eb;
             --button-hover: #1d4ed8;
             --link-color: #1e40af;
+            --blob-1: rgba(37, 99, 235, 0.4);
+            --blob-2: rgba(29, 78, 216, 0.4);
+            --blob-3: rgba(30, 64, 175, 0.4);
             --shadow-color: rgba(0, 0, 0, 0.1);
         }
 
+        /* ===== BODY & BACKGROUND ===== */
         body {
             font-family: 'Poppins', sans-serif;
             min-height: 100vh;
@@ -40,23 +45,108 @@
             justify-content: center;
             background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
         }
 
+        /* ===== FLOATING BLOBS ===== */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        .blob-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--blob-1);
+            top: 10%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--blob-2);
+            bottom: 15%;
+            right: 10%;
+            animation-delay: 7s;
+        }
+
+        .blob-3 {
+            width: 350px;
+            height: 350px;
+            background: var(--blob-3);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 14s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+
+        /* ===== CONTAINER ===== */
         .container {
+            position: relative;
+            z-index: 10;
             width: 100%;
             max-width: 440px;
             padding: 20px;
+            animation: fadeInUp 0.8s ease-out;
         }
 
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== GLASS CARD ===== */
         .glass-card {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
             border-radius: 24px;
             padding: 48px 40px;
-            box-shadow: 0 8px 32px var(--shadow-color);
+            box-shadow: 0 8px 32px var(--shadow-color),
+                0 0 1px rgba(255, 255, 255, 0.1) inset,
+                0 0 60px rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 48px var(--shadow-color),
+                0 0 1px rgba(255, 255, 255, 0.15) inset,
+                0 0 80px rgba(255, 255, 255, 0.08);
+        }
+
+        /* ===== HEADER ===== */
         .header {
             text-align: center;
             margin-bottom: 36px;
@@ -73,6 +163,7 @@
             font-weight: 700;
         }
 
+        /* ===== FORM ELEMENTS ===== */
         .form-group {
             margin-bottom: 20px;
         }
@@ -85,7 +176,9 @@
             color: var(--text-secondary);
         }
 
-        input {
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
             width: 100%;
             padding: 14px 18px;
             background: var(--input-bg);
@@ -98,11 +191,39 @@
             transition: all 0.3s ease;
         }
 
-        input:focus {
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
             border-color: var(--button-bg);
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
+        input[type="text"]::placeholder,
+        input[type="email"]::placeholder,
+        input[type="password"]::placeholder {
+            color: rgba(74, 74, 74, 0.6);
+        }
+
+        /* ===== PASSWORD TOGGLE ===== */
+        .password-toggle {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-toggle input[type="checkbox"] {
+            width: auto;
+            margin-right: 6px;
+            cursor: pointer;
+        }
+
+        .password-toggle label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* ===== BUTTONS ===== */
         .btn {
             width: 100%;
             padding: 14px 24px;
@@ -119,12 +240,17 @@
         .btn-primary {
             background: var(--button-bg);
             color: white;
-            box-shadow: 0 4px 14px rgba(74, 144, 226, 0.3);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
         }
 
         .btn-primary:hover {
             background: var(--button-hover);
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
         }
 
         .btn-social {
@@ -148,12 +274,14 @@
             transform: translateY(-2px);
         }
 
+        /* ===== ROLE SELECTOR ===== */
         .role-selector {
             display: flex;
             gap: 12px;
             margin-bottom: 24px;
         }
 
+        /* ===== LINKS ===== */
         .signin-link {
             text-align: center;
             font-size: 14px;
@@ -165,11 +293,21 @@
             color: var(--link-color);
             text-decoration: none;
             font-weight: 600;
+            transition: opacity 0.3s ease;
+        }
+
+        .signin-link a:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
 
 <body>
+    <!-- Animated Background Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
     <div class="container">
         <div class="glass-card">
             <div class="header">
@@ -204,10 +342,9 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" placeholder="Create a strong password" required>
-                    <div class="password-toggle" style="margin-top: 8px;">
-                        <input type="checkbox" id="showPassword" style="width: auto; margin-right: 6px;">
-                        <label for="showPassword" style="margin: 0; cursor: pointer; font-size: 13px;">Show
-                            password</label>
+                    <div class="password-toggle">
+                        <input type="checkbox" id="showPassword">
+                        <label for="showPassword">Show password</label>
                     </div>
                 </div>
 
@@ -263,7 +400,6 @@
             submitBtn.textContent = 'Creating account...';
 
             try {
-                // Use the single signup endpoint and set role in the request body
                 const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
                     method: 'POST',
                     headers: {
