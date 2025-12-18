@@ -40,18 +40,19 @@ public class SecurityConfig {
                                                                 "/oauth2/**",
                                                                 "/login/oauth2/**",
 
-                                                                // ✅ STATIC FILES (CRITICAL FIX - allow all
-                                                                // subdirectories)
-                                                                "/**/*.html",
-                                                                "/**/*.css",
-                                                                "/**/*.js",
-                                                                "/**/*.png",
-                                                                "/**/*.jpg",
-                                                                "/**/*.svg",
-                                                                "/**/*.ico",
+                                                                // Static files - using valid patterns
+                                                                "/*.html",
+                                                                "/*.css",
+                                                                "/*.js",
+                                                                "/*.png",
+                                                                "/*.jpg",
+                                                                "/*.svg",
+                                                                "/*.ico",
+                                                                "/css/**",
+                                                                "/js/**",
+                                                                "/images/**",
 
-                                                                "/api/admin/create-initial", // 🔥 allow first admin
-                                                                                             // creation
+                                                                "/api/admin/create-initial",
                                                                 "/error")
                                                 .permitAll()
 
