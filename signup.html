@@ -277,6 +277,17 @@
             transform: translateY(0);
         }
 
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--button-bg);
+            color: var(--text-primary);
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(37, 99, 235, 0.1);
+        }
+
         /* ===== SOCIAL BUTTONS (used for Roles) ===== */
         .btn-social {
             flex: 1;
@@ -323,6 +334,18 @@
             text-decoration: underline;
         }
 
+        /* ===== VERIFICATION SECTION ===== */
+        #verifySection {
+            display: none;
+            text-align: center;
+        }
+
+        .verify-text {
+            margin-bottom: 24px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
             .glass-card {
@@ -360,7 +383,7 @@
             <!-- Header -->
             <div class="header">
                 <h1><span>Talent<span style="color:#e94f4f;">S</span>ync</span></h1>
-                <h2>Create Account</h2>
+                <h2 id="pageTitle">Create Account</h2>
             </div>
 
             <!-- Sign Up Form -->
@@ -401,7 +424,26 @@
                 <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Create Account</button>
             </form>
 
-            <div class="signin-link">
+            <!-- Verification Section -->
+            <div id="verifySection">
+                <div class="verify-text">
+                    We've sent a verification code to <br> <b id="verifyEmailDisplay"></b>.
+                    <br>Please enter it below to verify your email.
+                </div>
+
+                <form id="verifyForm">
+                    <div class="form-group">
+                        <label for="verificationCode">Verification Code</label>
+                        <input type="text" id="verificationCode" placeholder="Enter 6-digit code" required maxlength="6"
+                            style="text-align: center; letter-spacing: 4px; font-weight: 600;">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Verify Email</button>
+                    <button type="button" id="resendBtn" class="btn btn-secondary">Resend Code</button>
+                </form>
+            </div>
+
+            <div class="signin-link" id="signinLinkRef">
                 Already have an account? <a href="smart_resume_signin_page.html">Sign In</a>
             </div>
         </div>
@@ -410,6 +452,7 @@
     <script>
         const API_BASE_URL = 'https://api.talentsynctech.in';
         let selectedRole = 'candidate';
+        let registeredEmail = '';
 
         // Role selection
         const candidateBtn = document.getElementById('candidateRole');
@@ -437,7 +480,7 @@
             passwordInput.type = this.checked ? 'text' : 'password';
         });
 
-        // Form submission
+        // Signup Form submission
         document.getElementById('signupForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -452,9 +495,7 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         name: name,
                         email: email,
@@ -469,20 +510,17 @@
                     throw new Error(data.error || 'Signup failed');
                 }
 
-                // Store token and user info
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify({
-                    name: name,
-                    email: email,
-                    role: selectedRole
-                }));
+                // Success - Switch to Verification Mode
+                registeredEmail = email;
+                document.getElementById('verifyEmailDisplay').textContent = email;
 
-                // Redirect to appropriate dashboard
-                if (selectedRole === 'candidate') {
-                    window.location.href = '/candidate-dashboard.html';
-                } else {
-                    window.location.href = '/recruiter-dashboard.html';
-                }
+                // Hide Signup, Show Verify
+                document.getElementById('signupForm').style.display = 'none';
+                document.getElementById('verifySection').style.display = 'block';
+                document.getElementById('pageTitle').textContent = 'Verify Email';
+                document.getElementById('signinLinkRef').style.display = 'none';
+
+                alert('Account created! Please check your email for the verification code. (If testing locally, check logs)');
 
             } catch (error) {
                 console.error('Signup error:', error);
@@ -492,7 +530,86 @@
             }
         });
 
-        // Add smooth input animations (Copied from signin page)
+        // Verify Form Submission
+        document.getElementById('verifyForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const code = document.getElementById('verificationCode').value;
+            const submitBtn = this.querySelector('.btn-primary');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Verifying...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: registeredEmail,
+                        code: code
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Verification failed');
+                }
+
+                // Success - Store token
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify({
+                    name: data.name,
+                    email: registeredEmail,
+                    role: selectedRole
+                }));
+
+                alert('Email verified successfully!');
+
+                // Redirect
+                if (selectedRole === 'candidate') {
+                    window.location.href = '/candidate-dashboard.html';
+                } else {
+                    window.location.href = '/recruiter-dashboard.html';
+                }
+
+            } catch (error) {
+                console.error('Verify error:', error);
+                alert('Verification failed: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Verify Email';
+            }
+        });
+
+        // Resend Code
+        document.getElementById('resendBtn').addEventListener('click', async function () {
+            this.disabled = true;
+            this.textContent = 'Resending...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/resend-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: registeredEmail })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to resend');
+                }
+
+                alert('Verification code sent again!');
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                this.disabled = false;
+                this.textContent = 'Resend Code';
+            }
+        });
+
+        // Add smooth input animations
         const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
         inputs.forEach(input => {
             input.addEventListener('focus', function () {

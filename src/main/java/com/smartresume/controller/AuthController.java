@@ -15,6 +15,7 @@ import java.util.Map;
 public class AuthController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final com.smartresume.service.EmailService emailService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody User user) {
@@ -35,14 +36,19 @@ public class AuthController {
         }
 
         User saved = userService.register(user);
-        String token;
+
+        // Send Verification Email
         try {
-            token = jwtUtil.generateToken(saved.getEmail());
+            emailService.sendVerificationEmail(saved.getEmail(), saved.getVerificationCode());
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", "Failed to generate token"));
+            // Log error but allow signup to proceed (user can resend later)
+            System.err.println("Failed to send email: " + e.getMessage());
         }
 
-        return ResponseEntity.ok(Map.of("id", saved.getId(), "email", saved.getEmail(), "token", token));
+        return ResponseEntity.ok(Map.of(
+                "message", "Signup successful. Please verify your email.",
+                "email", saved.getEmail(),
+                "requiresVerification", true));
     }
 
     @PostMapping("/signin")
@@ -59,9 +65,17 @@ public class AuthController {
         if (user == null || !userService.checkPassword(user, password)) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
         }
+
+        if (!user.isVerified()) {
+            return ResponseEntity.status(403).body(Map.of(
+                    "error", "Email not verified",
+                    "requiresVerification", true,
+                    "email", user.getEmail()));
+        }
+
         String token;
         try {
-            token = jwtUtil.generateToken(user.getEmail());
+            token = jwtUtil.generateToken(user.getEmail(), user.getRole());
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Failed to generate token"));
         }
@@ -70,5 +84,47 @@ public class AuthController {
                 "name", user.getName(),
                 "email", user.getEmail(),
                 "role", user.getRole().replace("ROLE_", "").toLowerCase()));
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<?> verify(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String code = body.get("code");
+
+        if (email == null || code == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email and code are required"));
+        }
+
+        if (userService.verifyUser(email, code)) {
+            User user = userService.findByEmail(email);
+            // Generate token immediately upon verification
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+            return ResponseEntity.ok(Map.of(
+                    "message", "Verification successful",
+                    "token", token,
+                    "name", user.getName(),
+                    "role", user.getRole().replace("ROLE_", "").toLowerCase()));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid or expired verification code"));
+        }
+    }
+
+    @PostMapping("/resend-code")
+    public ResponseEntity<?> resendCode(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        if (email == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email is required"));
+        }
+
+        String newCode = userService.resendVerificationCode(email);
+        if (newCode != null) {
+            try {
+                emailService.sendVerificationEmail(email, newCode);
+                return ResponseEntity.ok(Map.of("message", "Verification code resent"));
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body(Map.of("error", "Failed to send email"));
+            }
+        }
+        return ResponseEntity.badRequest().body(Map.of("error", "User not found or already verified"));
     }
 }
