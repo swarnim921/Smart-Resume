@@ -20,6 +20,7 @@ public class Application {
     private String resumeId;
     private String status; // PENDING, REVIEWED, ACCEPTED, REJECTED
     private Double matchScore; // ML-calculated match score (0-100)
+    private java.util.List<String> skillsGap; // Missing skills identified by ML
     private LocalDateTime appliedAt;
     private LocalDateTime reviewedAt;
     private String reviewNotes;

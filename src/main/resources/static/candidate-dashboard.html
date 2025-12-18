@@ -471,6 +471,14 @@
                             <span class="badge badge-primary">Applied: ${new Date(app.appliedAt).toLocaleDateString()}</span>
                             ${app.matchScore !== null ? `<span class="badge badge-success">Match: ${app.matchScore.toFixed(1)}%</span>` : ''}
                         </div>
+                        ${app.skillsGap && app.skillsGap.length > 0 ? `
+                            <div style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                                <h4 style="font-size: 14px; margin-bottom: 0.5rem; color: var(--danger);">🎯 Skills to Improve:</h4>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    ${app.skillsGap.map(skill => `<span class="badge" style="background: var(--danger); color: white;">${skill}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
                         <button class="btn btn-outline" style="margin-top: 1rem; background: var(--danger); color: white;" onclick="withdrawApplication('${app.id}')">Withdraw Application</button>
                     </div>
                 `).join('');
