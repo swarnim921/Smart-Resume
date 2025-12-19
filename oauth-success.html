@@ -37,16 +37,20 @@
                 let role = 'candidate'; // default fallback
                 try {
                     const payload = JSON.parse(atob(token.split('.')[1]));
-                    console.log('OAuth Success - JWT Payload:', payload);
+                    console.log('🔍 OAuth Success - JWT Payload:', payload);
+                    console.log('🔍 OAuth Success - JWT Payload (stringified):', JSON.stringify(payload, null, 2));
 
                     // Extract role from JWT
                     if (payload.role) {
                         role = payload.role.toLowerCase().replace('role_', '');
+                        console.log('✅ OAuth Success - Role from JWT:', role);
+                    } else {
+                        console.warn('⚠️ OAuth Success - No role in JWT payload, using default:', role);
                     }
 
-                    console.log('OAuth Success - Role from JWT:', role);
+                    console.log('🔍 OAuth Success - Final role after processing:', role);
                 } catch (e) {
-                    console.error('OAuth Success - Failed to decode JWT:', e);
+                    console.error('❌ OAuth Success - Failed to decode JWT:', e);
                 }
 
                 // Store in localStorage
@@ -56,10 +60,12 @@
                     email: email ? decodeURIComponent(email) : '',
                     role: role
                 }));
+                console.log('💾 OAuth Success - Stored in localStorage:', { name, email, role });
 
                 // Determine dashboard URL based on JWT role
                 const dashboardFile = role === 'recruiter' ? 'recruiter-dashboard.html' : 'candidate-dashboard.html';
-                console.log('OAuth Success - Redirecting to:', dashboardFile);
+                console.log('🚀 OAuth Success - Redirecting to:', dashboardFile);
+                console.log('🔍 OAuth Success - Role check: role===\'recruiter\'?', role === 'recruiter');
 
                 // IMMEDIATE redirect using replace (doesn't add to history)
                 window.location.replace(`/${dashboardFile}`);

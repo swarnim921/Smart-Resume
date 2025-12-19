@@ -47,12 +47,18 @@ public class UserService {
         User user = findByEmail(email);
         boolean isNewUser = (user == null);
 
+        System.out.println(
+                "🔍 createOrUpdateOAuthUser: email=" + email + ", isNewUser=" + isNewUser + ", requestedRole=" + role);
+
         if (isNewUser) {
             // Create new OAuth user
             user = new User();
             user.setEmail(email);
             user.setPassword(""); // OAuth users don't have passwords
             user.setRole(role); // Set role ONLY for new users
+            System.out.println("✅ Creating NEW OAuth user with role: " + role);
+        } else {
+            System.out.println("🔍 Existing user found with role: " + user.getRole() + " (will be preserved)");
         }
 
         // Update user details (name can change, but preserve existing role)
@@ -65,7 +71,10 @@ public class UserService {
         user.setVerificationCode(null);
         user.setVerificationCodeExpiresAt(null); // No TTL - prevents auto-deletion
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        System.out.println("💾 Saved OAuth user: email=" + savedUser.getEmail() + ", finalRole=" + savedUser.getRole());
+
+        return savedUser;
     }
 
     public User findByEmail(String email) {

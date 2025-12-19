@@ -41,14 +41,37 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         jakarta.servlet.http.Cookie[] cookies = request.getCookies();
 
         log.info("🔍 OAuth cookies received: {}", cookies != null ? cookies.length : 0);
+        log.info("🔍 Request URI: {}", request.getRequestURI());
+        log.info("🔍 Request URL: {}", request.getRequestURL());
+        log.info("🔍 Server Name: {}", request.getServerName());
 
         if (cookies != null) {
             for (jakarta.servlet.http.Cookie cookie : cookies) {
+                log.info("🍪 Cookie found: name='{}', value='{}', domain='{}', path='{}', secure={}, httpOnly={}",
+                        cookie.getName(),
+                        cookie.getValue(),
+                        cookie.getDomain(),
+                        cookie.getPath(),
+                        cookie.getSecure(),
+                        cookie.isHttpOnly());
+
                 if ("oauth_role".equals(cookie.getName())) {
                     roleFromCookie = cookie.getValue();
                     log.info("✅ OAuth role from cookie: {}", roleFromCookie);
                     break;
                 }
+            }
+
+            // Log if oauth_role cookie was NOT found
+            boolean foundOAuthRole = false;
+            for (jakarta.servlet.http.Cookie cookie : cookies) {
+                if ("oauth_role".equals(cookie.getName())) {
+                    foundOAuthRole = true;
+                    break;
+                }
+            }
+            if (!foundOAuthRole) {
+                log.warn("⚠️ oauth_role cookie NOT found among {} cookies - will default to candidate", cookies.length);
             }
         } else {
             log.warn("⚠️ No cookies found - role will default to candidate");
@@ -56,6 +79,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // Check if user exists
         User user = userService.findByEmail(email);
+        log.info("🔍 User lookup: email='{}', exists={}, existingRole={}",
+                email,
+                user != null,
+                user != null ? user.getRole() : "N/A");
 
         // Determine role from cookie
         String roleToSet = "recruiter".equalsIgnoreCase(roleFromCookie) ? "ROLE_RECRUITER" : "ROLE_USER";
@@ -68,9 +95,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // Generate JWT token with role claim included
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+        log.info("🔍 JWT generated with role claim: {}", user.getRole());
 
         // Determine role for frontend
         String role = user.getRole().equals("ROLE_RECRUITER") ? "recruiter" : "candidate";
+        log.info("🔍 Frontend role mapping: {} → '{}'", user.getRole(), role);
 
         // Redirect to HTTPS success page with token
         String redirectUrl = String.format(
@@ -80,6 +109,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 URLEncoder.encode(user.getEmail(), "UTF-8"),
                 role);
 
+        log.info("🚀 Redirecting to: oauth-success.html with role={}", role);
         response.sendRedirect(redirectUrl);
     }
 }
