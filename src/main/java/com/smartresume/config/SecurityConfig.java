@@ -84,6 +84,7 @@ public class SecurityConfig {
                 configuration.setAllowedOrigins(java.util.Arrays.asList(
                                 "https://www.talentsynctech.in",
                                 "https://talentsynctech.in",
+                                "https://api.talentsynctech.in", // API subdomain for cross-origin requests
                                 "http://localhost:3000" // For local development
                 ));
 
