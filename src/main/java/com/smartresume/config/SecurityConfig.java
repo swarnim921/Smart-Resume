@@ -23,8 +23,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
         private final JwtFilter jwtFilter;
-        private final OAuth2SuccessHandler oAuth2SuccessHandler;
-        private final CookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository;
+        // OAuth2 disabled - removed OAuth2SuccessHandler and
+        // CookieOAuth2AuthorizationRequestRepository
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -63,14 +63,7 @@ public class SecurityConfig {
                                                 // ALL OTHER SECURED ENDPOINTS
                                                 .anyRequest().authenticated())
                                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .oauth2Login(oauth2 -> oauth2
-                                                .authorizationEndpoint(authorization -> authorization
-                                                                .baseUri("/oauth2/authorization")
-                                                                .authorizationRequestRepository(
-                                                                                cookieAuthorizationRequestRepository))
-                                                .redirectionEndpoint(redirection -> redirection
-                                                                .baseUri("/login/oauth2/code/*"))
-                                                .successHandler(oAuth2SuccessHandler))
+                                // OAuth2 disabled - removed oauth2Login configuration
                                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
