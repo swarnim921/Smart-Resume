@@ -58,13 +58,21 @@ public class UserService {
             user.setRole(role); // Set role ONLY for new users
             System.out.println("✅ Creating NEW OAuth user with role: " + role);
         } else {
-            System.out.println("🔍 Existing user found with role: " + user.getRole() + " (will be preserved)");
+            System.out.println("🔍 Existing user found with role: " + user.getRole());
+
+            // CRITICAL FIX: Allow role updates for OAuth users
+            // Users can change their role selection when signing in with OAuth
+            // This is safe because OAuth sign-in requires explicit role selection each time
+            if (!user.getRole().equals(role)) {
+                System.out.println("⚠️ Role mismatch! Updating from " + user.getRole() + " to " + role);
+                user.setRole(role);
+            } else {
+                System.out.println("✅ Role matches, no update needed: " + role);
+            }
         }
 
-        // Update user details (name can change, but preserve existing role)
+        // Update user details (name can change)
         user.setName(name);
-        // DO NOT overwrite role for existing users - they may have signed up as
-        // recruiter
 
         // CRITICAL: OAuth users are pre-verified
         user.setVerified(true);
