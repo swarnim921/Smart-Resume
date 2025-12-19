@@ -294,34 +294,7 @@
             transform: translateY(0);
         }
 
-        /* ===== DIVIDER ===== */
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 28px 0;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--input-border);
-        }
-
-        .divider span {
-            padding: 0 16px;
-        }
-
         /* ===== SOCIAL BUTTONS ===== */
-        .social-buttons {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
         .btn-social {
             flex: 1;
             padding: 12px 20px;
@@ -347,16 +320,12 @@
             border-color: var(--button-bg);
         }
 
-        .btn-social svg {
-            width: 20px;
-            height: 20px;
-        }
-
         /* ===== REGISTER LINK ===== */
         .register-link {
             text-align: center;
             font-size: 14px;
             color: var(--text-secondary);
+            margin-top: 24px;
         }
 
         .register-link a {
@@ -434,8 +403,6 @@
                 <button type="submit" class="btn btn-primary">Sign In</button>
             </form>
 
-
-
             <!-- Register Link -->
             <div class="register-link">
                 Don't have an account? <a href="#register">Register</a>
@@ -485,7 +452,7 @@
             candidateBtn.style.color = 'var(--text-primary)';
         });
 
-        // Form submission handler with real backend integration
+        // Form submission handler
         document.getElementById('signInForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -493,12 +460,10 @@
             const password = document.getElementById('password').value;
             const submitBtn = this.querySelector('.btn-primary');
 
-            // Disable button and show loading
             submitBtn.disabled = true;
             submitBtn.textContent = 'Signing in...';
 
             try {
-                // Call backend signin API
                 const response = await fetch(`${API_BASE_URL}/api/auth/signin`, {
                     method: 'POST',
                     headers: {
@@ -516,25 +481,26 @@
 
                 const data = await response.json();
 
+                // Normalize roles
+                const backendRole = data.role === 'user' ? 'candidate' : data.role;
+
                 // Verify role matches selection
-                if ((selectedRole === 'candidate' && data.role !== 'candidate') ||
-                    (selectedRole === 'recruiter' && data.role !== 'recruiter')) {
-                    throw new Error(`This account is registered as ${data.role}. Please select the correct role.`);
+                if (selectedRole !== backendRole) {
+                    throw new Error(`This account is registered as ${backendRole}. Please select the correct role.`);
                 }
 
-                // Store token and user info
+                // Store credentials
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify({
                     name: data.name,
                     email: data.email,
-                    role: data.role
+                    role: backendRole
                 }));
 
-                // Show success message
                 alert(`Welcome back, ${data.name}!`);
 
                 // Redirect based on role
-                if (data.role === 'recruiter') {
+                if (backendRole === 'recruiter') {
                     window.location.href = '/recruiter-dashboard.html';
                 } else {
                     window.location.href = '/candidate-dashboard.html';
@@ -554,28 +520,14 @@
             passwordField.type = this.checked ? 'text' : 'password';
         });
 
-
-
-        // Update register link to include role selection
+        // Update register link
         const registerLink = document.querySelector('.register-link a');
         registerLink.addEventListener('click', function (e) {
             e.preventDefault();
-            // Redirect to signup page with selected role
             window.location.href = `/signup.html?role=${selectedRole}`;
         });
 
-        // Add smooth input animations
-        const inputs = document.querySelectorAll('input[type="email"], input[type="password"]');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function () {
-                this.parentElement.style.transform = 'translateX(2px)';
-            });
-            input.addEventListener('blur', function () {
-                this.parentElement.style.transform = 'translateX(0)';
-            });
-        });
-
-        // Check if user is already logged in
+        // Check if already logged in
         window.addEventListener('load', function () {
             const token = localStorage.getItem('token');
             if (token) {
@@ -589,30 +541,7 @@
                 }
             }
         });
-
-        // Handle OAuth callback (if redirected back from Google)
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('token')) {
-            const token = urlParams.get('token');
-            const name = urlParams.get('name');
-            const email = urlParams.get('email');
-            const role = urlParams.get('role');
-
-            // Store credentials
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify({ name, email, role }));
-
-            // Redirect to dashboard
-            alert(`Welcome, ${name}!`);
-            if (role === 'recruiter') {
-                window.location.href = '/recruiter-dashboard.html';
-            } else {
-                window.location.href = '/candidate-dashboard.html';
-            }
-        }
     </script>
 </body>
 
-</html>< ! - -   T e s t   - - > 
-     
-     
+</html>
