@@ -253,7 +253,7 @@
                 <div class="value" id="resumeStatus">No</div>
             </div>
             <div class="stat-card">
-                <h3>Match Score</h3>
+                <h3>Avg Match Score</h3>
                 <div class="value" id="matchScore">-</div>
             </div>
         </div>
@@ -451,9 +451,11 @@
 
                 document.getElementById('totalApplications').textContent = applications.length;
 
-                // Update match score from most recent application
-                if (applications.length > 0 && applications[0].matchScore !== null) {
-                    document.getElementById('matchScore').textContent = applications[0].matchScore.toFixed(1) + '%';
+                // Calculate average match score across all applications
+                const applicationsWithScores = applications.filter(app => app.matchScore !== null);
+                if (applicationsWithScores.length > 0) {
+                    const avgScore = applicationsWithScores.reduce((sum, app) => sum + app.matchScore, 0) / applicationsWithScores.length;
+                    document.getElementById('matchScore').textContent = avgScore.toFixed(1) + '%';
                 } else {
                     document.getElementById('matchScore').textContent = '-';
                 }
