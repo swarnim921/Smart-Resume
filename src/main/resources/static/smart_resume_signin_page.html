@@ -21,110 +21,116 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #c8d8f0 0%, #d6e4f7 40%, #c2d8f5 100%);
+            background: linear-gradient(135deg, #eef2ff 0%, #dbeafe 100%);
             overflow: hidden;
             position: relative;
+            color: #0f172a;
         }
 
-        /* Animated blobs */
-        .blob {
-            position: fixed;
+        /* Background Shapes */
+        .shape {
+            position: absolute;
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.5;
+            filter: blur(60px);
+            z-index: 0;
             pointer-events: none;
-            animation: blobFloat 18s ease-in-out infinite;
+            animation: float 10s ease-in-out infinite alternate;
         }
 
-        .blob1 {
-            width: 420px;
-            height: 420px;
-            background: radial-gradient(circle, #4a90d944, #2563eb33);
-            top: -80px;
-            left: -80px;
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(147, 197, 253, 0.4);
+            top: -100px;
+            left: -100px;
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(191, 219, 254, 0.5);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: -5s;
+        }
+
+        .star {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #fff 0%, transparent 100%);
+            border-radius: 50%;
+            filter: blur(2px);
+            animation: twinkle 4s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        .star-1 {
+            top: 20%;
+            left: 30%;
             animation-delay: 0s;
         }
 
-        .blob2 {
-            width: 380px;
-            height: 380px;
-            background: radial-gradient(circle, #3b82f644, #7c3aed33);
-            bottom: -60px;
-            right: -60px;
-            animation-delay: 6s;
+        .star-2 {
+            top: 70%;
+            right: 20%;
+            animation-delay: 1s;
+            width: 30px;
+            height: 30px;
         }
 
-        .blob3 {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, #60a5fa33, #4a90d922);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation-delay: 12s;
+        .star-3 {
+            top: 40%;
+            right: 40%;
+            animation-delay: 2s;
+            width: 15px;
+            height: 15px;
         }
 
-        @keyframes blobFloat {
+        @keyframes float {
+            0% {
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                transform: translateY(-30px) scale(1.05);
+            }
+        }
+
+        @keyframes twinkle {
 
             0%,
             100% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            33% {
-                transform: translate(40px, -40px) scale(1.08);
-            }
-
-            66% {
-                transform: translate(-25px, 25px) scale(0.95);
-            }
-        }
-
-        /* Sparkle */
-        .sparkle {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 28px;
-            height: 28px;
-            opacity: 0.6;
-            animation: sparkleAnim 3s ease-in-out infinite;
-        }
-
-        @keyframes sparkleAnim {
-
-            0%,
-            100% {
-                opacity: 0.4;
-                transform: scale(1) rotate(0deg);
+                opacity: 0.2;
+                transform: scale(0.8);
             }
 
             50% {
-                opacity: 0.9;
-                transform: scale(1.2) rotate(15deg);
+                opacity: 0.8;
+                transform: scale(1.2);
             }
         }
 
-        /* Main card */
+        /* Card Container */
         .card {
             position: relative;
             z-index: 10;
             width: 100%;
-            max-width: 400px;
-            padding: 24px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(74, 144, 217, 0.2);
-            border-radius: 28px;
-            box-shadow: 0 8px 40px rgba(74, 144, 217, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            animation: slideUp 0.6s cubic-bezier(.22, .68, 0, 1.2);
+            max-width: 420px;
+            padding: 40px 32px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes slideUp {
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(40px) scale(0.96);
+                transform: translateY(20px) scale(0.98);
             }
 
             to {
@@ -133,43 +139,81 @@
             }
         }
 
-        /* Role toggle pill */
-        .role-toggle {
-            display: flex;
-            background: rgba(74, 144, 217, 0.1);
-            border: 1px solid rgba(74, 144, 217, 0.25);
-            border-radius: 50px;
-            padding: 5px;
+        /* Typography */
+        .header-text {
+            text-align: center;
             margin-bottom: 28px;
         }
 
-        .role-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 50px;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
+        .header-text h1 {
+            font-size: 26px;
             font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: transparent;
-            color: rgba(74, 144, 217, 0.55);
+            color: #0f172a;
+            margin-bottom: 6px;
+            letter-spacing: -0.03em;
         }
 
-        .role-btn.active {
-            background: rgba(74, 144, 217, 0.2);
-            color: #2563eb;
-            box-shadow: 0 0 20px rgba(74, 144, 217, 0.2);
-            border: 1px solid rgba(74, 144, 217, 0.4);
+        .header-text p {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 400;
         }
 
-        /* Inputs */
-        .input-wrap {
+        /* Segmented Toggle */
+        .toggle-container {
             position: relative;
-            margin-bottom: 16px;
+            display: flex;
+            background: rgba(241, 245, 249, 0.8);
+            border-radius: 50px;
+            padding: 4px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            left: 4px;
+            width: calc(50% - 4px);
+            background: #ffffff;
+            border-radius: 50px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 1;
+        }
+
+        .toggle-btn {
+            position: relative;
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            z-index: 2;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .toggle-btn:hover {
+            color: #334155;
+        }
+
+        .toggle-btn.active {
+            color: #0f172a;
+        }
+
+        /* Floating Label Inputs */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
         }
 
         .input-icon {
@@ -177,209 +221,367 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            opacity: 0.55;
-            font-size: 16px;
-            pointer-events: none;
+            color: #94a3b8;
+            transition: color 0.3s ease;
+            z-index: 2;
         }
 
-        .input-wrap input {
+        .input-group input {
             width: 100%;
-            padding: 14px 16px 14px 44px;
-            background: rgba(74, 144, 217, 0.06);
-            border: 1px solid rgba(74, 144, 217, 0.2);
-            border-radius: 14px;
-            font-family: 'Inter', sans-serif;
+            padding: 22px 16px 10px 44px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
             font-size: 14px;
-            font-weight: 500;
-            color: #1a2340;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+            color: #0f172a;
             outline: none;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
-        .input-wrap input::placeholder {
-            color: rgba(74, 144, 217, 0.5);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-size: 12px;
-        }
-
-        .input-wrap input:focus {
-            border-color: rgba(74, 144, 217, 0.6);
-            background: rgba(74, 144, 217, 0.1);
-            box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.12);
-        }
-
-        .eye-btn {
+        .input-group label {
             position: absolute;
-            right: 14px;
+            left: 44px;
             top: 50%;
             transform: translateY(-50%);
+            font-size: 14px;
+            color: #94a3b8;
+            pointer-events: none;
+            transition: all 0.2s ease-out;
+            z-index: 2;
+        }
+
+        .input-group input:focus,
+        .input-group input:not(:placeholder-shown) {
+            border-color: #4F7DF3;
+            box-shadow: 0 0 0 4px rgba(79, 125, 243, 0.1);
+        }
+
+        .input-group input:focus+label,
+        .input-group input:not(:placeholder-shown)+label {
+            transform: translateY(-130%) scale(0.85);
+            transform-origin: left top;
+            color: #4F7DF3;
+        }
+
+        .input-group input:focus~.input-icon {
+            color: #4F7DF3;
+        }
+
+        .eye-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            cursor: pointer;
             background: none;
             border: none;
-            cursor: pointer;
-            opacity: 0.5;
-            font-size: 16px;
-            color: white;
-            transition: opacity 0.2s;
+            padding: 4px;
+            transition: color 0.2s;
         }
 
-        .eye-btn:hover {
-            opacity: 0.9;
+        .eye-toggle:hover {
+            color: #475569;
         }
 
-        /* Sign in button */
-        .btn-signin {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 50px;
-            font-family: 'Inter', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            cursor: pointer;
-            background: linear-gradient(90deg, #4a90d9 0%, #2563eb 100%);
-            color: white;
-            box-shadow: 0 4px 24px rgba(74, 144, 217, 0.35);
-            transition: all 0.3s ease;
-            margin-top: 8px;
+        /* Validation & Password Strength */
+        .input-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
         }
 
-        .btn-signin:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(74, 144, 217, 0.5);
+        .validation-msg {
+            font-size: 12px;
+            color: #ef4444;
+            margin-top: 4px;
+            margin-left: 4px;
+            display: none;
+            animation: fadeIn 0.3s ease;
         }
 
-        .btn-signin:active {
-            transform: translateY(0);
+        /* Password Options */
+        .password-options {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 24px;
+            margin-top: -8px;
         }
 
-        .btn-signin:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Divider */
-        .register-row {
-            text-align: center;
-            margin: 18px 0 14px;
+        .forgot-link {
             font-size: 13px;
-            color: rgba(26, 35, 64, 0.55);
-        }
-
-        .register-row a {
-            color: #2563eb;
-            font-weight: 600;
+            font-weight: 500;
+            color: #4F7DF3;
             text-decoration: none;
             transition: color 0.2s;
         }
 
-        .register-row a:hover {
-            color: #4a90d9;
+        .forgot-link:hover {
+            color: #1E56F0;
+            text-decoration: underline;
         }
 
-        /* Social buttons row */
-        .social-row {
+        /* Primary Button */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to right, #4F7DF3, #1E56F0);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(30, 86, 240, 0.3);
             display: flex;
-            gap: 12px;
             justify-content: center;
             align-items: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .social-divider {
-            width: 1px;
-            height: 22px;
-            background: rgba(74, 144, 217, 0.2);
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 86, 240, 0.4);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            background: #cbd5e1;
+            box-shadow: none;
+            cursor: not-allowed;
+            color: #f8fafc;
+        }
+
+        /* Spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn-primary.loading .btn-text {
+            display: none;
+        }
+
+        .btn-primary.loading .spinner {
+            display: block;
+        }
+
+        /* Social Login */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .divider::before {
+            margin-right: .75em;
+        }
+
+        .divider::after {
+            margin-left: .75em;
+        }
+
+        .social-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .btn-social {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 50px;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 14px;
             font-weight: 500;
-            color: #1a2340;
-            background: rgba(74, 144, 217, 0.08);
+            color: #334155;
             cursor: pointer;
-            transition: all 0.25s ease;
-            border: 1px solid rgba(74, 144, 217, 0.18);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
 
         .btn-social:hover {
-            background: rgba(74, 144, 217, 0.15);
-            color: #2563eb;
+            background: #f8fafc;
+            border-color: #cbd5e1;
             transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
         }
 
         .btn-social svg {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
         }
 
-        /* Error */
-        .error-msg {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.25);
-            color: #dc2626;
+        /* Register Link */
+        .register-prompt {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .register-prompt a {
+            color: #4F7DF3;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .register-prompt a:hover {
+            color: #1E56F0;
+            text-decoration: underline;
+        }
+
+        /* Global Error Msg */
+        #globalError {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            padding: 12px;
             border-radius: 10px;
-            padding: 10px 14px;
             font-size: 13px;
-            margin-bottom: 14px;
+            margin-bottom: 20px;
+            text-align: center;
             display: none;
+            animation: fadeIn 0.3s ease;
         }
 
-        .error-msg.show {
-            display: block;
+        /* Responsive */
+        @media (max-width: 480px) {
+            .card {
+                padding: 32px 24px;
+                border-radius: 16px;
+                box-shadow: none;
+                border: none;
+                background: rgba(255, 255, 255, 0.85);
+            }
+
+            body {
+                background: #ffffff;
+            }
+
+            .shape {
+                display: none;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="blob blob1"></div>
-    <div class="blob blob2"></div>
-    <div class="blob blob3"></div>
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="star star-1"></div>
+    <div class="star star-2"></div>
+    <div class="star star-3"></div>
 
     <div class="card">
-        <!-- Role toggle -->
-        <div class="role-toggle">
-            <button class="role-btn active" id="btnCandidate" onclick="selectRole('candidate')">Candidate</button>
-            <button class="role-btn" id="btnRecruiter" onclick="selectRole('recruiter')">Recruiter</button>
+        <div class="header-text">
+            <h1>Sign in to TalentSync</h1>
+            <p>Find your next opportunity faster.</p>
         </div>
 
-        <!-- Error -->
-        <div class="error-msg" id="errorMsg"></div>
+        <!-- Role Toggle -->
+        <div class="toggle-container">
+            <div class="toggle-slider" id="roleSlider"></div>
+            <button class="toggle-btn active" id="btnCandidate" onclick="setRole('candidate')">
+                👨‍💻 Candidate
+            </button>
+            <button class="toggle-btn" id="btnRecruiter" onclick="setRole('recruiter')">
+                🧑‍💼 Recruiter
+            </button>
+        </div>
+
+        <div id="globalError"></div>
 
         <!-- Form -->
-        <form id="signInForm" onsubmit="handleSignIn(event)">
-            <div class="input-wrap">
-                <span class="input-icon">🎓</span>
-                <input type="email" id="email" placeholder="Email" required autocomplete="email">
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <!-- Email -->
+            <div class="input-group">
+                <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                    </path>
+                </svg>
+                <input type="text" id="email" placeholder=" " oninput="validateForm()">
+                <label for="email">Email address</label>
+                <div class="validation-msg" id="emailError">Invalid email address</div>
             </div>
-            <div class="input-wrap">
-                <span class="input-icon">🔒</span>
-                <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
-                <button type="button" class="eye-btn" onclick="togglePwd()" id="eyeBtn">👁</button>
+
+            <!-- Password -->
+            <div class="input-group">
+                <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                    </path>
+                </svg>
+                <input type="password" id="password" placeholder=" " oninput="validateForm()">
+                <label for="password">Password</label>
+                <button type="button" class="eye-toggle" onclick="togglePassword()">
+                    <svg id="eyeIcon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                        </path>
+                    </svg>
+                </button>
+                <div class="validation-msg" id="pwdError">Password is required</div>
             </div>
-            <button type="submit" class="btn-signin" id="signInBtn">Sign In</button>
+
+            <!-- Options -->
+            <div class="password-options">
+                <a href="#" class="forgot-link">Forgot Password?</a>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn-primary" id="submitBtn" disabled>
+                <span class="btn-text">Sign In</span>
+                <div class="spinner"></div>
+            </button>
         </form>
 
-        <!-- Register -->
-        <div class="register-row">
-            Don't have an account? <a href="#" id="registerLink">Register</a>
-        </div>
+        <div class="divider">Or continue with</div>
 
         <!-- Social -->
-        <div class="social-row">
-            <button class="btn-social" onclick="signInWithGoogle()">
+        <div class="social-buttons">
+            <button class="btn-social" onclick="loginGoogle()">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -394,84 +596,131 @@
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                         fill="#EA4335" />
                 </svg>
-                Sign in with Google
+                Continue with Google
             </button>
-            <div class="social-divider"></div>
-            <button class="btn-social" onclick="signInWithLinkedIn()">
+            <button class="btn-social" onclick="alert('LinkedIn SSO coming soon!')">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#0A66C2">
                     <path
                         d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
-                LinkedIn
+                Continue with LinkedIn
             </button>
+        </div>
+
+        <!-- Register -->
+        <div class="register-prompt">
+            Don't have an account? <a href="#" id="registerLink">Register</a>
         </div>
     </div>
 
-    <!-- Sparkle -->
-    <svg class="sparkle" viewBox="0 0 24 24" fill="rgba(74,144,217,0.7)" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74z" />
-    </svg>
-
     <script>
-        const API_BASE_URL = 'https://api.talentsynctech.in';
-        let selectedRole = 'candidate';
+        const API = 'https://api.talentsynctech.in';
+        let currentRole = 'candidate';
 
-        function selectRole(role) {
-            selectedRole = role;
-            document.getElementById('btnCandidate').classList.toggle('active', role === 'candidate');
-            document.getElementById('btnRecruiter').classList.toggle('active', role === 'recruiter');
+        // --- UI Logic ---
+        function setRole(role) {
+            currentRole = role;
+            const slider = document.getElementById('roleSlider');
+            if (role === 'candidate') {
+                slider.style.transform = 'translateX(0)';
+                document.getElementById('btnCandidate').classList.add('active');
+                document.getElementById('btnRecruiter').classList.remove('active');
+            } else {
+                slider.style.transform = 'translateX(100%)';
+                document.getElementById('btnRecruiter').classList.add('active');
+                document.getElementById('btnCandidate').classList.remove('active');
+            }
+            document.getElementById('registerLink').href = `/signup.html?role=${role}`;
         }
 
-        function togglePwd() {
+        function togglePassword() {
             const pwd = document.getElementById('password');
-            const btn = document.getElementById('eyeBtn');
-            if (pwd.type === 'password') { pwd.type = 'text'; btn.textContent = '🙈'; }
-            else { pwd.type = 'password'; btn.textContent = '👁'; }
+            const icon = document.getElementById('eyeIcon');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>';
+            } else {
+                pwd.type = 'password';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';
+            }
         }
 
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function validateForm() {
+            const emailInput = document.getElementById('email');
+            const pwdInput = document.getElementById('password');
+            const emailError = document.getElementById('emailError');
+            const btn = document.getElementById('submitBtn');
+
+            let isValid = true;
+
+            // Email validation
+            if (emailInput.value && !validateEmail(emailInput.value)) {
+                emailInput.classList.add('input-error');
+                emailError.style.display = 'block';
+                isValid = false;
+            } else {
+                emailInput.classList.remove('input-error');
+                emailError.style.display = 'none';
+            }
+            if (!emailInput.value) isValid = false;
+
+            // Password validation
+            if (!pwdInput.value) isValid = false;
+
+            btn.disabled = !isValid;
+        }
+
+        // --- Core Authentication Logic ---
         function showError(msg) {
-            const el = document.getElementById('errorMsg');
+            const el = document.getElementById('globalError');
             el.textContent = msg;
-            el.classList.add('show');
+            el.style.display = 'block';
         }
-        function clearError() { document.getElementById('errorMsg').classList.remove('show'); }
 
-        async function handleSignIn(e) {
+        async function handleLogin(e) {
             e.preventDefault();
-            clearError();
+            document.getElementById('globalError').style.display = 'none';
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const btn = document.getElementById('signInBtn');
-            btn.disabled = true; btn.textContent = 'Signing in…';
+            const btn = document.getElementById('submitBtn');
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+
             try {
-                const r = await fetch(`${API_BASE_URL}/api/auth/signin`, {
+                const r = await fetch(`${API}/api/auth/signin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
+
                 if (!r.ok) throw new Error('Invalid email or password');
                 const data = await r.json();
+
                 const backendRole = data.role === 'user' ? 'candidate' : data.role;
-                if (selectedRole !== backendRole) {
+                if (currentRole !== backendRole) {
                     throw new Error(`This account is registered as ${backendRole}. Please select the correct role.`);
                 }
+
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email, role: backendRole }));
                 window.location.href = backendRole === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
+
             } catch (err) {
                 showError(err.message);
-                btn.disabled = false; btn.textContent = 'Sign In';
+                btn.classList.remove('loading');
+                btn.disabled = false;
             }
         }
 
-        function signInWithGoogle() {
-            const role = selectedRole || 'candidate';
+        function loginGoogle() {
+            const role = currentRole || 'candidate';
             document.cookie = `oauth_role=${role};path=/;max-age=600;SameSite=Lax`;
-            window.location.href = 'https://api.talentsynctech.in/oauth2/authorization/google';
-        }
-
-        function signInWithLinkedIn() {
-            alert('LinkedIn SSO coming soon!');
+            window.location.href = `${API}/oauth2/authorization/google`;
         }
 
         // Handle OAuth callback
@@ -486,16 +735,12 @@
             window.location.href = role === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
         }
 
-        // Register link
-        document.getElementById('registerLink').addEventListener('click', function (e) {
-            e.preventDefault();
-            window.location.href = `/signup.html?role=${selectedRole}`;
-        });
+        // Initialize state
+        setRole('candidate');
 
-        // Already logged in
-        window.addEventListener('load', function () {
-            const token = localStorage.getItem('token');
-            if (token) {
+        // Auto-login check
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('token')) {
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 if (confirm(`Already signed in as ${user.name}. Go to dashboard?`)) {
                     window.location.href = user.role === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
