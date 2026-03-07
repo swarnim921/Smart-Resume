@@ -280,4 +280,103 @@ public class EmailService {
             sendStatusUpdateEmail(toEmail, candidateName, jobTitle, "INTERVIEW", notes);
         }
     }
+
+    /**
+     * Notify a panel interviewer about their upcoming interview assignment.
+     * Includes candidate info (name, email, ATS score, skills gap) + ICS.
+     */
+    public void sendInterviewerNotification(
+            String interviewerEmail, String interviewerName,
+            String candidateName, String candidateEmail,
+            String jobTitle, String company,
+            String interviewDateTimeStr, String panelName,
+            Double atsScore, java.util.List<String> skillsGap) {
+        try {
+            jakarta.mail.internet.MimeMessage message = mailSender.createMimeMessage();
+            org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(
+                    message, true, "UTF-8");
+
+            String sender = (fromEmail != null && !fromEmail.isEmpty()) ? fromEmail : "noreply@talentsync.in";
+            helper.setFrom(sender);
+            helper.setTo(interviewerEmail);
+            helper.setSubject("📋 Interview Assignment — " + candidateName + " | " + jobTitle);
+
+            java.time.LocalDateTime interviewDt;
+            try {
+                interviewDt = java.time.LocalDateTime.parse(interviewDateTimeStr);
+            } catch (Exception e) {
+                interviewDt = java.time.LocalDateTime.now().plusDays(3);
+            }
+
+            String formattedDate = interviewDt.format(
+                    java.time.format.DateTimeFormatter.ofPattern("EEEE, MMMM d yyyy 'at' h:mm a",
+                            java.util.Locale.ENGLISH));
+
+            String scoreStr = atsScore != null ? String.format("%.1f%%", atsScore) : "N/A";
+            String gapStr = (skillsGap != null && !skillsGap.isEmpty())
+                    ? String.join(", ", skillsGap)
+                    : "None identified";
+
+            String emailBody = "Dear " + interviewerName + ",\n\n" +
+                    "You have been assigned to interview a candidate for the position of \"" + jobTitle + "\" at "
+                    + company + ".\n\n" +
+                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                    "🎓 CANDIDATE DETAILS\n" +
+                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                    "Name:         " + candidateName + "\n" +
+                    "Email:        " + candidateEmail + "\n" +
+                    "ATS Score:    " + scoreStr + "\n" +
+                    "Skills Gap:   " + gapStr + "\n\n" +
+                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                    "📅 INTERVIEW DETAILS\n" +
+                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                    "Date & Time:  " + formattedDate + "\n" +
+                    "Panel:        " + panelName + "\n\n" +
+                    "A calendar invite is attached to this email.\n\n" +
+                    "Best regards,\nTalentSync Recruitment System";
+
+            helper.setText(emailBody);
+
+            // Build ICS for interviewer
+            String uid = java.util.UUID.randomUUID().toString();
+            String dtStart = interviewDt.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"));
+            String dtEnd = interviewDt.plusHours(1)
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"));
+            String now = java.time.LocalDateTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"));
+
+            String ics = "BEGIN:VCALENDAR\r\n" +
+                    "VERSION:2.0\r\n" +
+                    "PRODID:-//TalentSync//Interview//EN\r\n" +
+                    "METHOD:REQUEST\r\n" +
+                    "BEGIN:VEVENT\r\n" +
+                    "UID:" + uid + "\r\n" +
+                    "DTSTART:" + dtStart + "\r\n" +
+                    "DTEND:" + dtEnd + "\r\n" +
+                    "DTSTAMP:" + now + "\r\n" +
+                    "SUMMARY:Interview: " + candidateName + " for " + jobTitle + "\r\n" +
+                    "DESCRIPTION:Candidate: " + candidateName + " (" + candidateEmail + ")\\nATS Score: " + scoreStr
+                    + "\\nPanel: " + panelName + "\r\n" +
+                    "ORGANIZER;CN=" + company + ":mailto:" + sender + "\r\n" +
+                    "ATTENDEE;CN=" + interviewerName + ";RSVP=TRUE:mailto:" + interviewerEmail + "\r\n" +
+                    "STATUS:CONFIRMED\r\n" +
+                    "BEGIN:VALARM\r\n" +
+                    "TRIGGER:-PT30M\r\n" +
+                    "ACTION:DISPLAY\r\n" +
+                    "DESCRIPTION:Interview reminder: " + candidateName + "\r\n" +
+                    "END:VALARM\r\n" +
+                    "END:VEVENT\r\n" +
+                    "END:VCALENDAR\r\n";
+
+            byte[] icsBytes = ics.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            helper.addAttachment("interview-" + candidateName.replaceAll("\\s+", "-") + ".ics",
+                    new org.springframework.core.io.ByteArrayResource(icsBytes),
+                    "text/calendar; charset=UTF-8; method=REQUEST");
+
+            mailSender.send(message);
+            System.out.println("✅ Interviewer notification sent to " + interviewerEmail);
+        } catch (Exception e) {
+            System.err.println("Failed to notify interviewer " + interviewerEmail + ": " + e.getMessage());
+        }
+    }
 }

@@ -34,4 +34,10 @@ public class Job {
     private List<HiringStage> hiringPipeline;
     /** Auto-close date — if set, job moves to CLOSED after this datetime */
     private LocalDateTime expiresAt;
+    /**
+     * Multi-panel interview schedule.
+     * Each panel has its own interviewers and time slots.
+     * Auto-scheduling assigns shortlisted candidates round-robin across panels.
+     */
+    private List<InterviewPanel> interviewPanels;
 }

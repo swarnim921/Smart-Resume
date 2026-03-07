@@ -694,6 +694,7 @@
             <button class="nav-item active" onclick="showSection('overview')">📊 Overview</button>
             <button class="nav-item" onclick="showSection('post')">➕ Post Job</button>
             <button class="nav-item" onclick="showSection('jobs')">💼 My Jobs</button>
+            <button class="nav-item" onclick="showSection('panels')">🗓️ Interview Panels</button>
             <button class="nav-item" onclick="showSection('analytics')">📈 Analytics</button>
         </div>
 
@@ -783,6 +784,50 @@
                 <div class="page-sub">Application pipeline overview per job</div>
                 <div id="analytics-content" class="loading">Loading…</div>
             </div>
+
+            <!-- Interview Panels -->
+            <div id="sec-panels" style="display:none">
+                <div class="page-title">🗓️ Interview Panels</div>
+                <div class="page-sub">Configure multi-panel interview schedules and auto-assign shortlisted candidates
+                </div>
+                <div class="card" style="margin-bottom:1.25rem">
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Select Job to Configure</label>
+                        <select id="panelJobSelect" class="form-input" style="max-width:420px"
+                            onchange="loadPanelJob()">
+                            <option value="">— Choose a job —</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="panel-builder" style="display:none">
+                    <div
+                        style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem">
+                        <div style="font-size:16px;font-weight:700">🎯 Interview Panels</div>
+                        <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+                            <button class="btn btn-o" onclick="addPanel()">+ Add Panel</button>
+                            <button class="btn btn-p" onclick="savePanels()">💾 Save Panels</button>
+                        </div>
+                    </div>
+                    <div id="panels-list">
+                        <p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel".</p>
+                    </div>
+                    <div
+                        style="margin-top:1.5rem;padding:1.25rem;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:14px">
+                        <div style="font-size:14px;font-weight:700;margin-bottom:0.4rem">🚀 Auto-Schedule All
+                            Shortlisted Candidates</div>
+                        <div style="font-size:13px;color:var(--muted);margin-bottom:1rem">One click assigns all
+                            SHORTLISTED/UNDER_REVIEW candidates round-robin across panels and sends ICS calendar invites
+                            to candidates AND all panel interviewers simultaneously.</div>
+                        <button class="btn btn-p" style="font-size:14px;padding:0.65rem 1.5rem"
+                            onclick="autoSchedule(event)">🚀 Auto-Schedule Interviews</button>
+                    </div>
+                    <div class="section-divider"></div>
+                    <div style="font-size:16px;font-weight:700;margin-bottom:1rem">📋 Current Schedule</div>
+                    <div id="schedule-table">
+                        <div class="loading">Save panels and run auto-schedule to see assignments here</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -829,19 +874,157 @@
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         let currentJobId = null, currentJobTitle = '', pendingStatusUpdate = null, stageCount = 0;
-        let allJobsCache = [];
+        let allJobsCache = [], panelJobId = null, panels = [], panelCount = 0;
 
         if (!token || user.role !== 'recruiter') { location.href = '/smart_resume_signin_page.html'; }
         document.getElementById('userName').textContent = user.name || 'Recruiter';
         function logout() { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
         // ===================== NAVIGATION =====================
-        const sections = ['overview', 'post', 'jobs', 'analytics'];
+        const sections = ['overview', 'post', 'jobs', 'panels', 'analytics'];
         function showSection(n) {
             sections.forEach(s => { const el = document.getElementById('sec-' + s); if (el) el.style.display = s === n ? 'block' : 'none'; });
             document.querySelectorAll('.nav-item').forEach((el, i) => el.classList.toggle('active', sections[i] === n));
             if (n === 'jobs' || n === 'overview') loadJobs(n);
             if (n === 'analytics') loadAnalytics();
+            if (n === 'panels') populatePanelJobSelect();
+        }
+
+        // ===================== INTERVIEW PANELS =====================
+        async function populatePanelJobSelect() {
+            try {
+                const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) return;
+                const jobs = await r.json();
+                const sel = document.getElementById('panelJobSelect');
+                sel.innerHTML = '<option value="">— Choose a job —</option>';
+                jobs.filter(j => j.status !== 'CLOSED').forEach(j => {
+                    const opt = document.createElement('option');
+                    opt.value = j.id; opt.textContent = j.title + (j.company ? ' — ' + j.company : '');
+                    sel.appendChild(opt);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadPanelJob() {
+            const sel = document.getElementById('panelJobSelect');
+            panelJobId = sel.value;
+            if (!panelJobId) { document.getElementById('panel-builder').style.display = 'none'; return; }
+            document.getElementById('panel-builder').style.display = 'block';
+            try {
+                const r = await fetch(`${API}/api/interviews/schedule/${panelJobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (r.ok) { const d = await r.json(); panels = d.panels || []; panelCount = panels.length; renderPanels(); renderScheduleTable(panels); }
+                else { panels = []; renderPanels(); }
+            } catch (e) { panels = []; renderPanels(); }
+        }
+
+        function addPanel() {
+            panelCount++;
+            panels.push({ panelId: '', panelName: 'Panel ' + panelCount, interviewerEmails: [], interviewerNames: [], slots: [] });
+            renderPanels();
+        }
+        function removePanel(idx) { panels.splice(idx, 1); renderPanels(); }
+        function addSlot(pi) { panels[pi].slots.push({ slotId: '', dateTime: '', durationMinutes: 60, booked: false }); renderPanels(); }
+        function removeSlot(pi, si) { panels[pi].slots.splice(si, 1); renderPanels(); }
+
+        function collectPanelsFromUI() {
+            const updated = [];
+            document.querySelectorAll('.panel-card').forEach((card, pi) => {
+                const name = card.querySelector('.p-name')?.value?.trim() || 'Panel ' + (pi + 1);
+                const emailsRaw = card.querySelector('.p-emails')?.value?.trim() || '';
+                const namesRaw = card.querySelector('.p-names')?.value?.trim() || '';
+                const emailsList = emailsRaw.split(',').map(s => s.trim()).filter(Boolean);
+                const namesList = namesRaw.split(',').map(s => s.trim()).filter(Boolean);
+                const slots = [];
+                card.querySelectorAll('.slot-row').forEach(row => {
+                    const dt = row.querySelector('.slot-dt')?.value || '';
+                    const dur = parseInt(row.querySelector('.slot-dur')?.value || '60');
+                    if (dt) slots.push({ slotId: '', dateTime: dt, durationMinutes: dur, booked: false });
+                });
+                updated.push({ panelId: panels[pi]?.panelId || '', panelName: name, interviewerEmails: emailsList, interviewerNames: namesList, slots });
+            });
+            return updated;
+        }
+
+        function renderPanels() {
+            const container = document.getElementById('panels-list');
+            if (!panels.length) { container.innerHTML = '<p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel" to create one.</p>'; return; }
+            container.innerHTML = panels.map((p, pi) => `<div class="panel-card stage-card">
+                <div class="stage-header"><span class="stage-num">Panel ${pi + 1}</span><button type="button" class="stage-del" onclick="removePanel(${pi})">✕ Remove</button></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                    <div class="form-group"><label class="form-label">Panel Name</label><input class="form-input p-name" value="${p.panelName || ''}" placeholder="e.g. Technical Panel 1"></div>
+                    <div></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                    <div class="form-group"><label class="form-label">Interviewer Emails (comma-separated)</label><input class="form-input p-emails" value="${(p.interviewerEmails || []).join(', ')}" placeholder="rohit@co.com, priya@co.com"></div>
+                    <div class="form-group"><label class="form-label">Interviewer Names (comma-separated)</label><input class="form-input p-names" value="${(p.interviewerNames || []).join(', ')}" placeholder="Rohit Sharma, Priya Singh"></div>
+                </div>
+                <div style="font-size:13px;font-weight:600;margin-bottom:0.5rem;color:var(--muted)">⏰ Available Slots (${(p.slots || []).filter(s => !s.booked).length} free, ${(p.slots || []).filter(s => s.booked).length} booked)</div>
+                ${(p.slots || []).map((s, si) => `<div class="slot-row" style="display:flex;gap:0.75rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap">
+                    <input type="datetime-local" class="form-input slot-dt" value="${s.dateTime ? s.dateTime.substring(0, 16) : ''}" style="flex:1;min-width:180px" ${s.booked ? 'disabled' : ''}>
+                    <input type="number" class="form-input slot-dur" value="${s.durationMinutes || 60}" min="15" max="240" style="width:80px" title="Duration (min)">
+                    <span style="font-size:11px;color:var(--muted)">min</span>
+                    ${s.booked ? `<span class="badge bc" style="font-size:11px;white-space:nowrap">✓ ${s.candidateName || 'Booked'}</span>` : `<button type="button" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:6px;padding:0.2rem 0.5rem;cursor:pointer;font-size:11px" onclick="removeSlot(${pi},${si})">✕</button>`}
+                </div>`).join('')}
+                <button type="button" class="add-stage-btn" style="margin-top:0.5rem;padding:0.5rem;font-size:13px" onclick="addSlot(${pi})">+ Add Time Slot</button>
+            </div>`).join('');
+        }
+
+        async function savePanels() {
+            if (!panelJobId) { alert('Please select a job first.'); return; }
+            const collected = collectPanelsFromUI();
+            try {
+                const r = await fetch(`${API}/api/interviews/panels/${panelJobId}`, {
+                    method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(collected)
+                });
+                const d = await r.json();
+                if (!r.ok) throw new Error(d.error || 'Failed');
+                panels = d.job?.interviewPanels || collected;
+                renderPanels(); renderScheduleTable(panels);
+                alert('✅ ' + d.message);
+            } catch (e) { alert('Failed: ' + e.message); }
+        }
+
+        async function autoSchedule(evt) {
+            if (!panelJobId) { alert('Please select a job first.'); return; }
+            if (!confirm('This will assign ALL shortlisted/under-review candidates round-robin across panels and send ICS calendar invites to both candidates and panel interviewers. Proceed?')) return;
+            const btn = evt.currentTarget; btn.textContent = '⏳ Scheduling…'; btn.disabled = true;
+            try {
+                const r = await fetch(`${API}/api/interviews/auto-schedule/${panelJobId}`, {
+                    method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const d = await r.json();
+                if (!r.ok) throw new Error(d.error || 'Failed');
+                let msg = '✅ ' + d.message;
+                if (d.assignments && d.assignments.length) msg += '\n\nAssignments:\n' + d.assignments.join('\n');
+                alert(msg);
+                loadPanelJob();
+            } catch (e) { alert('Failed: ' + e.message); }
+            btn.textContent = '🚀 Auto-Schedule Interviews'; btn.disabled = false;
+        }
+
+        function renderScheduleTable(panelsData) {
+            const container = document.getElementById('schedule-table');
+            const booked = [];
+            (panelsData || []).forEach(p => {
+                (p.slots || []).filter(s => s.booked).forEach(s => {
+                    booked.push({ panel: p.panelName, interviewers: (p.interviewerNames || []).join(', ') || p.panelName, candidate: s.candidateName, email: s.candidateEmail, dateTime: s.dateTime, duration: s.durationMinutes });
+                });
+            });
+            if (!booked.length) { container.innerHTML = '<p style="color:var(--muted);font-size:13px">No interviews scheduled yet.</p>'; return; }
+            booked.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+            container.innerHTML = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+                <thead><tr>${['Date & Time', 'Candidate', 'Email', 'Panel', 'Interviewers', 'Dur'].map(h => `<th style="text-align:left;padding:0.55rem 0.65rem;border-bottom:1px solid var(--gb);color:var(--muted);font-weight:600;white-space:nowrap">${h}</th>`).join('')}</tr></thead>
+                <tbody>${booked.map(b => `<tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+                    <td style="padding:0.55rem 0.65rem;white-space:nowrap">${new Date(b.dateTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+                    <td style="padding:0.55rem 0.65rem;font-weight:600">${b.candidate || '—'}</td>
+                    <td style="padding:0.55rem 0.65rem;color:var(--muted);font-size:12px">${b.email || '—'}</td>
+                    <td style="padding:0.55rem 0.65rem"><span class="badge bc">${b.panel}</span></td>
+                    <td style="padding:0.55rem 0.65rem;color:var(--muted);font-size:12px">${b.interviewers}</td>
+                    <td style="padding:0.55rem 0.65rem;color:var(--muted)">${b.duration || 60}m</td>
+                </tr>`).join('')}</tbody>
+            </table></div>`;
         }
 
         // ===================== BADGES & HELPERS =====================
