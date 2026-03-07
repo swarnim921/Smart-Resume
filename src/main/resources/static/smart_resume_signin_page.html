@@ -351,7 +351,7 @@
     <div class="card">
         <!-- Role toggle -->
         <div class="role-toggle">
-            <button class="role-btn active" id="btnStudent" onclick="selectRole('candidate')">Student</button>
+            <button class="role-btn active" id="btnCandidate" onclick="selectRole('candidate')">Candidate</button>
             <button class="role-btn" id="btnRecruiter" onclick="selectRole('recruiter')">Recruiter</button>
         </div>
 
@@ -418,7 +418,7 @@
 
         function selectRole(role) {
             selectedRole = role;
-            document.getElementById('btnStudent').classList.toggle('active', role === 'candidate');
+            document.getElementById('btnCandidate').classList.toggle('active', role === 'candidate');
             document.getElementById('btnRecruiter').classList.toggle('active', role === 'recruiter');
         }
 
