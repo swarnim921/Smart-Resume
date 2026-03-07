@@ -32,9 +32,29 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
-        // Extract user info from Google
+        // Extract user info
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
+
+        // Handle LinkedIn details if generic 'name' is missing
+        if (name == null) {
+            String givenName = oAuth2User.getAttribute("given_name");
+            String familyName = oAuth2User.getAttribute("family_name");
+            if (givenName != null && familyName != null) {
+                name = givenName + " " + familyName;
+            } else if (givenName != null) {
+                name = givenName;
+            } else {
+                // Fallback for older APIs or missing fields
+                Object localizedFirstName = oAuth2User.getAttribute("localizedFirstName");
+                Object localizedLastName = oAuth2User.getAttribute("localizedLastName");
+                if (localizedFirstName != null && localizedLastName != null) {
+                    name = localizedFirstName + " " + localizedLastName;
+                } else {
+                    name = "LinkedIn User";
+                }
+            }
+        }
 
         // Get role from cookie (Spring Security OAuth2 doesn't preserve custom state)
         String roleFromCookie = "candidate"; // default
