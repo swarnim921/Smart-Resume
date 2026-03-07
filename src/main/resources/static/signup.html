@@ -123,7 +123,7 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.8);
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
             animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -137,6 +137,22 @@
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(79, 125, 243, 0.1);
+            color: #1E56F0;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border: 1px solid rgba(79, 125, 243, 0.2);
+            letter-spacing: 0.02em;
         }
 
         /* Typography */
@@ -320,7 +336,7 @@
         .btn-primary {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(to right, #4F7DF3, #1E56F0);
+            background: linear-gradient(135deg, #4F7DF3, #1E56F0);
             border: none;
             border-radius: 12px;
             color: white;
@@ -329,7 +345,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 14px rgba(30, 86, 240, 0.3);
+            box-shadow: 0 8px 20px rgba(79, 125, 243, 0.4);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -340,7 +356,7 @@
 
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(30, 86, 240, 0.4);
+            box-shadow: 0 12px 24px rgba(79, 125, 243, 0.5);
         }
 
         .btn-primary:active:not(:disabled) {
@@ -484,8 +500,9 @@
 
     <div class="card">
         <div class="header-text" id="headerText">
+            <div class="badge">🚀 AI Resume Screening Platform</div>
             <h1>Create Account</h1>
-            <p>Join TalentSync to get started.</p>
+            <p id="dynamicSubtitle">Join TalentSync to get started.</p>
         </div>
 
         <!-- Role Toggle -->
@@ -595,14 +612,17 @@
         function setRole(role) {
             currentRole = role;
             const slider = document.getElementById('roleSlider');
+            const subtitle = document.getElementById('dynamicSubtitle');
             if (role === 'candidate') {
                 slider.style.transform = 'translateX(0)';
                 document.getElementById('btnCandidate').classList.add('active');
                 document.getElementById('btnRecruiter').classList.remove('active');
+                if (subtitle) subtitle.innerHTML = 'Find your next opportunity faster.';
             } else {
                 slider.style.transform = 'translateX(100%)';
                 document.getElementById('btnRecruiter').classList.add('active');
                 document.getElementById('btnCandidate').classList.remove('active');
+                if (subtitle) subtitle.innerHTML = 'Discover top talent powered by AI.';
             }
         }
 
