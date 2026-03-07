@@ -9,6 +9,10 @@
     ],
     "routes": [
         {
+            "src": "/",
+            "dest": "src/main/resources/static/smart_resume_signin_page.html"
+        },
+        {
             "src": "/(.*)",
             "dest": "src/main/resources/static/$1"
         }
