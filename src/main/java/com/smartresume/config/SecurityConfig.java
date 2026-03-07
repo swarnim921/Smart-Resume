@@ -23,8 +23,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
         private final JwtFilter jwtFilter;
-        // OAuth2 disabled - removed OAuth2SuccessHandler and
-        // CookieOAuth2AuthorizationRequestRepository
+        private final OAuth2SuccessHandler oAuth2SuccessHandler;
+        private final CookieOAuth2AuthorizationRequestRepository cookieOAuth2Repository;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -63,7 +63,11 @@ public class SecurityConfig {
                                                 // ALL OTHER SECURED ENDPOINTS
                                                 .anyRequest().authenticated())
                                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                // OAuth2 disabled - removed oauth2Login configuration
+                                .oauth2Login(oauth2 -> oauth2
+                                                .authorizationEndpoint(a -> a
+                                                                .authorizationRequestRepository(cookieOAuth2Repository))
+                                                .successHandler(oAuth2SuccessHandler)
+                                                .failureUrl("/api/oauth2/failure"))
                                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
@@ -77,9 +81,9 @@ public class SecurityConfig {
                 configuration.setAllowedOrigins(java.util.Arrays.asList(
                                 "https://www.talentsynctech.in",
                                 "https://talentsynctech.in",
-                                "https://api.talentsynctech.in", // API subdomain for cross-origin requests
-                                "http://localhost:3000" // For local development
-                ));
+                                "https://api.talentsynctech.in",
+                                "http://localhost:3000",
+                                "http://localhost:8080"));
 
                 configuration.setAllowedMethods(java.util.Arrays.asList(
                                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
