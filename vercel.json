@@ -1,0 +1,16 @@
+{
+    "version": 2,
+    "name": "talentsync-frontend",
+    "builds": [
+        {
+            "src": "src/main/resources/static/**",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "src/main/resources/static/$1"
+        }
+    ]
+}

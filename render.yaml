@@ -1,0 +1,38 @@
+services:
+  # ─── Spring Boot Backend ──────────────────────────────────────────
+  - type: web
+    name: talentsync-backend
+    runtime: java
+    rootDir: .
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/smart-resume-backend-0.0.1-SNAPSHOT.jar
+    plan: free
+    envVars:
+      - key: MONGODB_URI
+        sync: false          # Set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: ML_SERVICE_URL
+        sync: false          # URL of your deployed ML service
+
+  # ─── Python ML Service ───────────────────────────────────────────
+  - type: web
+    name: talentsync-ml
+    runtime: python
+    rootDir: ml-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    plan: free
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 5000
