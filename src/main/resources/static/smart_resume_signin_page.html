@@ -21,7 +21,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #0d1f3c 0%, #0a2a4a 35%, #0d3d4a 65%, #0a3d3a 100%);
+            background: linear-gradient(135deg, #c8d8f0 0%, #d6e4f7 40%, #c2d8f5 100%);
             overflow: hidden;
             position: relative;
         }
@@ -31,7 +31,7 @@
             position: fixed;
             border-radius: 50%;
             filter: blur(80px);
-            opacity: 0.45;
+            opacity: 0.5;
             pointer-events: none;
             animation: blobFloat 18s ease-in-out infinite;
         }
@@ -39,7 +39,7 @@
         .blob1 {
             width: 420px;
             height: 420px;
-            background: radial-gradient(circle, #00d4aa55, #0066cc44);
+            background: radial-gradient(circle, #4a90d944, #2563eb33);
             top: -80px;
             left: -80px;
             animation-delay: 0s;
@@ -48,7 +48,7 @@
         .blob2 {
             width: 380px;
             height: 380px;
-            background: radial-gradient(circle, #00aa8855, #003d6644);
+            background: radial-gradient(circle, #3b82f644, #7c3aed33);
             bottom: -60px;
             right: -60px;
             animation-delay: 6s;
@@ -57,7 +57,7 @@
         .blob3 {
             width: 300px;
             height: 300px;
-            background: radial-gradient(circle, #0099cc44, #00d4aa33);
+            background: radial-gradient(circle, #60a5fa33, #4a90d922);
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -112,12 +112,12 @@
             width: 100%;
             max-width: 400px;
             padding: 24px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(74, 144, 217, 0.2);
             border-radius: 28px;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 40px rgba(74, 144, 217, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8);
             animation: slideUp 0.6s cubic-bezier(.22, .68, 0, 1.2);
         }
 
@@ -136,8 +136,8 @@
         /* Role toggle pill */
         .role-toggle {
             display: flex;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(74, 144, 217, 0.1);
+            border: 1px solid rgba(74, 144, 217, 0.25);
             border-radius: 50px;
             padding: 5px;
             margin-bottom: 28px;
@@ -156,14 +156,14 @@
             cursor: pointer;
             transition: all 0.3s ease;
             background: transparent;
-            color: rgba(255, 255, 255, 0.55);
+            color: rgba(74, 144, 217, 0.55);
         }
 
         .role-btn.active {
-            background: rgba(0, 212, 170, 0.25);
-            color: #a0f5e8;
-            box-shadow: 0 0 20px rgba(0, 212, 170, 0.2);
-            border: 1px solid rgba(0, 212, 170, 0.4);
+            background: rgba(74, 144, 217, 0.2);
+            color: #2563eb;
+            box-shadow: 0 0 20px rgba(74, 144, 217, 0.2);
+            border: 1px solid rgba(74, 144, 217, 0.4);
         }
 
         /* Inputs */
@@ -185,13 +185,13 @@
         .input-wrap input {
             width: 100%;
             padding: 14px 16px 14px 44px;
-            background: rgba(255, 255, 255, 0.09);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(74, 144, 217, 0.06);
+            border: 1px solid rgba(74, 144, 217, 0.2);
             border-radius: 14px;
             font-family: 'Inter', sans-serif;
             font-size: 14px;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.9);
+            color: #1a2340;
             letter-spacing: 0.05em;
             text-transform: uppercase;
             outline: none;
@@ -199,16 +199,16 @@
         }
 
         .input-wrap input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(74, 144, 217, 0.5);
             text-transform: uppercase;
             letter-spacing: 0.08em;
             font-size: 12px;
         }
 
         .input-wrap input:focus {
-            border-color: rgba(0, 212, 170, 0.6);
-            background: rgba(255, 255, 255, 0.13);
-            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.12);
+            border-color: rgba(74, 144, 217, 0.6);
+            background: rgba(74, 144, 217, 0.1);
+            box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.12);
         }
 
         .eye-btn {
@@ -241,16 +241,16 @@
             letter-spacing: 0.1em;
             text-transform: uppercase;
             cursor: pointer;
-            background: linear-gradient(90deg, #3b82f6 0%, #00d4aa 100%);
+            background: linear-gradient(90deg, #4a90d9 0%, #2563eb 100%);
             color: white;
-            box-shadow: 0 4px 24px rgba(0, 180, 150, 0.35);
+            box-shadow: 0 4px 24px rgba(74, 144, 217, 0.35);
             transition: all 0.3s ease;
             margin-top: 8px;
         }
 
         .btn-signin:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(0, 180, 150, 0.5);
+            box-shadow: 0 8px 32px rgba(74, 144, 217, 0.5);
         }
 
         .btn-signin:active {
@@ -268,18 +268,18 @@
             text-align: center;
             margin: 18px 0 14px;
             font-size: 13px;
-            color: rgba(255, 255, 255, 0.45);
+            color: rgba(26, 35, 64, 0.55);
         }
 
         .register-row a {
-            color: rgba(255, 255, 255, 0.8);
+            color: #2563eb;
             font-weight: 600;
             text-decoration: none;
             transition: color 0.2s;
         }
 
         .register-row a:hover {
-            color: #00d4aa;
+            color: #4a90d9;
         }
 
         /* Social buttons row */
@@ -293,7 +293,7 @@
         .social-divider {
             width: 1px;
             height: 22px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(74, 144, 217, 0.2);
         }
 
         .btn-social {
@@ -306,16 +306,16 @@
             font-family: 'Inter', sans-serif;
             font-size: 13px;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.8);
-            background: rgba(255, 255, 255, 0.09);
+            color: #1a2340;
+            background: rgba(74, 144, 217, 0.08);
             cursor: pointer;
             transition: all 0.25s ease;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(74, 144, 217, 0.18);
         }
 
         .btn-social:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
+            background: rgba(74, 144, 217, 0.15);
+            color: #2563eb;
             transform: translateY(-1px);
         }
 
@@ -327,9 +327,9 @@
 
         /* Error */
         .error-msg {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #dc2626;
             border-radius: 10px;
             padding: 10px 14px;
             font-size: 13px;
@@ -408,7 +408,7 @@
     </div>
 
     <!-- Sparkle -->
-    <svg class="sparkle" viewBox="0 0 24 24" fill="rgba(0,212,170,0.7)" xmlns="http://www.w3.org/2000/svg">
+    <svg class="sparkle" viewBox="0 0 24 24" fill="rgba(74,144,217,0.7)" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74z" />
     </svg>
 
