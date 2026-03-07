@@ -4,112 +4,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Resume Matcher Portal - Sign In</title>
-    <!-- Version: 2.2 - OAuth removed, frontend deployment fix -->>
+    <title>TalentSync - Sign In</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <style>
-        /* ===== GLOBAL RESET ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* ===== ROOT VARIABLES ===== */
-        :root {
-            --bg-gradient-start: #1e3a8a;
-            --bg-gradient-end: #1e40af;
-            --card-bg: rgba(255, 255, 255, 0.15);
-            --card-border: rgba(255, 255, 255, 0.3);
-            --text-primary: #1a1a1a;
-            --text-secondary: #4a4a4a;
-            --input-bg: rgba(255, 255, 255, 0.25);
-            --input-border: rgba(255, 255, 255, 0.4);
-            --button-bg: #2563eb;
-            --button-hover: #1d4ed8;
-            --link-color: #1e40af;
-            --blob-1: rgba(37, 99, 235, 0.4);
-            --blob-2: rgba(29, 78, 216, 0.4);
-            --blob-3: rgba(30, 64, 175, 0.4);
-            --shadow-color: rgba(0, 0, 0, 0.1);
-        }
-
-        /* ===== DARK MODE VARIABLES ===== */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-gradient-start: #0f172a;
-                --bg-gradient-end: #1e293b;
-                --card-bg: rgba(255, 255, 255, 0.08);
-                --card-border: rgba(255, 255, 255, 0.18);
-                --text-primary: #f1f5f9;
-                --text-secondary: #cbd5e1;
-                --input-bg: rgba(255, 255, 255, 0.1);
-                --input-border: rgba(255, 255, 255, 0.2);
-                --button-bg: #3b82f6;
-                --button-hover: #2563eb;
-                --link-color: #60a5fa;
-                --blob-1: rgba(59, 130, 246, 0.3);
-                --blob-2: rgba(37, 99, 235, 0.3);
-                --blob-3: rgba(29, 78, 216, 0.3);
-                --shadow-color: rgba(0, 0, 0, 0.3);
-            }
-        }
-
-        /* ===== BODY & BACKGROUND ===== */
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-            color: var(--text-primary);
-            overflow-x: hidden;
+            background: linear-gradient(135deg, #0d1f3c 0%, #0a2a4a 35%, #0d3d4a 65%, #0a3d3a 100%);
+            overflow: hidden;
             position: relative;
         }
 
-        /* ===== FLOATING BLOBS ===== */
+        /* Animated blobs */
         .blob {
-            position: absolute;
+            position: fixed;
             border-radius: 50%;
-            filter: blur(60px);
-            opacity: 0.6;
-            animation: float 20s infinite ease-in-out;
+            filter: blur(80px);
+            opacity: 0.45;
             pointer-events: none;
+            animation: blobFloat 18s ease-in-out infinite;
         }
 
-        .blob-1 {
-            width: 300px;
-            height: 300px;
-            background: var(--blob-1);
-            top: 10%;
-            left: 15%;
+        .blob1 {
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, #00d4aa55, #0066cc44);
+            top: -80px;
+            left: -80px;
             animation-delay: 0s;
         }
 
-        .blob-2 {
-            width: 400px;
-            height: 400px;
-            background: var(--blob-2);
-            bottom: 15%;
-            right: 10%;
-            animation-delay: 7s;
+        .blob2 {
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, #00aa8855, #003d6644);
+            bottom: -60px;
+            right: -60px;
+            animation-delay: 6s;
         }
 
-        .blob-3 {
-            width: 350px;
-            height: 350px;
-            background: var(--blob-3);
+        .blob3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #0099cc44, #00d4aa33);
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            animation-delay: 14s;
+            animation-delay: 12s;
         }
 
-        @keyframes float {
+        @keyframes blobFloat {
 
             0%,
             100% {
@@ -117,334 +72,314 @@
             }
 
             33% {
-                transform: translate(30px, -30px) scale(1.1);
+                transform: translate(40px, -40px) scale(1.08);
             }
 
             66% {
-                transform: translate(-20px, 20px) scale(0.9);
+                transform: translate(-25px, 25px) scale(0.95);
             }
         }
 
-        /* ===== CONTAINER ===== */
-        .container {
+        /* Sparkle */
+        .sparkle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 28px;
+            height: 28px;
+            opacity: 0.6;
+            animation: sparkleAnim 3s ease-in-out infinite;
+        }
+
+        @keyframes sparkleAnim {
+
+            0%,
+            100% {
+                opacity: 0.4;
+                transform: scale(1) rotate(0deg);
+            }
+
+            50% {
+                opacity: 0.9;
+                transform: scale(1.2) rotate(15deg);
+            }
+        }
+
+        /* Main card */
+        .card {
             position: relative;
             z-index: 10;
             width: 100%;
-            max-width: 440px;
-            padding: 20px;
-            animation: fadeInUp 0.8s ease-out;
+            max-width: 400px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 28px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            animation: slideUp 0.6s cubic-bezier(.22, .68, 0, 1.2);
         }
 
-        @keyframes fadeInUp {
+        @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(40px) scale(0.96);
             }
 
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
             }
         }
 
-        /* ===== GLASS CARD ===== */
-        .glass-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 48px 40px;
-            box-shadow: 0 8px 32px var(--shadow-color),
-                0 0 1px rgba(255, 255, 255, 0.1) inset,
-                0 0 60px rgba(255, 255, 255, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .glass-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 48px var(--shadow-color),
-                0 0 1px rgba(255, 255, 255, 0.15) inset,
-                0 0 80px rgba(255, 255, 255, 0.08);
-        }
-
-        /* ===== HEADER ===== */
-        .header {
-            text-align: center;
-            margin-bottom: 36px;
-        }
-
-        .header h1 {
-            font-size: 30px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-            letter-spacing: -0.5px;
-        }
-
-        .header h2 {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -0.5px;
-        }
-
-        /* ===== FORM ===== */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 14px 18px;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 12px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 15px;
-            color: var(--text-primary);
-            outline: none;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        input[type="email"]::placeholder,
-        input[type="password"]::placeholder {
-            color: var(--text-secondary);
-            opacity: 0.7;
-        }
-
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            border-color: var(--button-bg);
-            background: var(--input-bg);
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-            transform: translateY(-1px);
-        }
-
-        /* ===== PASSWORD TOGGLE ===== */
-        .password-toggle {
+        /* Role toggle pill */
+        .role-toggle {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 8px;
-            font-size: 14px;
-            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 5px;
+            margin-bottom: 28px;
         }
 
-        .password-toggle input[type="checkbox"] {
-            cursor: pointer;
-        }
-
-        /* ===== FORGOT PASSWORD ===== */
-        .forgot-password {
-            text-align: right;
-            margin-top: 12px;
-            margin-bottom: 24px;
-        }
-
-        .forgot-password a {
-            color: var(--link-color);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: opacity 0.3s ease;
-        }
-
-        .forgot-password a:hover {
-            opacity: 0.8;
-            text-decoration: underline;
-        }
-
-        /* ===== BUTTONS ===== */
-        .btn {
-            width: 100%;
-            padding: 14px 24px;
-            border-radius: 12px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
+        .role-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        .role-btn.active {
+            background: rgba(0, 212, 170, 0.25);
+            color: #a0f5e8;
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.2);
+            border: 1px solid rgba(0, 212, 170, 0.4);
+        }
+
+        /* Inputs */
+        .input-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.55;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
             outline: none;
+            transition: all 0.3s ease;
         }
 
-        .btn-primary {
-            background: var(--button-bg);
+        .input-wrap input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 12px;
+        }
+
+        .input-wrap input:focus {
+            border-color: rgba(0, 212, 170, 0.6);
+            background: rgba(255, 255, 255, 0.13);
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.12);
+        }
+
+        .eye-btn {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0.5;
+            font-size: 16px;
             color: white;
-            box-shadow: 0 4px 14px rgba(74, 144, 226, 0.3);
+            transition: opacity 0.2s;
         }
 
-        .btn-primary:hover {
-            background: var(--button-hover);
+        .eye-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Sign in button */
+        .btn-signin {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            background: linear-gradient(90deg, #3b82f6 0%, #00d4aa 100%);
+            color: white;
+            box-shadow: 0 4px 24px rgba(0, 180, 150, 0.35);
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .btn-signin:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 180, 150, 0.5);
         }
 
-        .btn-primary:active {
+        .btn-signin:active {
             transform: translateY(0);
         }
 
-        /* ===== DIVIDER ===== */
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 28px 0;
-            color: var(--text-secondary);
-            font-size: 14px;
+        .btn-signin:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--input-border);
+        /* Divider */
+        .register-row {
+            text-align: center;
+            margin: 18px 0 14px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.45);
         }
 
-        .divider span {
-            padding: 0 16px;
+        .register-row a {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
         }
 
-        /* ===== SOCIAL BUTTONS ===== */
-        .social-buttons {
+        .register-row a:hover {
+            color: #00d4aa;
+        }
+
+        /* Social buttons row */
+        .social-row {
             display: flex;
             gap: 12px;
-            margin-bottom: 24px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .social-divider {
+            width: 1px;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .btn-social {
-            flex: 1;
-            padding: 12px 20px;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 12px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.09);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .btn-social:hover {
-            background: var(--input-border);
-            transform: translateY(-2px);
-            border-color: var(--button-bg);
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateY(-1px);
         }
 
         .btn-social svg {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
         }
 
-        /* ===== REGISTER LINK ===== */
-        .register-link {
-            text-align: center;
-            font-size: 14px;
-            color: var(--text-secondary);
+        /* Error */
+        .error-msg {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            margin-bottom: 14px;
+            display: none;
         }
 
-        .register-link a {
-            color: var(--link-color);
-            text-decoration: none;
-            font-weight: 600;
-            transition: opacity 0.3s ease;
-        }
-
-        .register-link a:hover {
-            opacity: 0.8;
-            text-decoration: underline;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 480px) {
-            .glass-card {
-                padding: 36px 28px;
-                border-radius: 20px;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .header h2 {
-                font-size: 24px;
-            }
-
-            .blob-1,
-            .blob-2,
-            .blob-3 {
-                width: 200px;
-                height: 200px;
-            }
+        .error-msg.show {
+            display: block;
         }
     </style>
 </head>
 
 <body>
-    <!-- Floating Blobs -->
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
 
-    <!-- Main Container -->
-    <div class="container">
-        <div class="glass-card">
-            <!-- Header -->
-            <div class="header">
-                <h1><span>Talent<span style="color:#e94f4f;">S</span>ync</span></h1>
-                <h2>Sign In</h2>
+    <div class="card">
+        <!-- Role toggle -->
+        <div class="role-toggle">
+            <button class="role-btn active" id="btnStudent" onclick="selectRole('candidate')">Student</button>
+            <button class="role-btn" id="btnRecruiter" onclick="selectRole('recruiter')">Recruiter</button>
+        </div>
+
+        <!-- Error -->
+        <div class="error-msg" id="errorMsg"></div>
+
+        <!-- Form -->
+        <form id="signInForm" onsubmit="handleSignIn(event)">
+            <div class="input-wrap">
+                <span class="input-icon">🎓</span>
+                <input type="email" id="email" placeholder="Email" required autocomplete="email">
             </div>
-
-            <!-- Sign In Form -->
-            <form id="signInForm">
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" placeholder="your.email@example.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Enter your password" required>
-                    <div class="password-toggle">
-                        <input type="checkbox" id="showPassword">
-                        <label for="showPassword" style="margin: 0; cursor: pointer;">Show password</label>
-                    </div>
-                </div>
-
-                <div class="forgot-password">
-                    <a href="#forgot">Forgot password?</a>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Sign In</button>
-            </form>
-            <!-- Register Link -->
-            <div class="register-link">
-                Don't have an account? <a href="#register">Register</a>
+            <div class="input-wrap">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+                <button type="button" class="eye-btn" onclick="togglePwd()" id="eyeBtn">👁</button>
             </div>
+            <button type="submit" class="btn-signin" id="signInBtn">Sign In</button>
+        </form>
 
-            <!-- Divider -->
-            <div class="divider"><span>or</span></div>
+        <!-- Register -->
+        <div class="register-row">
+            Don't have an account? <a href="#" id="registerLink">Register</a>
+        </div>
 
-            <!-- Google SSO Button -->
-            <button type="button" class="btn-social" id="googleSignInBtn" onclick="signInWithGoogle()"
-                style="width:100%;justify-content:center;gap:10px;padding:13px 20px;">
+        <!-- Social -->
+        <div class="social-row">
+            <button class="btn-social" onclick="signInWithGoogle()">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -459,188 +394,114 @@
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                         fill="#EA4335" />
                 </svg>
-                Continue with Google
+                Sign in with Google
+            </button>
+            <div class="social-divider"></div>
+            <button class="btn-social" onclick="signInWithLinkedIn()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#0A66C2">
+                    <path
+                        d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+                LinkedIn
             </button>
         </div>
     </div>
 
+    <!-- Sparkle -->
+    <svg class="sparkle" viewBox="0 0 24 24" fill="rgba(0,212,170,0.7)" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74z" />
+    </svg>
+
     <script>
-        // Configuration
         const API_BASE_URL = 'https://api.talentsynctech.in';
-
-        // Add role selection UI
-        const formElement = document.getElementById('signInForm');
-        const roleSelectionHTML = `
-            <div class="form-group">
-                <label>Sign in as</label>
-                <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-                    <button type="button" class="btn-social" id="candidateRole" style="flex: 1; background: var(--button-bg); color: white;">
-                        Candidate
-                    </button>
-                    <button type="button" class="btn-social" id="recruiterRole" style="flex: 1;">
-                        Recruiter
-                    </button>
-                </div>
-            </div>
-        `;
-        formElement.insertAdjacentHTML('afterbegin', roleSelectionHTML);
-
-        // Role selection state
         let selectedRole = 'candidate';
-        const candidateBtn = document.getElementById('candidateRole');
-        const recruiterBtn = document.getElementById('recruiterRole');
 
-        candidateBtn.addEventListener('click', function () {
-            selectedRole = 'candidate';
-            candidateBtn.style.background = 'var(--button-bg)';
-            candidateBtn.style.color = 'white';
-            recruiterBtn.style.background = 'var(--input-bg)';
-            recruiterBtn.style.color = 'var(--text-primary)';
-        });
+        function selectRole(role) {
+            selectedRole = role;
+            document.getElementById('btnStudent').classList.toggle('active', role === 'candidate');
+            document.getElementById('btnRecruiter').classList.toggle('active', role === 'recruiter');
+        }
 
-        recruiterBtn.addEventListener('click', function () {
-            selectedRole = 'recruiter';
-            recruiterBtn.style.background = 'var(--button-bg)';
-            recruiterBtn.style.color = 'white';
-            candidateBtn.style.background = 'var(--input-bg)';
-            candidateBtn.style.color = 'var(--text-primary)';
-        });
+        function togglePwd() {
+            const pwd = document.getElementById('password');
+            const btn = document.getElementById('eyeBtn');
+            if (pwd.type === 'password') { pwd.type = 'text'; btn.textContent = '🙈'; }
+            else { pwd.type = 'password'; btn.textContent = '👁'; }
+        }
 
-        // Form submission handler with real backend integration
-        document.getElementById('signInForm').addEventListener('submit', async function (e) {
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.classList.add('show');
+        }
+        function clearError() { document.getElementById('errorMsg').classList.remove('show'); }
+
+        async function handleSignIn(e) {
             e.preventDefault();
-
+            clearError();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const submitBtn = this.querySelector('.btn-primary');
-
-            // Disable button and show loading
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Signing in...';
-
+            const btn = document.getElementById('signInBtn');
+            btn.disabled = true; btn.textContent = 'Signing in…';
             try {
-                // Call backend signin API
-                const response = await fetch(`${API_BASE_URL}/api/auth/signin`, {
+                const r = await fetch(`${API_BASE_URL}/api/auth/signin`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
                 });
-
-                if (!response.ok) {
-                    throw new Error('Invalid email or password');
-                }
-
-                const data = await response.json();
-
-                // Normalize roles: backend returns 'user' for candidates, frontend uses 'candidate'
+                if (!r.ok) throw new Error('Invalid email or password');
+                const data = await r.json();
                 const backendRole = data.role === 'user' ? 'candidate' : data.role;
-
-                // Verify role matches selection
                 if (selectedRole !== backendRole) {
                     throw new Error(`This account is registered as ${backendRole}. Please select the correct role.`);
                 }
-
-                // Store token and user info (use normalized role)
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify({
-                    name: data.name,
-                    email: data.email,
-                    role: backendRole  // Store as 'candidate' or 'recruiter'
-                }));
-
-                // Show success message
-                alert(`Welcome back, ${data.name}!`);
-
-                // Redirect based on role
-                if (backendRole === 'recruiter') {
-                    window.location.href = '/recruiter-dashboard.html';
-                } else {
-                    window.location.href = '/candidate-dashboard.html';
-                }
-
-            } catch (error) {
-                console.error('Sign in error:', error);
-                alert('Sign in failed: ' + error.message);
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Sign In';
+                localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email, role: backendRole }));
+                window.location.href = backendRole === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
+            } catch (err) {
+                showError(err.message);
+                btn.disabled = false; btn.textContent = 'Sign In';
             }
-        });
+        }
 
-        // Show/hide password toggle
-        document.getElementById('showPassword').addEventListener('change', function () {
-            const passwordField = document.getElementById('password');
-            passwordField.type = this.checked ? 'text' : 'password';
-        });
-
-        // ── Google SSO ──────────────────────────────────────────────────
         function signInWithGoogle() {
-            // Set role in cookie so OAuth2SuccessHandler can read it
             const role = selectedRole || 'candidate';
             document.cookie = `oauth_role=${role};path=/;max-age=600;SameSite=Lax`;
-            // Redirect to backend OAuth2 initiation URL
             window.location.href = 'https://api.talentsynctech.in/oauth2/authorization/google';
         }
 
+        function signInWithLinkedIn() {
+            alert('LinkedIn SSO coming soon!');
+        }
 
-        // Update register link to include role selection
-        const registerLink = document.querySelector('.register-link a');
-        registerLink.addEventListener('click', function (e) {
-            e.preventDefault();
-            // Redirect to signup page with selected role
-            window.location.href = `/signup.html?role=${selectedRole}`;
-        });
-
-        // Add smooth input animations
-        const inputs = document.querySelectorAll('input[type="email"], input[type="password"]');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function () {
-                this.parentElement.style.transform = 'translateX(2px)';
-            });
-            input.addEventListener('blur', function () {
-                this.parentElement.style.transform = 'translateX(0)';
-            });
-        });
-
-        // Check if user is already logged in
-        window.addEventListener('load', function () {
-            const token = localStorage.getItem('token');
-            if (token) {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                if (confirm(`You are already signed in as ${user.name}. Go to dashboard?`)) {
-                    if (user.role === 'recruiter') {
-                        window.location.href = '/recruiter-dashboard.html';
-                    } else {
-                        window.location.href = '/candidate-dashboard.html';
-                    }
-                }
-            }
-        });
-
-        // Handle OAuth callback (if redirected back from Google)
+        // Handle OAuth callback
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('token')) {
             const token = urlParams.get('token');
             const name = urlParams.get('name');
             const email = urlParams.get('email');
             const role = urlParams.get('role');
-
-            // Store credentials
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify({ name, email, role }));
-
-            // Redirect to dashboard
-            alert(`Welcome, ${name}!`);
-            if (role === 'recruiter') {
-                window.location.href = '/recruiter-dashboard.html';
-            } else {
-                window.location.href = '/candidate-dashboard.html';
-            }
+            window.location.href = role === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
         }
+
+        // Register link
+        document.getElementById('registerLink').addEventListener('click', function (e) {
+            e.preventDefault();
+            window.location.href = `/signup.html?role=${selectedRole}`;
+        });
+
+        // Already logged in
+        window.addEventListener('load', function () {
+            const token = localStorage.getItem('token');
+            if (token) {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (confirm(`Already signed in as ${user.name}. Go to dashboard?`)) {
+                    window.location.href = user.role === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
+                }
+            }
+        });
     </script>
 </body>
 

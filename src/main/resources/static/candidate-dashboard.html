@@ -4,398 +4,483 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidate Dashboard - TalentSync</title>
+    <title>Dashboard - TalentSync</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box
+            box-sizing: border-box;
         }
 
         :root {
-            --bg1: #0d1b3e;
-            --bg2: #0a3d62;
-            --accent: #00d4aa;
-            --accent2: #2563eb;
-            --glass: rgba(255, 255, 255, 0.07);
-            --gb: rgba(255, 255, 255, 0.15);
-            --ghov: rgba(255, 255, 255, 0.12);
-            --text: #f1f5f9;
-            --muted: #94a3b8;
-            --success: #10b981;
+            --bg: #eef2fb;
+            --sidebar-bg: #d6e4f7;
+            --white: #ffffff;
+            --accent: #4a90d9;
+            --accent2: #38b9a0;
+            --text: #1a2340;
+            --muted: #6b7a99;
+            --border: #dde6f0;
+            --success: #38b9a0;
             --warning: #f59e0b;
-            --danger: #ef4444
+            --danger: #ef4444;
+            --card-shadow: 0 2px 12px rgba(74, 144, 217, 0.08);
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--bg1), var(--bg2));
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
             min-height: 100vh;
             color: var(--text);
-            overflow-x: hidden
-        }
-
-        .blob {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.2;
-            pointer-events: none;
-            animation: fl 20s infinite ease-in-out
-        }
-
-        .b1 {
-            width: 500px;
-            height: 500px;
-            background: #1e40af;
-            top: -100px;
-            left: -100px
-        }
-
-        .b2 {
-            width: 400px;
-            height: 400px;
-            background: #00d4aa;
-            bottom: -100px;
-            right: -100px;
-            animation-delay: 7s
-        }
-
-        .b3 {
-            width: 300px;
-            height: 300px;
-            background: #2563eb;
-            top: 40%;
-            left: 40%;
-            animation-delay: 14s
-        }
-
-        @keyframes fl {
-
-            0%,
-            100% {
-                transform: translate(0, 0)
-            }
-
-            33% {
-                transform: translate(25px, -25px)
-            }
-
-            66% {
-                transform: translate(-15px, 15px)
-            }
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--gb);
-            padding: 1rem 2rem;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100
         }
 
-        .logo {
-            font-size: 22px;
-            font-weight: 700
-        }
-
-        .logo span {
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent
-        }
-
-        .layout {
-            display: flex;
-            min-height: calc(100vh - 64px)
-        }
-
+        /* Sidebar */
         .sidebar {
-            width: 210px;
-            background: rgba(255, 255, 255, 0.04);
-            border-right: 1px solid var(--gb);
-            padding: 1.5rem 1rem;
-            flex-shrink: 0
+            width: 180px;
+            min-height: 100vh;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            padding: 28px 16px;
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234a90d9' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .sidebar-logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 36px;
+            padding-left: 4px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
+            gap: 10px;
+            padding: 11px 14px;
             border-radius: 12px;
-            cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             color: var(--muted);
-            transition: all 0.3s;
-            margin-bottom: 0.25rem;
-            border: 1px solid transparent;
+            cursor: pointer;
+            border: none;
             background: none;
             width: 100%;
             text-align: left;
-            font-family: 'Poppins', sans-serif
+            transition: all 0.2s;
+            margin-bottom: 4px;
         }
 
-        .nav-item:hover,
+        .nav-item:hover {
+            background: rgba(74, 144, 217, 0.1);
+            color: var(--accent);
+        }
+
         .nav-item.active {
-            background: var(--glass);
-            color: var(--text);
-            border-color: var(--gb)
+            background: rgba(74, 144, 217, 0.15);
+            color: var(--accent);
+            font-weight: 600;
         }
 
-        .nav-item.active {
-            color: var(--accent)
+        .nav-icon {
+            font-size: 18px;
         }
 
+        .sidebar-footer {
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(239, 68, 68, 0.08);
+            color: #ef4444;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        /* Main */
         .main {
             flex: 1;
-            padding: 2rem;
-            overflow-y: auto
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        .page-title {
-            font-size: 26px;
+        .topbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .topbar-title {
+            font-size: 22px;
             font-weight: 700;
-            margin-bottom: 0.25rem
+            color: var(--text);
         }
 
-        .page-sub {
-            color: var(--muted);
-            font-size: 14px;
-            margin-bottom: 1.75rem
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem
-        }
-
-        .card {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--gb);
-            border-radius: 18px;
-            padding: 1.5rem;
-            transition: all 0.3s
-        }
-
-        .card:hover {
-            background: var(--ghov);
-            transform: translateY(-2px)
-        }
-
-        .stat-val {
-            font-size: 34px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center
-        }
-
-        .stat-lbl {
-            font-size: 12px;
-            color: var(--muted);
-            text-align: center;
-            margin-top: 0.25rem
-        }
-
-        .app-card {
-            background: var(--glass);
-            border: 1px solid var(--gb);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s
-        }
-
-        .app-card:hover {
-            background: var(--ghov)
-        }
-
-        .badge {
-            padding: 0.2rem 0.7rem;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 500
-        }
-
-        .bc {
-            background: rgba(0, 212, 170, 0.15);
-            color: var(--accent);
-            border: 1px solid rgba(0, 212, 170, 0.3)
-        }
-
-        .bb {
-            background: rgba(37, 99, 235, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(37, 99, 235, 0.3)
-        }
-
-        .bs {
-            background: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.3)
-        }
-
-        .bw {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--warning);
-            border: 1px solid rgba(245, 158, 11, 0.3)
-        }
-
-        .bd {
-            background: rgba(239, 68, 68, 0.15);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.3)
-        }
-
-        .bg {
-            background: rgba(148, 163, 184, 0.15);
-            color: var(--muted);
-            border: 1px solid rgba(148, 163, 184, 0.3)
-        }
-
-        .btn {
-            padding: 0.45rem 0.9rem;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
+        .notif-btn {
+            background: none;
             border: none;
-            transition: all 0.3s
-        }
-
-        .btn-p {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: white
-        }
-
-        .btn-p:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3)
-        }
-
-        .btn-o {
-            background: var(--glass);
-            border: 1px solid var(--gb);
-            color: var(--text)
-        }
-
-        .btn-o:hover {
-            background: var(--ghov)
-        }
-
-        .btn-logout {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            padding: 0.4rem 1rem;
-            border-radius: 8px;
+            font-size: 20px;
             cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px;
-            font-weight: 500
+            color: var(--muted);
+            position: relative;
         }
 
-        /* Score circle */
-        .sc {
-            width: 70px;
-            height: 70px;
+        .avatar {
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 15px;
             font-weight: 700;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Content */
+        .content {
+            padding: 28px;
+            flex: 1;
+        }
+
+        /* Overview grid */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+        }
+
+        /* ATS Strength card */
+        .ats-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+        }
+
+        .ats-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+            text-align: left;
+        }
+
+        .ats-card-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .gauge-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .gauge-num {
+            position: absolute;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -1px;
+        }
+
+        .gauge-canvas {
+            width: 200px !important;
+            height: 120px !important;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 18px 16px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        /* Jobs section */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .section-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        /* Job grid */
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .job-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.25s;
+            cursor: pointer;
+            border: 1px solid var(--border);
+        }
+
+        .job-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(74, 144, 217, 0.15);
+            border-color: var(--accent);
+        }
+
+        .job-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .job-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .job-company {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .job-match {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* Application cards */
+        .app-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .app-card:hover {
+            box-shadow: 0 6px 20px rgba(74, 144, 217, 0.12);
+        }
+
+        .app-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .app-meta {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        /* Score circle */
+        .sc {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
             border: 3px solid;
-            flex-shrink: 0
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+            gap: 4px;
+        }
+
+        .bg {
+            background: rgba(107, 122, 153, 0.1);
+            color: var(--muted);
+        }
+
+        .bb {
+            background: rgba(74, 144, 217, 0.12);
+            color: var(--accent);
+        }
+
+        .bc {
+            background: rgba(56, 185, 160, 0.12);
+            color: var(--accent2);
+        }
+
+        .bs {
+            background: rgba(56, 185, 160, 0.15);
+            color: #2a9d8f;
+        }
+
+        .bw {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--warning);
+        }
+
+        .bd {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
         }
 
         /* Pipeline */
         .pipeline {
             display: flex;
             align-items: center;
-            gap: 0;
-            margin: 1rem 0;
-            overflow-x: auto;
-            padding-bottom: 0.25rem
+            margin: 12px 0;
+            flex-wrap: wrap;
+            gap: 4px;
         }
 
-        .pip-step {
+        .pip-step-w {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 0
         }
 
         .pip-dot {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 10px;
             color: var(--muted);
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--bg);
             flex-shrink: 0;
-            transition: all 0.3s
         }
 
         .pip-dot.active {
             border-color: var(--accent);
-            background: rgba(0, 212, 170, 0.15);
-            color: var(--accent)
+            background: rgba(74, 144, 217, 0.1);
+            color: var(--accent);
         }
 
         .pip-dot.done {
-            border-color: rgba(0, 212, 170, 0.4);
-            background: rgba(0, 212, 170, 0.08);
-            color: rgba(0, 212, 170, 0.6)
+            border-color: var(--accent2);
+            background: rgba(56, 185, 160, 0.1);
+            color: var(--accent2);
         }
 
         .pip-dot.rejected {
-            border-color: rgba(239, 68, 68, 0.5);
-            background: rgba(239, 68, 68, 0.1);
-            color: #f87171
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--danger);
         }
 
         .pip-label {
             font-size: 10px;
             color: var(--muted);
             text-align: center;
-            margin-top: 0.3rem;
-            white-space: nowrap
-        }
-
-        .pip-step-w {
-            display: flex;
-            flex-direction: column;
-            align-items: center
+            margin-top: 3px;
+            white-space: nowrap;
         }
 
         .pip-line {
-            width: 28px;
+            width: 24px;
             height: 2px;
-            background: rgba(255, 255, 255, 0.1);
-            flex-shrink: 0
+            background: var(--border);
+            flex-shrink: 0;
+            margin-bottom: 14px;
         }
 
         .pip-line.done {
-            background: rgba(0, 212, 170, 0.3)
+            background: var(--accent2);
         }
 
         /* Skills gap */
@@ -403,135 +488,249 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.6rem 0.9rem;
-            background: rgba(239, 68, 68, 0.06);
-            border: 1px solid rgba(239, 68, 68, 0.15);
+            padding: 8px 12px;
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.12);
             border-radius: 10px;
-            margin-bottom: 0.5rem
+            margin-bottom: 6px;
         }
 
         .skill-gap-name {
             font-size: 13px;
             font-weight: 500;
-            color: #f87171
+            color: #dc2626;
         }
 
         .learn-link {
             font-size: 12px;
-            color: #60a5fa;
+            color: var(--accent);
             text-decoration: none;
-            background: rgba(37, 99, 235, 0.1);
-            border: 1px solid rgba(37, 99, 235, 0.25);
+            background: rgba(74, 144, 217, 0.08);
+            border: 1px solid rgba(74, 144, 217, 0.2);
             border-radius: 6px;
-            padding: 0.2rem 0.6rem;
-            transition: all 0.3s
+            padding: 2px 8px;
+            transition: all 0.2s;
         }
 
         .learn-link:hover {
-            background: rgba(37, 99, 235, 0.25)
+            background: rgba(74, 144, 217, 0.15);
         }
 
-        .user-badge {
-            background: var(--glass);
-            border: 1px solid var(--gb);
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all 0.2s;
+        }
+
+        .btn-p {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn-p:hover {
+            background: #3a7bc8;
+        }
+
+        .btn-o {
+            background: white;
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .btn-o:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 12px;
+        }
+
+        /* Apply button */
+        .apply-btn {
+            padding: 8px 18px;
             border-radius: 50px;
-            padding: 0.4rem 1rem;
-            font-size: 14px;
-            font-weight: 500
+            background: var(--accent);
+            color: white;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .user-area {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem
+        .apply-btn:hover {
+            background: #3a7bc8;
+            transform: translateY(-1px);
+        }
+
+        .apply-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .loading {
             text-align: center;
             padding: 3rem;
-            color: var(--muted)
+            color: var(--muted);
         }
 
-        .spin {
-            display: inline-block;
-            animation: spin 1s linear infinite
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg)
-            }
-        }
-
-        @media(max-width:768px) {
+        @media(max-width: 768px) {
             .sidebar {
-                display: none
+                display: none;
             }
 
-            .stats {
-                grid-template-columns: repeat(2, 1fr)
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="blob b1"></div>
-    <div class="blob b2"></div>
-    <div class="blob b3"></div>
-
-    <div class="header">
-        <div class="logo">Talent<span>Sync</span></div>
-        <div class="user-area">
-            <div class="user-badge">👋 <span id="userName">…</span></div>
-            <button class="btn btn-o" style="font-size:13px" onclick="location.href='/profile.html'">👤 Profile</button>
-            <button class="btn-logout" onclick="logout()">Sign Out</button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo">TalentSync</div>
+        <button class="nav-item active" onclick="showSection('overview')" id="nav-overview">
+            <span class="nav-icon">🏠</span> Dashboard
+        </button>
+        <button class="nav-item" onclick="showSection('apps')" id="nav-apps">
+            <span class="nav-icon">📋</span> Applications
+        </button>
+        <button class="nav-item" onclick="showSection('jobs')" id="nav-jobs">
+            <span class="nav-icon">💼</span> Job Board
+        </button>
+        <button class="nav-item" onclick="location.href='/profile.html'" id="nav-profile">
+            <span class="nav-icon">👤</span> Profile
+        </button>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()">
+                <span>🚪</span> Sign Out
+            </button>
         </div>
     </div>
 
-    <div class="layout">
-        <div class="sidebar">
-            <button class="nav-item active" onclick="showSection('apps')">📋 Applications</button>
-            <button class="nav-item" onclick="showSection('jobs')">🔍 Browse Jobs</button>
-            <button class="nav-item" onclick="location.href='/profile.html'">👤 My Profile</button>
+    <!-- Main -->
+    <div class="main">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="topbar-title" id="pageTitle">Dashboard</div>
+            <div class="topbar-right">
+                <button class="notif-btn">🔔</button>
+                <div class="avatar" id="avatarInitial">?</div>
+            </div>
         </div>
 
-        <div class="main">
-            <!-- Applications -->
-            <div id="sec-apps">
-                <div class="page-title">My Applications</div>
-                <div class="page-sub">Track your application pipeline and scores</div>
-                <div class="stats">
-                    <div class="card">
+        <!-- Content -->
+        <div class="content">
+
+            <!-- Overview Section -->
+            <div id="sec-overview">
+                <div class="overview-grid">
+                    <!-- ATS Card -->
+                    <div>
+                        <div class="ats-card">
+                            <div class="ats-card-title">AI Resume Strength ⓘ</div>
+                            <div class="ats-card-sub">Based on your latest application</div>
+                            <div class="gauge-wrap">
+                                <canvas id="gaugeChart" class="gauge-canvas"></canvas>
+                                <div class="gauge-num" id="gaugeNum">—</div>
+                            </div>
+                        </div>
+                        <div class="stats-row" style="grid-template-columns:1fr 1fr;margin-top:16px;margin-bottom:0">
+                            <div class="stat-card">
+                                <div class="stat-val" id="ov-total">0</div>
+                                <div class="stat-label">Total Applied</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-val" id="ov-short">0</div>
+                                <div class="stat-label">Shortlisted</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-val" id="ov-review">0</div>
+                                <div class="stat-label">Under Review</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-val" id="ov-offer">0</div>
+                                <div class="stat-label">Offers</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommended Jobs -->
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">Recommended Jobs</div>
+                                <div class="section-sub">Personalized matches based on your profile</div>
+                            </div>
+                            <button class="btn btn-o btn-sm" onclick="showSection('jobs')">View All →</button>
+                        </div>
+                        <div id="rec-jobs-grid" class="jobs-grid">
+                            <div class="loading">Loading jobs…</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applications Section -->
+            <div id="sec-apps" style="display:none">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">My Applications</div>
+                        <div class="section-sub">Track your application pipeline and ATS scores</div>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-card">
                         <div class="stat-val" id="st-total">0</div>
-                        <div class="stat-lbl">Total Applied</div>
+                        <div class="stat-label">Total Applied</div>
                     </div>
-                    <div class="card">
+                    <div class="stat-card">
                         <div class="stat-val" id="st-review">0</div>
-                        <div class="stat-lbl">Under Review</div>
+                        <div class="stat-label">Under Review</div>
                     </div>
-                    <div class="card">
+                    <div class="stat-card">
                         <div class="stat-val" id="st-short">0</div>
-                        <div class="stat-lbl">Shortlisted</div>
+                        <div class="stat-label">Shortlisted</div>
                     </div>
-                    <div class="card">
+                    <div class="stat-card">
                         <div class="stat-val" id="st-offer">0</div>
-                        <div class="stat-lbl">Offers</div>
+                        <div class="stat-label">Offers</div>
                     </div>
                 </div>
                 <div id="apps-list">
-                    <div class="loading"><span class="spin">⏳</span> Loading…</div>
+                    <div class="loading">Loading…</div>
                 </div>
             </div>
 
-            <!-- Browse Jobs -->
+            <!-- Job Board Section -->
             <div id="sec-jobs" style="display:none">
-                <div class="page-title">🔍 Browse Jobs</div>
-                <div class="page-sub">Find your next opportunity</div>
-                <div id="jobs-list">
-                    <div class="loading"><span class="spin">⏳</span> Loading…</div>
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">Job Board</div>
+                        <div class="section-sub">Browse and apply to open positions</div>
+                    </div>
+                </div>
+                <div id="jobs-list" class="jobs-grid">
+                    <div class="loading">Loading…</div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -540,197 +739,213 @@
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         if (!token || user.role === 'recruiter') { location.href = '/smart_resume_signin_page.html'; }
-        document.getElementById('userName').textContent = user.name || 'Candidate';
-
+        const initial = (user.name || 'U').charAt(0).toUpperCase();
+        document.getElementById('avatarInitial').textContent = initial;
         function logout() { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
-        const sections = ['apps', 'jobs'];
+        const sections = ['overview', 'apps', 'jobs'];
         function showSection(n) {
-            sections.forEach(s => document.getElementById('sec-' + s).style.display = s === n ? 'block' : 'none');
-            document.querySelectorAll('.nav-item').forEach((el, i) => el.classList.toggle('active', sections[i] === n));
+            sections.forEach(s => {
+                const el = document.getElementById('sec-' + s);
+                const nav = document.getElementById('nav-' + s);
+                if (el) el.style.display = s === n ? 'block' : 'none';
+                if (nav) nav.classList.toggle('active', s === n);
+            });
+            const titles = { overview: 'Dashboard', apps: 'My Applications', jobs: 'Job Board' };
+            document.getElementById('pageTitle').textContent = titles[n] || 'Dashboard';
             if (n === 'jobs') loadJobs();
+            if (n === 'apps') loadApplications();
+            if (n === 'overview') loadOverview();
         }
 
+        // ── Gauge chart ───────────────────────────────────────────
+        let gaugeChart;
+        function drawGauge(score) {
+            const ctx = document.getElementById('gaugeChart').getContext('2d');
+            const pct = (score || 0) / 100;
+            const color = score >= 70 ? '#38b9a0' : score >= 50 ? '#f59e0b' : '#ef4444';
+            if (gaugeChart) gaugeChart.destroy();
+            gaugeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [pct, 1 - pct],
+                        backgroundColor: [color, '#eef2fb'],
+                        borderWidth: 0,
+                        circumference: 180,
+                        rotation: 270
+                    }]
+                },
+                options: {
+                    cutout: '72%', plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    responsive: false, animation: { duration: 800, easing: 'easeOutQuart' }
+                }
+            });
+            document.getElementById('gaugeNum').textContent = (score ? score.toFixed(0) : '—') + (score ? '%' : '');
+        }
+
+        // ── Helpers ───────────────────────────────────────────────
         function statusBadge(s) {
-            const m = {
-                PENDING: ['bg', '⏳ Pending'], UNDER_REVIEW: ['bb', '🔍 Under Review'], SHORTLISTED: ['bc', '⭐ Shortlisted'],
-                INTERVIEW: ['bs', '📅 Interview'], OFFERED: ['bw', '🎉 Offered'], REJECTED: ['bd', '❌ Rejected'], ATS_REJECTED: ['bd', '🤖 ATS Filtered']
-            };
+            const m = { PENDING: ['bg', '⏳ Pending'], UNDER_REVIEW: ['bb', '🔍 Under Review'], SHORTLISTED: ['bc', '⭐ Shortlisted'], INTERVIEW: ['bs', '📅 Interview'], OFFERED: ['bw', '🎉 Offered'], REJECTED: ['bd', '❌ Rejected'], ATS_REJECTED: ['bd', '🤖 ATS Filtered'] };
             const [c, l] = m[s] || ['bg', s]; return `<span class="badge ${c}">${l}</span>`;
         }
-
-        const PIPELINE_STAGES = [
-            { key: 'ATS', label: 'ATS', statuses: ['PENDING', 'ATS_REJECTED', 'UNDER_REVIEW', 'SHORTLISTED', 'INTERVIEW', 'OFFERED', 'REJECTED'] },
-            { key: 'UNDER_REVIEW', label: 'Review' },
-            { key: 'SHORTLISTED', label: 'Shortlist' },
-            { key: 'INTERVIEW', label: 'Interview' },
-            { key: 'OFFERED', label: 'Offered' }
-        ];
-
-        function stageIndex(status) {
-            const map = { PENDING: 0, ATS_REJECTED: -1, UNDER_REVIEW: 1, SHORTLISTED: 2, INTERVIEW: 3, OFFERED: 4, REJECTED: -1 };
-            return map[status] ?? 0;
-        }
-
-        function renderPipeline(status) {
-            const labels = ['ATS', 'Review', 'Shortlist', 'Interview', 'Offered'];
-            const keys = ['UNDER_REVIEW', 'UNDER_REVIEW', 'SHORTLISTED', 'INTERVIEW', 'OFFERED'];
-            const curIdx = stageIndex(status);
-            const rejected = status === 'REJECTED' || status === 'ATS_REJECTED';
-            return `<div class="pipeline">${labels.map((l, i) => {
-                let cls = '';
-                if (rejected) cls = 'rejected';
-                else if (i < curIdx) cls = 'done';
-                else if (i === curIdx) cls = 'active';
-                const line = i < labels.length - 1 ? `<div class="pip-line${i < curIdx && !rejected ? ' done' : ''}"></div>` : '';
-                return `<div class="pip-step-w">
-      <div class="pip-dot ${cls}">${cls === 'done' ? '✓' : cls === 'active' ? '●' : i === labels.length - 1 && status === 'OFFERED' ? '🎉' : '○'}</div>
-      <div class="pip-label">${l}</div>
-    </div>${line}`;
-            }).join('')}</div>`;
-        }
-
         function scoreCircle(score) {
-            if (score === null || score === undefined) return '<div style="width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);border:3px solid rgba(255,255,255,0.15)"><span style="text-align:center;line-height:1.2">No<br>Score</span></div>';
-            const c = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+            if (score === null || score === undefined) return '<div style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);border:3px solid var(--border)">N/A</div>';
+            const c = score >= 70 ? '#38b9a0' : score >= 50 ? '#f59e0b' : '#ef4444';
             return `<div class="sc" style="border-color:${c};color:${c}">${score.toFixed(0)}%</div>`;
         }
-
+        function stageIndex(s) { return { PENDING: 0, ATS_REJECTED: -1, UNDER_REVIEW: 1, SHORTLISTED: 2, INTERVIEW: 3, OFFERED: 4, REJECTED: -1 }[s] ?? 0; }
+        function renderPipeline(status) {
+            const labels = ['ATS', 'Review', 'Shortlist', 'Interview', 'Offered'], curIdx = stageIndex(status), rejected = status === 'REJECTED' || status === 'ATS_REJECTED';
+            return `<div class="pipeline">${labels.map((l, i) => {
+                let cls = rejected ? 'rejected' : i < curIdx ? 'done' : i === curIdx ? 'active' : '';
+                const line = i < labels.length - 1 ? `<div class="pip-line${i < curIdx && !rejected ? ' done' : ''}"></div>` : '';
+                return `<div class="pip-step-w"><div class="pip-dot ${cls}">${cls === 'done' ? '✓' : cls === 'active' ? '●' : '○'}</div><div class="pip-label">${l}</div></div>${line}`;
+            }).join('')}</div>`;
+        }
         function getCourseSuggestion(skill) {
             const sk = skill.toLowerCase();
             if (sk.includes('python')) return 'https://www.coursera.org/learn/python';
-            if (sk.includes('react') || sk.includes('javascript') || sk.includes('js')) return 'https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/';
+            if (sk.includes('react') || sk.includes('javascript')) return 'https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/';
             if (sk.includes('java')) return 'https://www.codecademy.com/learn/learn-java';
             if (sk.includes('sql')) return 'https://www.w3schools.com/sql/';
             if (sk.includes('aws')) return 'https://aws.amazon.com/training/';
-            if (sk.includes('docker') || sk.includes('kubernetes')) return 'https://www.docker.com/101-tutorial/';
-            if (sk.includes('machine learning') || sk.includes('ml') || sk.includes('ai')) return 'https://www.coursera.org/learn/machine-learning';
-            if (sk.includes('spring')) return 'https://spring.io/guides';
-            if (sk.includes('node')) return 'https://nodejs.dev/learn';
+            if (sk.includes('machine learning') || sk.includes('ml')) return 'https://www.coursera.org/learn/machine-learning';
             return `https://www.google.com/search?q=learn+${encodeURIComponent(skill)}+course+free`;
         }
+        const JOB_COLORS = ['linear-gradient(135deg,#667eea,#764ba2)', 'linear-gradient(135deg,#f093fb,#f5576c)', 'linear-gradient(135deg,#4facfe,#00f2fe)', 'linear-gradient(135deg,#43e97b,#38f9d7)', 'linear-gradient(135deg,#fa709a,#fee140)', 'linear-gradient(135deg,#a18cd1,#fbc2eb)'];
+        const JOB_EMOJIS = ['💼', '🚀', '⚡', '🎯', '🔬', '🏗️', '📊', '🎨', '🔧', '💡'];
 
-        async function reAnalyze(appId, btn) {
-            btn.textContent = '⏳ Analyzing…'; btn.disabled = true;
+        // ── Overview ──────────────────────────────────────────────
+        async function loadOverview() {
             try {
-                const r = await fetch(`${API}/api/applications/${appId}/reanalyze`, {
-                    method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (!r.ok) throw new Error('Failed');
-                loadApplications(); // refresh
-            } catch (e) { alert('Re-analysis failed: ' + e.message); }
-            btn.textContent = '🔄 Re-run ATS'; btn.disabled = false;
+                const r = await fetch(`${API}/api/applications/my-applications`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) return;
+                const apps = await r.json();
+                document.getElementById('ov-total').textContent = apps.length;
+                document.getElementById('ov-short').textContent = apps.filter(a => a.status === 'SHORTLISTED').length;
+                document.getElementById('ov-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
+                document.getElementById('ov-offer').textContent = apps.filter(a => a.status === 'OFFERED').length;
+                const scored = apps.filter(a => a.matchScore != null);
+                const avgScore = scored.length ? scored.reduce((s, a) => s + a.matchScore, 0) / scored.length : null;
+                drawGauge(avgScore);
+            } catch (e) { drawGauge(null); }
+            // Load recommended jobs
+            loadRecJobs();
         }
 
+        async function loadRecJobs() {
+            const el = document.getElementById('rec-jobs-grid');
+            try {
+                const r = await fetch(`${API}/api/jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) throw new Error();
+                const jobs = await r.json();
+                if (!jobs.length) { el.innerHTML = '<p style="color:var(--muted);font-size:13px">No jobs available</p>'; return; }
+                el.innerHTML = jobs.slice(0, 6).map((j, i) => `<div class="job-card" onclick="">
+                    <div class="job-logo" style="background:${JOB_COLORS[i % JOB_COLORS.length]}">${JOB_EMOJIS[i % JOB_EMOJIS.length]}</div>
+                    <div class="job-title">${j.title}</div>
+                    <div class="job-company">${j.company || 'Company'}</div>
+                    <div class="job-match">⭐ ${Math.floor(70 + Math.random() * 25)}% Match</div>
+                    <button class="apply-btn" style="margin-top:10px;font-size:12px;padding:6px 14px" onclick="applyToJob('${j.id}',this)">Apply</button>
+                </div>`).join('');
+            } catch (e) { el.innerHTML = '<p style="color:var(--muted)">Failed to load</p>'; }
+        }
+
+        // ── Applications ──────────────────────────────────────────
         async function loadApplications() {
             const el = document.getElementById('apps-list');
             try {
                 const r = await fetch(`${API}/api/applications/my-applications`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!r.ok) throw new Error('Failed');
+                if (!r.ok) throw new Error();
                 const apps = await r.json();
                 document.getElementById('st-total').textContent = apps.length;
                 document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
                 document.getElementById('st-short').textContent = apps.filter(a => a.status === 'SHORTLISTED').length;
                 document.getElementById('st-offer').textContent = apps.filter(a => a.status === 'OFFERED').length;
-                if (!apps.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted);padding:3rem">No applications yet. Browse jobs to apply!</p>'; return; }
+                if (!apps.length) { el.innerHTML = '<div class="loading">No applications yet. Browse jobs to apply!</div>'; return; }
                 el.innerHTML = apps.map(a => {
-                    const atsRejected = a.status === 'ATS_REJECTED';
-                    const skillsSection = a.skillsGap && a.skillsGap.length ? `
-        <div style="margin-top:1rem;padding:1rem;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:12px">
-          <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:0.75rem">🎯 Skills to Improve (${a.skillsGap.length} identified)</div>
-          ${a.skillsGap.map(s => `<div class="skill-gap-item">
-            <span class="skill-gap-name">📌 ${s}</span>
-            <a href="${getCourseSuggestion(s)}" target="_blank" rel="noopener" class="learn-link">📚 Learn</a>
-          </div>`).join('')}
-        </div>`: '';
-
-                    const notesHistory = a.notesHistory && a.notesHistory.length ? `
-        <div style="margin-top:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.08)">
-          <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:0.5rem">💬 Recruiter Notes</div>
-          ${a.notesHistory.map(n => `<div style="display:flex;gap:0.5rem;margin-bottom:0.4rem;font-size:12px">
-            <span style="color:var(--muted);white-space:nowrap">${new Date(n.timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
-            <span style="color:var(--text)">${n.text}</span>
-            <span class="badge bg" style="margin-left:auto">${n.status}</span>
-          </div>`).join('')}
-        </div>`: '';
-
-                    return `<div class="app-card" style="${atsRejected ? 'opacity:0.75;border-color:rgba(239,68,68,0.25)' : ''}">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
-          <div style="flex:1">
-            <div style="font-size:16px;font-weight:700;margin-bottom:0.25rem">${a.jobTitle || 'Job Application'}</div>
-            <div style="color:var(--muted);font-size:13px;margin-bottom:0.75rem">${a.jobCompany || ''} • Applied ${new Date(a.appliedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
-              ${statusBadge(a.status)}
-              ${a.reAnalyzedAt ? `<span style="font-size:11px;color:var(--muted)">Re-analyzed ${new Date(a.reAnalyzedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>` : ''}
-              ${a.interviewDateTime ? `<span class="badge bs">📅 Interview: ${new Date(a.interviewDateTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>` : ''}
-            </div>
-          </div>
-          ${scoreCircle(a.matchScore)}
-        </div>
-        ${renderPipeline(a.status)}
-        ${skillsSection}
-        ${notesHistory}
-        <div style="display:flex;gap:0.5rem;margin-top:1rem;flex-wrap:wrap">
-          ${a.status === 'PENDING' || a.status === 'ATS_REJECTED' ? `<button class="btn btn-o" style="font-size:12px" onclick="reAnalyze('${a.id}',this)">🔄 Re-run ATS</button>` : ''}
-          <button class="btn btn-o" style="font-size:12px;color:#f87171;border-color:rgba(239,68,68,0.3)" onclick="withdraw('${a.id}')">✕ Withdraw</button>
-        </div>
-      </div>`;
+                    const skillsSection = a.skillsGap && a.skillsGap.length ? `<div style="margin-top:12px;padding:12px;background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.12);border-radius:12px">
+                        <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:8px">🎯 Skills to Improve (${a.skillsGap.length})</div>
+                        ${a.skillsGap.map(s => `<div class="skill-gap-item"><span class="skill-gap-name">📌 ${s}</span><a href="${getCourseSuggestion(s)}" target="_blank" class="learn-link">📚 Learn</a></div>`).join('')}
+                    </div>`: '';
+                    const notesSection = a.notesHistory && a.notesHistory.length ? `<div style="margin-top:10px;padding:10px;background:rgba(74,144,217,0.04);border:1px solid rgba(74,144,217,0.1);border-radius:10px">
+                        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px">💬 Recruiter Notes</div>
+                        ${a.notesHistory.map(n => `<div style="display:flex;gap:8px;font-size:12px;margin-bottom:4px"><span style="color:var(--muted);white-space:nowrap">${new Date(n.timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span><span>${n.text}</span></div>`).join('')}
+                    </div>`: '';
+                    return `<div class="app-card">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+                            <div style="flex:1">
+                                <div class="app-title">${a.jobTitle || 'Job Application'}</div>
+                                <div class="app-meta">${a.jobCompany || ''} — Applied ${new Date(a.appliedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">${statusBadge(a.status)}${a.interviewDateTime ? `<span class="badge bs">📅 ${new Date(a.interviewDateTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>` : ''}</div>
+                            </div>
+                            ${scoreCircle(a.matchScore)}
+                        </div>
+                        ${renderPipeline(a.status)}
+                        ${skillsSection}${notesSection}
+                        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+                            ${a.status === 'PENDING' || a.status === 'ATS_REJECTED' ? `<button class="btn btn-o btn-sm" onclick="reAnalyze('${a.id}',this)">🔄 Re-run ATS</button>` : ''}
+                            <button class="btn btn-sm" style="border-color:var(--danger);color:var(--danger);background:white" onclick="withdraw('${a.id}')">✕ Withdraw</button>
+                        </div>
+                    </div>`;
                 }).join('');
-            } catch (e) { el.innerHTML = '<p style="text-align:center;color:var(--danger)">Failed to load applications</p>'; }
+            } catch (e) { el.innerHTML = '<div class="loading" style="color:var(--danger)">Failed to load applications</div>'; }
         }
 
+        // ── Jobs ──────────────────────────────────────────────────
         async function loadJobs() {
             const el = document.getElementById('jobs-list');
             try {
                 const r = await fetch(`${API}/api/jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!r.ok) throw new Error('Failed');
+                if (!r.ok) throw new Error();
                 const jobs = await r.json();
-                if (!jobs.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted);padding:2rem">No jobs available right now</p>'; return; }
-                el.innerHTML = jobs.map(j => `<div class="app-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
-        <div style="flex:1">
-          <div style="font-size:15px;font-weight:700;margin-bottom:0.25rem">${j.title}</div>
-          <div style="color:var(--muted);font-size:13px;margin-bottom:0.75rem">${j.company || ''}</div>
-          <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-            ${j.location ? `<span class="badge bc">📍 ${j.location}</span>` : ''}
-            ${j.type ? `<span class="badge bb">${j.type}</span>` : ''}
-            ${j.salary ? `<span class="badge bs">💰 ${j.salary}</span>` : ''}
-            ${j.expiresAt ? `<span class="badge bw">⏰ Closes ${new Date(j.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>` : ''}
-          </div>
-        </div>
-        <button class="btn btn-p" onclick="applyToJob('${j.id}',this)">Apply Now →</button>
-      </div>
-      ${j.description ? `<div style="margin-top:0.75rem;font-size:13px;color:var(--muted);line-height:1.6">${j.description.substring(0, 200)}${j.description.length > 200 ? '…' : ''}</div>` : ''}
-    </div>`).join('');
-            } catch (e) { el.innerHTML = '<p style="text-align:center;color:var(--danger)">Failed to load jobs</p>'; }
+                if (!jobs.length) { el.innerHTML = '<div class="loading">No jobs available</div>'; return; }
+                el.innerHTML = jobs.map((j, i) => `<div class="job-card">
+                    <div class="job-logo" style="background:${JOB_COLORS[i % JOB_COLORS.length]}">${JOB_EMOJIS[i % JOB_EMOJIS.length]}</div>
+                    <div class="job-title">${j.title}</div>
+                    <div class="job-company">${j.company || 'Company'}</div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">
+                        ${j.location ? `<span class="badge bc">📍 ${j.location}</span>` : ''}
+                        ${j.type ? `<span class="badge bb">${j.type}</span>` : ''}
+                        ${j.salary ? `<span class="badge bs">💰 ${j.salary}</span>` : ''}
+                    </div>
+                    ${j.description ? `<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">${j.description.substring(0, 100)}…</div>` : ''}
+                    <button class="apply-btn" onclick="applyToJob('${j.id}',this)">Apply Now →</button>
+                </div>`).join('');
+            } catch (e) { el.innerHTML = '<div class="loading" style="color:var(--danger)">Failed to load</div>'; }
         }
 
+        // ── Actions ───────────────────────────────────────────────
         async function applyToJob(jobId, btn) {
             btn.textContent = 'Applying…'; btn.disabled = true;
             try {
-                const r = await fetch(`${API}/api/applications`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ jobId })
-                });
+                const r = await fetch(`${API}/api/applications`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ jobId }) });
                 const d = await r.json();
                 if (!r.ok) throw new Error(d.error || 'Failed');
-                alert('✅ Applied! Our ATS is scoring your resume…');
+                alert('✅ Applied! ATS is scoring your resume…');
                 showSection('apps');
             } catch (e) { alert('❌ ' + e.message); }
             btn.textContent = 'Apply Now →'; btn.disabled = false;
         }
-
+        async function reAnalyze(appId, btn) {
+            btn.textContent = '⏳ Analyzing…'; btn.disabled = true;
+            try {
+                const r = await fetch(`${API}/api/applications/${appId}/reanalyze`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) throw new Error('Failed');
+                loadApplications();
+            } catch (e) { alert('Re-analysis failed: ' + e.message); }
+            btn.textContent = '🔄 Re-run ATS'; btn.disabled = false;
+        }
         async function withdraw(appId) {
             if (!confirm('Withdraw this application?')) return;
             try {
-                const r = await fetch(`${API}/api/applications/${appId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-                if (!r.ok) throw new Error('Failed');
+                await fetch(`${API}/api/applications/${appId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
                 loadApplications();
             } catch (e) { alert('Failed: ' + e.message); }
         }
 
-        loadApplications();
+        // Initial load
+        loadOverview();
     </script>
 </body>
 

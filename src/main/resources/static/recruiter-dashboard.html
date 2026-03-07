@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recruiter Dashboard - TalentSync</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -16,26 +17,27 @@
         }
 
         :root {
-            --bg1: #0d1b3e;
-            --bg2: #0a3d62;
-            --accent: #00d4aa;
-            --accent2: #2563eb;
-            --glass: rgba(255, 255, 255, 0.07);
-            --gb: rgba(255, 255, 255, 0.15);
-            --ghov: rgba(255, 255, 255, 0.12);
-            --text: #f1f5f9;
-            --muted: #94a3b8;
-            --success: #10b981;
+            --bg1: #f0f7f4;
+            --bg2: #e8f5f0;
+            --accent: #38b99a;
+            --accent2: #2ecc9a;
+            --glass: rgba(56, 185, 154, 0.08);
+            --gb: rgba(56, 185, 154, 0.18);
+            --ghov: rgba(56, 185, 154, 0.12);
+            --text: #1a2e28;
+            --muted: #5a7a70;
+            --success: #38b99a;
             --warning: #f59e0b;
             --danger: #ef4444
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--bg1), var(--bg2));
+            font-family: 'Inter', sans-serif;
+            background: var(--bg1);
             min-height: 100vh;
             color: var(--text);
-            overflow-x: hidden
+            overflow-x: hidden;
+            display: flex;
         }
 
         .blob {
@@ -511,8 +513,8 @@
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #0f2147, #0e3555);
-            border: 1px solid var(--gb);
+            background: #ffffff;
+            border: 1px solid rgba(56, 185, 154, 0.2);
             border-radius: 20px;
             padding: 2rem;
             max-width: 840px;
@@ -546,10 +548,9 @@
             color: var(--text)
         }
 
-        /* Preview modal */
         .preview-box {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(56, 185, 154, 0.05);
+            border: 1px solid rgba(56, 185, 154, 0.15);
             border-radius: 12px;
             padding: 1.25rem;
             margin-top: 1rem;
@@ -677,279 +678,299 @@
 </head>
 
 <body>
-    <div class="blob b1"></div>
-    <div class="blob b2"></div>
-    <div class="blob b3"></div>
-
-    <div class="header">
-        <div class="logo">Talent<span>Sync</span></div>
-        <div class="user-area">
-            <div class="user-badge">🧑‍💼 <span id="userName">…</span></div>
-            <button class="btn-logout" onclick="logout()">Sign Out</button>
+    <!-- Sidebar -->
+    <div class="sidebar"
+        style="width:190px;min-height:100vh;background:#d6ede6;display:flex;flex-direction:column;padding:28px 16px;border-right:1px solid rgba(56,185,154,0.15);flex-shrink:0">
+        <div style="font-size:20px;font-weight:800;color:#38b99a;margin-bottom:36px;padding-left:4px">TalentSync</div>
+        <button class="nav-item active" onclick="showSection('overview')">💼 Job Postings</button>
+        <button class="nav-item" onclick="showSection('jobs')">🔍 Candidate Search</button>
+        <button class="nav-item" onclick="showSection('post')">➕ Post Job</button>
+        <button class="nav-item" onclick="showSection('panels')">🗓️ Interview Panels</button>
+        <button class="nav-item" onclick="showSection('analytics')">📈 Analytics</button>
+        <div style="margin-top:auto">
+            <button
+                style="width:100%;padding:10px 14px;border-radius:12px;border:none;background:rgba(239,68,68,0.08);color:#ef4444;font-family:Inter,sans-serif;font-size:13px;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px"
+                onclick="logout()">🚪 Sign Out</button>
         </div>
     </div>
 
-    <div class="layout">
-        <div class="sidebar">
-            <button class="nav-item active" onclick="showSection('overview')">📊 Overview</button>
-            <button class="nav-item" onclick="showSection('post')">➕ Post Job</button>
-            <button class="nav-item" onclick="showSection('jobs')">💼 My Jobs</button>
-            <button class="nav-item" onclick="showSection('panels')">🗓️ Interview Panels</button>
-            <button class="nav-item" onclick="showSection('analytics')">📈 Analytics</button>
+    <!-- Main -->
+    <div style="flex:1;display:flex;flex-direction:column;min-height:100vh">
+        <!-- Topbar -->
+        <div class="header"
+            style="background:#fff;border-bottom:1px solid rgba(56,185,154,0.15);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,0.04)">
+            <div style="font-size:22px;font-weight:700;color:#1a2e28" id="pageTitle">Dashboard</div>
+            <div class="user-area">
+                <button style="background:none;border:none;font-size:20px;cursor:pointer;color:#5a7a70">🔔</button>
+                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#38b99a,#2ecc9a);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:white"
+                    id="avatarInitial">R</div>
+            </div>
         </div>
 
-        <div class="main">
-            <!-- Overview -->
-            <div id="sec-overview">
-                <div class="page-title">Recruiter Dashboard</div>
-                <div class="page-sub">Manage postings and review candidates</div>
-                <div class="stats">
-                    <div class="card">
-                        <div class="stat-val" id="st-jobs">0</div>
-                        <div class="stat-lbl">Active Jobs</div>
+        <div class="layout" style="flex:1">
+            <div class="main">
+                <!-- Overview -->
+                <div id="sec-overview">
+                    <div class="page-title">Recruiter Dashboard</div>
+                    <div class="page-sub">Manage postings and review candidates</div>
+                    <div class="stats">
+                        <div class="card">
+                            <div class="stat-val" id="st-jobs">0</div>
+                            <div class="stat-lbl">Active Jobs</div>
+                        </div>
+                        <div class="card">
+                            <div class="stat-val" id="st-apps">0</div>
+                            <div class="stat-lbl">Applications</div>
+                        </div>
+                        <div class="card">
+                            <div class="stat-val" id="st-review">0</div>
+                            <div class="stat-lbl">Under Review</div>
+                        </div>
+                        <div class="card">
+                            <div class="stat-val" id="st-ats">0</div>
+                            <div class="stat-lbl">ATS Filtered</div>
+                        </div>
                     </div>
-                    <div class="card">
-                        <div class="stat-val" id="st-apps">0</div>
-                        <div class="stat-lbl">Applications</div>
-                    </div>
-                    <div class="card">
-                        <div class="stat-val" id="st-review">0</div>
-                        <div class="stat-lbl">Under Review</div>
-                    </div>
-                    <div class="card">
-                        <div class="stat-val" id="st-ats">0</div>
-                        <div class="stat-lbl">ATS Filtered</div>
-                    </div>
+                    <div style="font-size:16px;font-weight:600;margin-bottom:1rem">💼 Your Job Postings</div>
+                    <div id="ov-jobs" class="loading">Loading…</div>
                 </div>
-                <div style="font-size:16px;font-weight:600;margin-bottom:1rem">💼 Your Job Postings</div>
-                <div id="ov-jobs" class="loading">Loading…</div>
-            </div>
 
-            <!-- Post Job -->
-            <div id="sec-post" style="display:none">
-                <div class="page-title">➕ Post New Job</div>
-                <div class="page-sub">Define your role and optionally customise the hiring pipeline</div>
-                <div class="card">
-                    <form onsubmit="postJob(event)">
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-                            <div class="form-group"><label class="form-label">Job Title *</label><input type="text"
-                                    id="jTitle" class="form-input" required placeholder="e.g. Senior Software Engineer">
+                <!-- Post Job -->
+                <div id="sec-post" style="display:none">
+                    <div class="page-title">➕ Post New Job</div>
+                    <div class="page-sub">Define your role and optionally customise the hiring pipeline</div>
+                    <div class="card">
+                        <form onsubmit="postJob(event)">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                                <div class="form-group"><label class="form-label">Job Title *</label><input type="text"
+                                        id="jTitle" class="form-input" required
+                                        placeholder="e.g. Senior Software Engineer">
+                                </div>
+                                <div class="form-group"><label class="form-label">Company *</label><input type="text"
+                                        id="jCompany" class="form-input" required placeholder="Company name"></div>
                             </div>
-                            <div class="form-group"><label class="form-label">Company *</label><input type="text"
-                                    id="jCompany" class="form-input" required placeholder="Company name"></div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+                                <div class="form-group"><label class="form-label">Location</label><input type="text"
+                                        id="jLocation" class="form-input" placeholder="Mumbai / Remote"></div>
+                                <div class="form-group"><label class="form-label">Job Type</label><input type="text"
+                                        id="jType" class="form-input" placeholder="Full-time, Contract…"></div>
+                                <div class="form-group"><label class="form-label">Salary</label><input type="text"
+                                        id="jSalary" class="form-input" placeholder="₹8L – ₹15L"></div>
+                            </div>
+                            <div class="form-group"><label class="form-label">Auto-Close Date (optional)</label><input
+                                    type="datetime-local" id="jExpires" class="form-input" style="max-width:260px">
+                            </div>
+                            <div class="form-group"><label class="form-label">Job Description *</label><textarea
+                                    id="jDescription" class="form-input" required
+                                    placeholder="Role and responsibilities…"></textarea></div>
+                            <div class="form-group"><label class="form-label">Requirements *</label><textarea
+                                    id="jRequirements" class="form-input" required
+                                    placeholder="Skills, experience, qualifications…"></textarea></div>
+                            <div class="section-divider"></div>
+                            <div
+                                style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                                <div>
+                                    <div style="font-size:15px;font-weight:700">🔄 Hiring Pipeline & Email Templates
+                                    </div>
+                                    <div style="font-size:12px;color:var(--muted);margin-top:0.2rem">Optional — define
+                                        rounds with custom emails per stage</div>
+                                </div>
+                            </div>
+                            <div id="stages-container"></div>
+                            <button type="button" class="add-stage-btn" onclick="addStage()">+ Add Hiring Stage</button>
+                            <div class="section-divider"></div>
+                            <button type="submit" class="btn btn-p"
+                                style="width:100%;padding:0.75rem;font-size:15px">Post
+                                Job →</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- My Jobs -->
+                <div id="sec-jobs" style="display:none">
+                    <div class="page-title">💼 My Job Postings</div>
+                    <div class="page-sub">Click "View Applications" to manage candidates</div>
+                    <div id="jobs-list" class="loading">Loading…</div>
+                </div>
+
+                <!-- Analytics -->
+                <div id="sec-analytics" style="display:none">
+                    <div class="page-title">📈 Analytics</div>
+                    <div class="page-sub">Application pipeline overview per job</div>
+                    <div id="analytics-content" class="loading">Loading…</div>
+                </div>
+
+                <!-- Interview Panels -->
+                <div id="sec-panels" style="display:none">
+                    <div class="page-title">🗓️ Interview Panels</div>
+                    <div class="page-sub">Configure multi-panel interview schedules and auto-assign shortlisted
+                        candidates
+                    </div>
+                    <div class="card" style="margin-bottom:1.25rem">
+                        <div class="form-group" style="margin-bottom:0">
+                            <label class="form-label">Select Job to Configure</label>
+                            <select id="panelJobSelect" class="form-input" style="max-width:420px"
+                                onchange="loadPanelJob()">
+                                <option value="">— Choose a job —</option>
+                            </select>
                         </div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
-                            <div class="form-group"><label class="form-label">Location</label><input type="text"
-                                    id="jLocation" class="form-input" placeholder="Mumbai / Remote"></div>
-                            <div class="form-group"><label class="form-label">Job Type</label><input type="text"
-                                    id="jType" class="form-input" placeholder="Full-time, Contract…"></div>
-                            <div class="form-group"><label class="form-label">Salary</label><input type="text"
-                                    id="jSalary" class="form-input" placeholder="₹8L – ₹15L"></div>
-                        </div>
-                        <div class="form-group"><label class="form-label">Auto-Close Date (optional)</label><input
-                                type="datetime-local" id="jExpires" class="form-input" style="max-width:260px"></div>
-                        <div class="form-group"><label class="form-label">Job Description *</label><textarea
-                                id="jDescription" class="form-input" required
-                                placeholder="Role and responsibilities…"></textarea></div>
-                        <div class="form-group"><label class="form-label">Requirements *</label><textarea
-                                id="jRequirements" class="form-input" required
-                                placeholder="Skills, experience, qualifications…"></textarea></div>
-                        <div class="section-divider"></div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-                            <div>
-                                <div style="font-size:15px;font-weight:700">🔄 Hiring Pipeline & Email Templates</div>
-                                <div style="font-size:12px;color:var(--muted);margin-top:0.2rem">Optional — define
-                                    rounds with custom emails per stage</div>
+                    </div>
+                    <div id="panel-builder" style="display:none">
+                        <div
+                            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem">
+                            <div style="font-size:16px;font-weight:700">🎯 Interview Panels</div>
+                            <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+                                <button class="btn btn-o" onclick="addPanel()">+ Add Panel</button>
+                                <button class="btn btn-p" onclick="savePanels()">💾 Save Panels</button>
                             </div>
                         </div>
-                        <div id="stages-container"></div>
-                        <button type="button" class="add-stage-btn" onclick="addStage()">+ Add Hiring Stage</button>
+                        <div id="panels-list">
+                            <p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel".</p>
+                        </div>
+                        <div
+                            style="margin-top:1.5rem;padding:1.25rem;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:14px">
+                            <div style="font-size:14px;font-weight:700;margin-bottom:0.4rem">🚀 Auto-Schedule All
+                                Shortlisted Candidates</div>
+                            <div style="font-size:13px;color:var(--muted);margin-bottom:1rem">One click assigns all
+                                SHORTLISTED/UNDER_REVIEW candidates round-robin across panels and sends ICS calendar
+                                invites
+                                to candidates AND all panel interviewers simultaneously.</div>
+                            <button class="btn btn-p" style="font-size:14px;padding:0.65rem 1.5rem"
+                                onclick="autoSchedule(event)">🚀 Auto-Schedule Interviews</button>
+                        </div>
                         <div class="section-divider"></div>
-                        <button type="submit" class="btn btn-p" style="width:100%;padding:0.75rem;font-size:15px">Post
-                            Job →</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- My Jobs -->
-            <div id="sec-jobs" style="display:none">
-                <div class="page-title">💼 My Job Postings</div>
-                <div class="page-sub">Click "View Applications" to manage candidates</div>
-                <div id="jobs-list" class="loading">Loading…</div>
-            </div>
-
-            <!-- Analytics -->
-            <div id="sec-analytics" style="display:none">
-                <div class="page-title">📈 Analytics</div>
-                <div class="page-sub">Application pipeline overview per job</div>
-                <div id="analytics-content" class="loading">Loading…</div>
-            </div>
-
-            <!-- Interview Panels -->
-            <div id="sec-panels" style="display:none">
-                <div class="page-title">🗓️ Interview Panels</div>
-                <div class="page-sub">Configure multi-panel interview schedules and auto-assign shortlisted candidates
-                </div>
-                <div class="card" style="margin-bottom:1.25rem">
-                    <div class="form-group" style="margin-bottom:0">
-                        <label class="form-label">Select Job to Configure</label>
-                        <select id="panelJobSelect" class="form-input" style="max-width:420px"
-                            onchange="loadPanelJob()">
-                            <option value="">— Choose a job —</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="panel-builder" style="display:none">
-                    <div
-                        style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem">
-                        <div style="font-size:16px;font-weight:700">🎯 Interview Panels</div>
-                        <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
-                            <button class="btn btn-o" onclick="addPanel()">+ Add Panel</button>
-                            <button class="btn btn-p" onclick="savePanels()">💾 Save Panels</button>
+                        <div style="font-size:16px;font-weight:700;margin-bottom:1rem">📋 Current Schedule</div>
+                        <div id="schedule-table">
+                            <div class="loading">Save panels and run auto-schedule to see assignments here</div>
                         </div>
                     </div>
-                    <div id="panels-list">
-                        <p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel".</p>
-                    </div>
-                    <div
-                        style="margin-top:1.5rem;padding:1.25rem;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:14px">
-                        <div style="font-size:14px;font-weight:700;margin-bottom:0.4rem">🚀 Auto-Schedule All
-                            Shortlisted Candidates</div>
-                        <div style="font-size:13px;color:var(--muted);margin-bottom:1rem">One click assigns all
-                            SHORTLISTED/UNDER_REVIEW candidates round-robin across panels and sends ICS calendar invites
-                            to candidates AND all panel interviewers simultaneously.</div>
-                        <button class="btn btn-p" style="font-size:14px;padding:0.65rem 1.5rem"
-                            onclick="autoSchedule(event)">🚀 Auto-Schedule Interviews</button>
-                    </div>
-                    <div class="section-divider"></div>
-                    <div style="font-size:16px;font-weight:700;margin-bottom:1rem">📋 Current Schedule</div>
-                    <div id="schedule-table">
-                        <div class="loading">Save panels and run auto-schedule to see assignments here</div>
-                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Applications Modal -->
-    <div id="appsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title" id="modalTitle">Applications</div>
-                <div style="display:flex;gap:0.5rem">
-                    <button class="btn btn-o" style="font-size:12px;padding:0.35rem 0.75rem" onclick="exportCsv()">📥
-                        Export CSV</button>
-                    <button class="close-btn" onclick="closeModal()">✕</button>
+        <!-- Applications Modal -->
+        <div id="appsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="modalTitle">Applications</div>
+                    <div style="display:flex;gap:0.5rem">
+                        <button class="btn btn-o" style="font-size:12px;padding:0.35rem 0.75rem"
+                            onclick="exportCsv()">📥
+                            Export CSV</button>
+                        <button class="close-btn" onclick="closeModal()">✕</button>
+                    </div>
+                </div>
+                <div id="modalApps">
+                    <div class="loading">Loading…</div>
                 </div>
             </div>
-            <div id="modalApps">
-                <div class="loading">Loading…</div>
-            </div>
         </div>
-    </div>
 
-    <!-- Email Preview Modal -->
-    <div id="previewModal" class="modal">
-        <div class="modal-content" style="max-width:620px">
-            <div class="modal-header">
-                <div class="modal-title">📧 Email Preview</div>
-                <button class="close-btn" onclick="closePreview()">✕</button>
-            </div>
-            <div style="font-size:13px;color:var(--muted);margin-bottom:0.75rem">This email will be sent to the
-                candidate. Confirm to proceed.</div>
-            <div><span class="form-label">Subject:</span>
-                <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:0.25rem" id="previewSubj">—
+        <!-- Email Preview Modal -->
+        <div id="previewModal" class="modal">
+            <div class="modal-content" style="max-width:620px">
+                <div class="modal-header">
+                    <div class="modal-title">📧 Email Preview</div>
+                    <button class="close-btn" onclick="closePreview()">✕</button>
+                </div>
+                <div style="font-size:13px;color:var(--muted);margin-bottom:0.75rem">This email will be sent to the
+                    candidate. Confirm to proceed.</div>
+                <div><span class="form-label">Subject:</span>
+                    <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:0.25rem" id="previewSubj">—
+                    </div>
+                </div>
+                <div class="preview-box" id="previewBody">—</div>
+                <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
+                    <button class="btn btn-p" style="flex:1" onclick="confirmStatusUpdate()">✅ Send & Update
+                        Status</button>
+                    <button class="btn btn-o" style="flex:1" onclick="closePreview()">Cancel</button>
                 </div>
             </div>
-            <div class="preview-box" id="previewBody">—</div>
-            <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
-                <button class="btn btn-p" style="flex:1" onclick="confirmStatusUpdate()">✅ Send & Update Status</button>
-                <button class="btn btn-o" style="flex:1" onclick="closePreview()">Cancel</button>
-            </div>
         </div>
-    </div>
 
-    <script>
-        const API = 'https://api.talentsynctech.in';
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        let currentJobId = null, currentJobTitle = '', pendingStatusUpdate = null, stageCount = 0;
-        let allJobsCache = [], panelJobId = null, panels = [], panelCount = 0;
+        <script>
+            const API = 'https://api.talentsynctech.in';
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            let currentJobId = null, currentJobTitle = '', pendingStatusUpdate = null, stageCount = 0;
+            let allJobsCache = [], panelJobId = null, panels = [], panelCount = 0;
 
-        if (!token || user.role !== 'recruiter') { location.href = '/smart_resume_signin_page.html'; }
-        document.getElementById('userName').textContent = user.name || 'Recruiter';
-        function logout() { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
+            if (!token || user.role !== 'recruiter') { location.href = '/smart_resume_signin_page.html'; }
+            const initial = (user.name || 'R').charAt(0).toUpperCase();
+            document.getElementById('avatarInitial').textContent = initial;
+            if (document.getElementById('pageTitle')) document.getElementById('pageTitle').textContent = 'Dashboard';
+            function logout() { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
-        // ===================== NAVIGATION =====================
-        const sections = ['overview', 'post', 'jobs', 'panels', 'analytics'];
-        function showSection(n) {
-            sections.forEach(s => { const el = document.getElementById('sec-' + s); if (el) el.style.display = s === n ? 'block' : 'none'; });
-            document.querySelectorAll('.nav-item').forEach((el, i) => el.classList.toggle('active', sections[i] === n));
-            if (n === 'jobs' || n === 'overview') loadJobs(n);
-            if (n === 'analytics') loadAnalytics();
-            if (n === 'panels') populatePanelJobSelect();
-        }
+            // ===================== NAVIGATION =====================
+            const sections = ['overview', 'post', 'jobs', 'panels', 'analytics'];
+            function showSection(n) {
+                sections.forEach(s => { const el = document.getElementById('sec-' + s); if (el) el.style.display = s === n ? 'block' : 'none'; });
+                document.querySelectorAll('.nav-item').forEach((el, i) => el.classList.toggle('active', sections[i] === n));
+                if (n === 'jobs' || n === 'overview') loadJobs(n);
+                if (n === 'analytics') loadAnalytics();
+                if (n === 'panels') populatePanelJobSelect();
+            }
 
-        // ===================== INTERVIEW PANELS =====================
-        async function populatePanelJobSelect() {
-            try {
-                const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!r.ok) return;
-                const jobs = await r.json();
+            // ===================== INTERVIEW PANELS =====================
+            async function populatePanelJobSelect() {
+                try {
+                    const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!r.ok) return;
+                    const jobs = await r.json();
+                    const sel = document.getElementById('panelJobSelect');
+                    sel.innerHTML = '<option value="">— Choose a job —</option>';
+                    jobs.filter(j => j.status !== 'CLOSED').forEach(j => {
+                        const opt = document.createElement('option');
+                        opt.value = j.id; opt.textContent = j.title + (j.company ? ' — ' + j.company : '');
+                        sel.appendChild(opt);
+                    });
+                } catch (e) { console.error(e); }
+            }
+
+            async function loadPanelJob() {
                 const sel = document.getElementById('panelJobSelect');
-                sel.innerHTML = '<option value="">— Choose a job —</option>';
-                jobs.filter(j => j.status !== 'CLOSED').forEach(j => {
-                    const opt = document.createElement('option');
-                    opt.value = j.id; opt.textContent = j.title + (j.company ? ' — ' + j.company : '');
-                    sel.appendChild(opt);
+                panelJobId = sel.value;
+                if (!panelJobId) { document.getElementById('panel-builder').style.display = 'none'; return; }
+                document.getElementById('panel-builder').style.display = 'block';
+                try {
+                    const r = await fetch(`${API}/api/interviews/schedule/${panelJobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (r.ok) { const d = await r.json(); panels = d.panels || []; panelCount = panels.length; renderPanels(); renderScheduleTable(panels); }
+                    else { panels = []; renderPanels(); }
+                } catch (e) { panels = []; renderPanels(); }
+            }
+
+            function addPanel() {
+                panelCount++;
+                panels.push({ panelId: '', panelName: 'Panel ' + panelCount, interviewerEmails: [], interviewerNames: [], slots: [] });
+                renderPanels();
+            }
+            function removePanel(idx) { panels.splice(idx, 1); renderPanels(); }
+            function addSlot(pi) { panels[pi].slots.push({ slotId: '', dateTime: '', durationMinutes: 60, booked: false }); renderPanels(); }
+            function removeSlot(pi, si) { panels[pi].slots.splice(si, 1); renderPanels(); }
+
+            function collectPanelsFromUI() {
+                const updated = [];
+                document.querySelectorAll('.panel-card').forEach((card, pi) => {
+                    const name = card.querySelector('.p-name')?.value?.trim() || 'Panel ' + (pi + 1);
+                    const emailsRaw = card.querySelector('.p-emails')?.value?.trim() || '';
+                    const namesRaw = card.querySelector('.p-names')?.value?.trim() || '';
+                    const emailsList = emailsRaw.split(',').map(s => s.trim()).filter(Boolean);
+                    const namesList = namesRaw.split(',').map(s => s.trim()).filter(Boolean);
+                    const slots = [];
+                    card.querySelectorAll('.slot-row').forEach(row => {
+                        const dt = row.querySelector('.slot-dt')?.value || '';
+                        const dur = parseInt(row.querySelector('.slot-dur')?.value || '60');
+                        if (dt) slots.push({ slotId: '', dateTime: dt, durationMinutes: dur, booked: false });
+                    });
+                    updated.push({ panelId: panels[pi]?.panelId || '', panelName: name, interviewerEmails: emailsList, interviewerNames: namesList, slots });
                 });
-            } catch (e) { console.error(e); }
-        }
+                return updated;
+            }
 
-        async function loadPanelJob() {
-            const sel = document.getElementById('panelJobSelect');
-            panelJobId = sel.value;
-            if (!panelJobId) { document.getElementById('panel-builder').style.display = 'none'; return; }
-            document.getElementById('panel-builder').style.display = 'block';
-            try {
-                const r = await fetch(`${API}/api/interviews/schedule/${panelJobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (r.ok) { const d = await r.json(); panels = d.panels || []; panelCount = panels.length; renderPanels(); renderScheduleTable(panels); }
-                else { panels = []; renderPanels(); }
-            } catch (e) { panels = []; renderPanels(); }
-        }
-
-        function addPanel() {
-            panelCount++;
-            panels.push({ panelId: '', panelName: 'Panel ' + panelCount, interviewerEmails: [], interviewerNames: [], slots: [] });
-            renderPanels();
-        }
-        function removePanel(idx) { panels.splice(idx, 1); renderPanels(); }
-        function addSlot(pi) { panels[pi].slots.push({ slotId: '', dateTime: '', durationMinutes: 60, booked: false }); renderPanels(); }
-        function removeSlot(pi, si) { panels[pi].slots.splice(si, 1); renderPanels(); }
-
-        function collectPanelsFromUI() {
-            const updated = [];
-            document.querySelectorAll('.panel-card').forEach((card, pi) => {
-                const name = card.querySelector('.p-name')?.value?.trim() || 'Panel ' + (pi + 1);
-                const emailsRaw = card.querySelector('.p-emails')?.value?.trim() || '';
-                const namesRaw = card.querySelector('.p-names')?.value?.trim() || '';
-                const emailsList = emailsRaw.split(',').map(s => s.trim()).filter(Boolean);
-                const namesList = namesRaw.split(',').map(s => s.trim()).filter(Boolean);
-                const slots = [];
-                card.querySelectorAll('.slot-row').forEach(row => {
-                    const dt = row.querySelector('.slot-dt')?.value || '';
-                    const dur = parseInt(row.querySelector('.slot-dur')?.value || '60');
-                    if (dt) slots.push({ slotId: '', dateTime: dt, durationMinutes: dur, booked: false });
-                });
-                updated.push({ panelId: panels[pi]?.panelId || '', panelName: name, interviewerEmails: emailsList, interviewerNames: namesList, slots });
-            });
-            return updated;
-        }
-
-        function renderPanels() {
-            const container = document.getElementById('panels-list');
-            if (!panels.length) { container.innerHTML = '<p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel" to create one.</p>'; return; }
-            container.innerHTML = panels.map((p, pi) => `<div class="panel-card stage-card">
+            function renderPanels() {
+                const container = document.getElementById('panels-list');
+                if (!panels.length) { container.innerHTML = '<p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel" to create one.</p>'; return; }
+                container.innerHTML = panels.map((p, pi) => `<div class="panel-card stage-card">
                 <div class="stage-header"><span class="stage-num">Panel ${pi + 1}</span><button type="button" class="stage-del" onclick="removePanel(${pi})">✕ Remove</button></div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
                     <div class="form-group"><label class="form-label">Panel Name</label><input class="form-input p-name" value="${p.panelName || ''}" placeholder="e.g. Technical Panel 1"></div>
@@ -968,53 +989,53 @@
                 </div>`).join('')}
                 <button type="button" class="add-stage-btn" style="margin-top:0.5rem;padding:0.5rem;font-size:13px" onclick="addSlot(${pi})">+ Add Time Slot</button>
             </div>`).join('');
-        }
+            }
 
-        async function savePanels() {
-            if (!panelJobId) { alert('Please select a job first.'); return; }
-            const collected = collectPanelsFromUI();
-            try {
-                const r = await fetch(`${API}/api/interviews/panels/${panelJobId}`, {
-                    method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify(collected)
-                });
-                const d = await r.json();
-                if (!r.ok) throw new Error(d.error || 'Failed');
-                panels = d.job?.interviewPanels || collected;
-                renderPanels(); renderScheduleTable(panels);
-                alert('✅ ' + d.message);
-            } catch (e) { alert('Failed: ' + e.message); }
-        }
+            async function savePanels() {
+                if (!panelJobId) { alert('Please select a job first.'); return; }
+                const collected = collectPanelsFromUI();
+                try {
+                    const r = await fetch(`${API}/api/interviews/panels/${panelJobId}`, {
+                        method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(collected)
+                    });
+                    const d = await r.json();
+                    if (!r.ok) throw new Error(d.error || 'Failed');
+                    panels = d.job?.interviewPanels || collected;
+                    renderPanels(); renderScheduleTable(panels);
+                    alert('✅ ' + d.message);
+                } catch (e) { alert('Failed: ' + e.message); }
+            }
 
-        async function autoSchedule(evt) {
-            if (!panelJobId) { alert('Please select a job first.'); return; }
-            if (!confirm('This will assign ALL shortlisted/under-review candidates round-robin across panels and send ICS calendar invites to both candidates and panel interviewers. Proceed?')) return;
-            const btn = evt.currentTarget; btn.textContent = '⏳ Scheduling…'; btn.disabled = true;
-            try {
-                const r = await fetch(`${API}/api/interviews/auto-schedule/${panelJobId}`, {
-                    method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const d = await r.json();
-                if (!r.ok) throw new Error(d.error || 'Failed');
-                let msg = '✅ ' + d.message;
-                if (d.assignments && d.assignments.length) msg += '\n\nAssignments:\n' + d.assignments.join('\n');
-                alert(msg);
-                loadPanelJob();
-            } catch (e) { alert('Failed: ' + e.message); }
-            btn.textContent = '🚀 Auto-Schedule Interviews'; btn.disabled = false;
-        }
+            async function autoSchedule(evt) {
+                if (!panelJobId) { alert('Please select a job first.'); return; }
+                if (!confirm('This will assign ALL shortlisted/under-review candidates round-robin across panels and send ICS calendar invites to both candidates and panel interviewers. Proceed?')) return;
+                const btn = evt.currentTarget; btn.textContent = '⏳ Scheduling…'; btn.disabled = true;
+                try {
+                    const r = await fetch(`${API}/api/interviews/auto-schedule/${panelJobId}`, {
+                        method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const d = await r.json();
+                    if (!r.ok) throw new Error(d.error || 'Failed');
+                    let msg = '✅ ' + d.message;
+                    if (d.assignments && d.assignments.length) msg += '\n\nAssignments:\n' + d.assignments.join('\n');
+                    alert(msg);
+                    loadPanelJob();
+                } catch (e) { alert('Failed: ' + e.message); }
+                btn.textContent = '🚀 Auto-Schedule Interviews'; btn.disabled = false;
+            }
 
-        function renderScheduleTable(panelsData) {
-            const container = document.getElementById('schedule-table');
-            const booked = [];
-            (panelsData || []).forEach(p => {
-                (p.slots || []).filter(s => s.booked).forEach(s => {
-                    booked.push({ panel: p.panelName, interviewers: (p.interviewerNames || []).join(', ') || p.panelName, candidate: s.candidateName, email: s.candidateEmail, dateTime: s.dateTime, duration: s.durationMinutes });
+            function renderScheduleTable(panelsData) {
+                const container = document.getElementById('schedule-table');
+                const booked = [];
+                (panelsData || []).forEach(p => {
+                    (p.slots || []).filter(s => s.booked).forEach(s => {
+                        booked.push({ panel: p.panelName, interviewers: (p.interviewerNames || []).join(', ') || p.panelName, candidate: s.candidateName, email: s.candidateEmail, dateTime: s.dateTime, duration: s.durationMinutes });
+                    });
                 });
-            });
-            if (!booked.length) { container.innerHTML = '<p style="color:var(--muted);font-size:13px">No interviews scheduled yet.</p>'; return; }
-            booked.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
-            container.innerHTML = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+                if (!booked.length) { container.innerHTML = '<p style="color:var(--muted);font-size:13px">No interviews scheduled yet.</p>'; return; }
+                booked.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+                container.innerHTML = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
                 <thead><tr>${['Date & Time', 'Candidate', 'Email', 'Panel', 'Interviewers', 'Dur'].map(h => `<th style="text-align:left;padding:0.55rem 0.65rem;border-bottom:1px solid var(--gb);color:var(--muted);font-weight:600;white-space:nowrap">${h}</th>`).join('')}</tr></thead>
                 <tbody>${booked.map(b => `<tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
                     <td style="padding:0.55rem 0.65rem;white-space:nowrap">${new Date(b.dateTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
@@ -1025,120 +1046,120 @@
                     <td style="padding:0.55rem 0.65rem;color:var(--muted)">${b.duration || 60}m</td>
                 </tr>`).join('')}</tbody>
             </table></div>`;
-        }
-
-        // ===================== BADGES & HELPERS =====================
-        function statusBadge(s) {
-            const m = {
-                PENDING: ['bg', '⏳ Pending'], UNDER_REVIEW: ['bb', '🔍 Under Review'], SHORTLISTED: ['bc', '⭐ Shortlisted'],
-                INTERVIEW: ['bs', '📅 Interview'], OFFERED: ['bw', '🎉 Offered'], REJECTED: ['bd', '❌ Rejected'], ATS_REJECTED: ['bd', '🤖 ATS Filtered']
-            };
-            const [c, l] = m[s] || ['bg', s]; return `<span class="badge ${c}">${l}</span>`;
-        }
-        function scoreCircle(score) {
-            if (score === null || score === undefined) return '<div style="width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);border:3px solid rgba(255,255,255,0.15)">-</div>';
-            const c = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
-            return `<div class="sc" style="border-color:${c};color:${c}">${score.toFixed(0)}%</div>`;
-        }
-
-        // ===================== PIPELINE BUTTONS =====================
-        function getPipelineButtons(appId, status, jobPipeline) {
-            if (jobPipeline && jobPipeline.length > 0) {
-                const keys = jobPipeline.map(s => s.stageKey);
-                const curIdx = keys.indexOf(status);
-                const btns = [];
-                if (curIdx === -1) {
-                    if (status === 'UNDER_REVIEW' || status === 'PENDING') btns.push(`<button class="pipe-btn pb-review" onclick="initiateStatusUpdate('${appId}','${keys[0]}','${jobPipeline[0].stageName}')">▶ ${jobPipeline[0].stageName}</button>`);
-                    if (status === 'ATS_REJECTED') btns.push(`<button class="pipe-btn pb-review" onclick="initiateStatusUpdate('${appId}','UNDER_REVIEW','Under Review')">↩ Override</button>`);
-                } else if (curIdx < keys.length - 1) {
-                    const next = jobPipeline[curIdx + 1];
-                    btns.push(`<button class="pipe-btn pb-short" onclick="initiateStatusUpdate('${appId}','${next.stageKey}','${next.stageName}')">▶ ${next.stageName}</button>`);
-                }
-                btns.push(`<button class="pipe-btn pb-reject" onclick="initiateStatusUpdate('${appId}','REJECTED','Rejected')">✕ Reject</button>`);
-                if (!btns.length) return '<div style="font-size:12px;color:var(--muted);margin-top:0.5rem">Pipeline complete</div>';
-                return `<div class="pipeline-actions">${btns.join('')}</div>`;
-            }
-            const flows = {
-                PENDING: [{ s: 'UNDER_REVIEW', cls: 'pb-review', l: '▶ Move to Review' }],
-                ATS_REJECTED: [{ s: 'UNDER_REVIEW', cls: 'pb-review', l: '↩ Override to Review' }],
-                UNDER_REVIEW: [{ s: 'SHORTLISTED', cls: 'pb-short', l: '⭐ Shortlist' }, { s: 'REJECTED', cls: 'pb-reject', l: '✕ Reject' }],
-                SHORTLISTED: [{ s: 'INTERVIEW', cls: 'pb-interview', l: '📅 Invite Interview' }, { s: 'REJECTED', cls: 'pb-reject', l: '✕ Reject' }],
-                INTERVIEW: [{ s: 'OFFERED', cls: 'pb-offer', l: '🎉 Send Offer' }, { s: 'REJECTED', cls: 'pb-reject', l: '✕ Reject' }],
-                OFFERED: [], REJECTED: []
-            };
-            const btns = (flows[status] || []);
-            if (!btns.length) return '<div style="font-size:12px;color:var(--muted);margin-top:0.5rem">No further actions</div>';
-            return `<div class="pipeline-actions">${btns.map(b => `<button class="pipe-btn ${b.cls}" onclick="initiateStatusUpdate('${appId}','${b.s}','')">${b.l}</button>`).join('')}</div>`;
-        }
-
-        // ===================== EMAIL PREVIEW FLOW =====================
-        async function initiateStatusUpdate(appId, newStatus, stageName) {
-            const notes = prompt(`Moving to "${stageName || newStatus}". Add a note for the candidate (optional):`);
-            if (notes === null) return; // cancelled
-
-            let interviewDateTime = '';
-            if (newStatus === 'INTERVIEW') {
-                interviewDateTime = prompt('📅 Enter interview date & time (format: YYYY-MM-DDTHH:MM, e.g. 2026-03-10T14:30):', '')?.trim() || '';
             }
 
-            // Fetch email preview from backend
-            try {
-                const r = await fetch(`${API}/api/email-templates/preview`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ appId, status: newStatus, notes, interviewDateTime, stageName })
-                });
-                if (r.ok) {
-                    const d = await r.json();
-                    document.getElementById('previewSubj').textContent = d.subject || '(no subject)';
-                    document.getElementById('previewBody').textContent = d.body || '(no body)';
-                    pendingStatusUpdate = { appId, newStatus, stageName, notes, interviewDateTime };
-                    document.getElementById('previewModal').classList.add('active');
-                    return;
+            // ===================== BADGES & HELPERS =====================
+            function statusBadge(s) {
+                const m = {
+                    PENDING: ['bg', '⏳ Pending'], UNDER_REVIEW: ['bb', '🔍 Under Review'], SHORTLISTED: ['bc', '⭐ Shortlisted'],
+                    INTERVIEW: ['bs', '📅 Interview'], OFFERED: ['bw', '🎉 Offered'], REJECTED: ['bd', '❌ Rejected'], ATS_REJECTED: ['bd', '🤖 ATS Filtered']
+                };
+                const [c, l] = m[s] || ['bg', s]; return `<span class="badge ${c}">${l}</span>`;
+            }
+            function scoreCircle(score) {
+                if (score === null || score === undefined) return '<div style="width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);border:3px solid rgba(255,255,255,0.15)">-</div>';
+                const c = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+                return `<div class="sc" style="border-color:${c};color:${c}">${score.toFixed(0)}%</div>`;
+            }
+
+            // ===================== PIPELINE BUTTONS =====================
+            function getPipelineButtons(appId, status, jobPipeline) {
+                if (jobPipeline && jobPipeline.length > 0) {
+                    const keys = jobPipeline.map(s => s.stageKey);
+                    const curIdx = keys.indexOf(status);
+                    const btns = [];
+                    if (curIdx === -1) {
+                        if (status === 'UNDER_REVIEW' || status === 'PENDING') btns.push(`<button class="pipe-btn pb-review" onclick="initiateStatusUpdate('${appId}','${keys[0]}','${jobPipeline[0].stageName}')">▶ ${jobPipeline[0].stageName}</button>`);
+                        if (status === 'ATS_REJECTED') btns.push(`<button class="pipe-btn pb-review" onclick="initiateStatusUpdate('${appId}','UNDER_REVIEW','Under Review')">↩ Override</button>`);
+                    } else if (curIdx < keys.length - 1) {
+                        const next = jobPipeline[curIdx + 1];
+                        btns.push(`<button class="pipe-btn pb-short" onclick="initiateStatusUpdate('${appId}','${next.stageKey}','${next.stageName}')">▶ ${next.stageName}</button>`);
+                    }
+                    btns.push(`<button class="pipe-btn pb-reject" onclick="initiateStatusUpdate('${appId}','REJECTED','Rejected')">✕ Reject</button>`);
+                    if (!btns.length) return '<div style="font-size:12px;color:var(--muted);margin-top:0.5rem">Pipeline complete</div>';
+                    return `<div class="pipeline-actions">${btns.join('')}</div>`;
                 }
-            } catch (e) {/* fall through to direct update */ }
+                const flows = {
+                    PENDING: [{ s: 'UNDER_REVIEW', cls: 'pb-review', l: '▶ Move to Review' }],
+                    ATS_REJECTED: [{ s: 'UNDER_REVIEW', cls: 'pb-review', l: '↩ Override to Review' }],
+                    UNDER_REVIEW: [{ s: 'SHORTLISTED', cls: 'pb-short', l: '⭐ Shortlist' }, { s: 'REJECTED', cls: 'pb-reject', l: '✕ Reject' }],
+                    SHORTLISTED: [{ s: 'INTERVIEW', cls: 'pb-interview', l: '📅 Invite Interview' }, { s: 'REJECTED', cls: 'pb-reject', l: '✕ Reject' }],
+                    INTERVIEW: [{ s: 'OFFERED', cls: 'pb-offer', l: '🎉 Send Offer' }, { s: 'REJECTED', cls: 'pb-reject', l: '✕ Reject' }],
+                    OFFERED: [], REJECTED: []
+                };
+                const btns = (flows[status] || []);
+                if (!btns.length) return '<div style="font-size:12px;color:var(--muted);margin-top:0.5rem">No further actions</div>';
+                return `<div class="pipeline-actions">${btns.map(b => `<button class="pipe-btn ${b.cls}" onclick="initiateStatusUpdate('${appId}','${b.s}','')">${b.l}</button>`).join('')}</div>`;
+            }
 
-            // If preview endpoint not available, proceed directly
-            await doStatusUpdate(appId, newStatus, notes, interviewDateTime);
-        }
+            // ===================== EMAIL PREVIEW FLOW =====================
+            async function initiateStatusUpdate(appId, newStatus, stageName) {
+                const notes = prompt(`Moving to "${stageName || newStatus}". Add a note for the candidate (optional):`);
+                if (notes === null) return; // cancelled
 
-        async function confirmStatusUpdate() {
-            if (!pendingStatusUpdate) return;
-            const { appId, newStatus, notes, interviewDateTime } = pendingStatusUpdate;
-            closePreview();
-            await doStatusUpdate(appId, newStatus, notes, interviewDateTime);
-        }
+                let interviewDateTime = '';
+                if (newStatus === 'INTERVIEW') {
+                    interviewDateTime = prompt('📅 Enter interview date & time (format: YYYY-MM-DDTHH:MM, e.g. 2026-03-10T14:30):', '')?.trim() || '';
+                }
 
-        async function doStatusUpdate(appId, status, notes, interviewDateTime) {
-            try {
-                const r = await fetch(`${API}/api/applications/${appId}/status`, {
-                    method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status, notes: notes || '', interviewDateTime: interviewDateTime || '' })
-                });
-                if (!r.ok) throw new Error('Failed');
-                // Refresh applications
-                if (currentJobId) viewApps(currentJobId, currentJobTitle);
-            } catch (e) { alert('Failed: ' + e.message); }
-        }
+                // Fetch email preview from backend
+                try {
+                    const r = await fetch(`${API}/api/email-templates/preview`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ appId, status: newStatus, notes, interviewDateTime, stageName })
+                    });
+                    if (r.ok) {
+                        const d = await r.json();
+                        document.getElementById('previewSubj').textContent = d.subject || '(no subject)';
+                        document.getElementById('previewBody').textContent = d.body || '(no body)';
+                        pendingStatusUpdate = { appId, newStatus, stageName, notes, interviewDateTime };
+                        document.getElementById('previewModal').classList.add('active');
+                        return;
+                    }
+                } catch (e) {/* fall through to direct update */ }
 
-        function closePreview() {
-            document.getElementById('previewModal').classList.remove('active');
-            pendingStatusUpdate = null;
-        }
+                // If preview endpoint not available, proceed directly
+                await doStatusUpdate(appId, newStatus, notes, interviewDateTime);
+            }
 
-        // ===================== JOBS =====================
-        async function loadJobs(section) {
-            const cid = section === 'overview' ? 'ov-jobs' : 'jobs-list';
-            const el = document.getElementById(cid);
-            if (el) el.innerHTML = '<div class="loading">Loading…</div>';
-            try {
-                const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!r.ok) throw new Error();
-                const jobs = await r.json();
-                allJobsCache = jobs;
-                document.getElementById('st-jobs').textContent = jobs.filter(j => j.status === 'ACTIVE').length;
-                if (!jobs.length) { if (el) el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No jobs yet. Post your first job!</p>'; return; }
-                if (el) el.innerHTML = jobs.map(j => `<div class="job-card">
+            async function confirmStatusUpdate() {
+                if (!pendingStatusUpdate) return;
+                const { appId, newStatus, notes, interviewDateTime } = pendingStatusUpdate;
+                closePreview();
+                await doStatusUpdate(appId, newStatus, notes, interviewDateTime);
+            }
+
+            async function doStatusUpdate(appId, status, notes, interviewDateTime) {
+                try {
+                    const r = await fetch(`${API}/api/applications/${appId}/status`, {
+                        method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status, notes: notes || '', interviewDateTime: interviewDateTime || '' })
+                    });
+                    if (!r.ok) throw new Error('Failed');
+                    // Refresh applications
+                    if (currentJobId) viewApps(currentJobId, currentJobTitle);
+                } catch (e) { alert('Failed: ' + e.message); }
+            }
+
+            function closePreview() {
+                document.getElementById('previewModal').classList.remove('active');
+                pendingStatusUpdate = null;
+            }
+
+            // ===================== JOBS =====================
+            async function loadJobs(section) {
+                const cid = section === 'overview' ? 'ov-jobs' : 'jobs-list';
+                const el = document.getElementById(cid);
+                if (el) el.innerHTML = '<div class="loading">Loading…</div>';
+                try {
+                    const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!r.ok) throw new Error();
+                    const jobs = await r.json();
+                    allJobsCache = jobs;
+                    document.getElementById('st-jobs').textContent = jobs.filter(j => j.status === 'ACTIVE').length;
+                    if (!jobs.length) { if (el) el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No jobs yet. Post your first job!</p>'; return; }
+                    if (el) el.innerHTML = jobs.map(j => `<div class="job-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
         <div>
           <div style="font-size:15px;font-weight:600;margin-bottom:0.25rem">${j.title}</div>
@@ -1155,38 +1176,38 @@
         <button class="btn btn-p" onclick="viewApps('${j.id}','${(j.title || '').replace(/'/g, '&#39;')}')">View Applications →</button>
       </div>
     </div>`).join('');
-            } catch (e) { if (el) el.innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load</p>'; }
-        }
+                } catch (e) { if (el) el.innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load</p>'; }
+            }
 
-        async function postJob(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('[type=submit]');
-            btn.textContent = 'Posting…'; btn.disabled = true;
-            try {
-                const pipeline = collectPipeline();
-                const expires = document.getElementById('jExpires').value;
-                const body = {
-                    title: document.getElementById('jTitle').value, company: document.getElementById('jCompany').value,
-                    location: document.getElementById('jLocation').value, type: document.getElementById('jType').value,
-                    salary: document.getElementById('jSalary').value, description: document.getElementById('jDescription').value,
-                    requirements: document.getElementById('jRequirements').value
-                };
-                if (pipeline.length) body.hiringPipeline = pipeline;
-                if (expires) body.expiresAt = expires;
-                const r = await fetch(`${API}/api/jobs`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-                if (!r.ok) throw new Error('Failed');
-                alert('✅ Job posted!' + (pipeline.length ? `\n${pipeline.length} custom email stages saved.` : ''));
-                e.target.reset(); document.getElementById('stages-container').innerHTML = ''; stageCount = 0;
-                showSection('jobs');
-            } catch (err) { alert('Failed: ' + err.message); }
-            btn.textContent = 'Post Job →'; btn.disabled = false;
-        }
+            async function postJob(e) {
+                e.preventDefault();
+                const btn = e.target.querySelector('[type=submit]');
+                btn.textContent = 'Posting…'; btn.disabled = true;
+                try {
+                    const pipeline = collectPipeline();
+                    const expires = document.getElementById('jExpires').value;
+                    const body = {
+                        title: document.getElementById('jTitle').value, company: document.getElementById('jCompany').value,
+                        location: document.getElementById('jLocation').value, type: document.getElementById('jType').value,
+                        salary: document.getElementById('jSalary').value, description: document.getElementById('jDescription').value,
+                        requirements: document.getElementById('jRequirements').value
+                    };
+                    if (pipeline.length) body.hiringPipeline = pipeline;
+                    if (expires) body.expiresAt = expires;
+                    const r = await fetch(`${API}/api/jobs`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                    if (!r.ok) throw new Error('Failed');
+                    alert('✅ Job posted!' + (pipeline.length ? `\n${pipeline.length} custom email stages saved.` : ''));
+                    e.target.reset(); document.getElementById('stages-container').innerHTML = ''; stageCount = 0;
+                    showSection('jobs');
+                } catch (err) { alert('Failed: ' + err.message); }
+                btn.textContent = 'Post Job →'; btn.disabled = false;
+            }
 
-        // ===================== PIPELINE BUILDER =====================
-        function addStage() {
-            stageCount++; const idx = stageCount;
-            const div = document.createElement('div'); div.className = 'stage-card'; div.id = 'stage-' + idx;
-            div.innerHTML = `<div class="stage-header"><span class="stage-num">Stage ${idx}</span><button type="button" class="stage-del" onclick="removeStage(${idx})">✕ Remove</button></div>
+            // ===================== PIPELINE BUILDER =====================
+            function addStage() {
+                stageCount++; const idx = stageCount;
+                const div = document.createElement('div'); div.className = 'stage-card'; div.id = 'stage-' + idx;
+                div.innerHTML = `<div class="stage-header"><span class="stage-num">Stage ${idx}</span><button type="button" class="stage-del" onclick="removeStage(${idx})">✕ Remove</button></div>
     <div class="form-group"><label class="form-label">Stage Name *</label>
     <div style="display:flex;gap:0.75rem;align-items:center">
       <input type="text" id="sname-${idx}" class="form-input" placeholder="e.g. Round 1: Aptitude Test" oninput="validateStageName(${idx})">
@@ -1199,69 +1220,69 @@
       </div>
       <div style="display:flex;gap:0.5rem"><button type="button" class="btn btn-o" onclick="generateTemplate(${idx})" style="font-size:12px;padding:0.35rem 0.8rem">↺ Regenerate</button></div>
     </div>`;
-            document.getElementById('stages-container').appendChild(div);
-        }
-        function removeStage(idx) { document.getElementById('stage-' + idx)?.remove(); }
-        function validateStageName(idx) { const v = document.getElementById('sname-' + idx)?.value.trim(); const b = document.getElementById('genbtn-' + idx); if (b) b.disabled = !v; }
-        async function generateTemplate(idx) {
-            const stageName = document.getElementById('sname-' + idx)?.value.trim();
-            if (!stageName) return;
-            const btn = document.getElementById('genbtn-' + idx); const orig = btn.textContent;
-            btn.textContent = '⏳'; btn.disabled = true;
-            try {
-                const r = await fetch(`${API}/api/email-templates/generate`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        stageName, jobTitle: document.getElementById('jTitle')?.value || 'the position',
-                        companyName: document.getElementById('jCompany')?.value || 'our company', stageOrder: String(idx)
-                    })
+                document.getElementById('stages-container').appendChild(div);
+            }
+            function removeStage(idx) { document.getElementById('stage-' + idx)?.remove(); }
+            function validateStageName(idx) { const v = document.getElementById('sname-' + idx)?.value.trim(); const b = document.getElementById('genbtn-' + idx); if (b) b.disabled = !v; }
+            async function generateTemplate(idx) {
+                const stageName = document.getElementById('sname-' + idx)?.value.trim();
+                if (!stageName) return;
+                const btn = document.getElementById('genbtn-' + idx); const orig = btn.textContent;
+                btn.textContent = '⏳'; btn.disabled = true;
+                try {
+                    const r = await fetch(`${API}/api/email-templates/generate`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            stageName, jobTitle: document.getElementById('jTitle')?.value || 'the position',
+                            companyName: document.getElementById('jCompany')?.value || 'our company', stageOrder: String(idx)
+                        })
+                    });
+                    if (!r.ok) throw new Error();
+                    const d = await r.json();
+                    document.getElementById('subj-' + idx).value = d.subject || '';
+                    document.getElementById('body-' + idx).value = d.body || '';
+                    document.getElementById('template-area-' + idx).style.display = 'block';
+                } catch (e) { alert('Generation failed'); }
+                btn.textContent = orig; btn.disabled = false;
+            }
+            function collectPipeline() {
+                const stages = [];
+                document.querySelectorAll('.stage-card').forEach((card, i) => {
+                    const id = card.id.replace('stage-', '');
+                    const stageName = document.getElementById('sname-' + id)?.value.trim(); if (!stageName) return;
+                    const subject = document.getElementById('subj-' + id)?.value.trim() || '';
+                    const body = document.getElementById('body-' + id)?.value.trim() || '';
+                    stages.push({ stageName, stageOrder: i + 1, stageKey: 'STAGE_' + (i + 1), emailSubject: subject, emailBody: body, customTemplate: !!(subject || body) });
                 });
-                if (!r.ok) throw new Error();
-                const d = await r.json();
-                document.getElementById('subj-' + idx).value = d.subject || '';
-                document.getElementById('body-' + idx).value = d.body || '';
-                document.getElementById('template-area-' + idx).style.display = 'block';
-            } catch (e) { alert('Generation failed'); }
-            btn.textContent = orig; btn.disabled = false;
-        }
-        function collectPipeline() {
-            const stages = [];
-            document.querySelectorAll('.stage-card').forEach((card, i) => {
-                const id = card.id.replace('stage-', '');
-                const stageName = document.getElementById('sname-' + id)?.value.trim(); if (!stageName) return;
-                const subject = document.getElementById('subj-' + id)?.value.trim() || '';
-                const body = document.getElementById('body-' + id)?.value.trim() || '';
-                stages.push({ stageName, stageOrder: i + 1, stageKey: 'STAGE_' + (i + 1), emailSubject: subject, emailBody: body, customTemplate: !!(subject || body) });
-            });
-            return stages;
-        }
+                return stages;
+            }
 
-        // ===================== APPLICATIONS =====================
-        async function viewApps(jobId, jobTitle) {
-            currentJobId = jobId; currentJobTitle = jobTitle;
-            document.getElementById('modalTitle').textContent = 'Applications — ' + jobTitle;
-            document.getElementById('appsModal').classList.add('active');
-            document.getElementById('modalApps').innerHTML = '<div class="loading">Loading…</div>';
-            try {
-                const [appsRes, jobRes] = await Promise.all([
-                    fetch(`${API}/api/applications/job/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                    fetch(`${API}/api/jobs/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } })
-                ]);
-                if (!appsRes.ok) throw new Error();
-                const apps = await appsRes.json();
-                const job = jobRes.ok ? await jobRes.json() : null;
-                const pipeline = job?.hiringPipeline || [];
+            // ===================== APPLICATIONS =====================
+            async function viewApps(jobId, jobTitle) {
+                currentJobId = jobId; currentJobTitle = jobTitle;
+                document.getElementById('modalTitle').textContent = 'Applications — ' + jobTitle;
+                document.getElementById('appsModal').classList.add('active');
+                document.getElementById('modalApps').innerHTML = '<div class="loading">Loading…</div>';
+                try {
+                    const [appsRes, jobRes] = await Promise.all([
+                        fetch(`${API}/api/applications/job/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                        fetch(`${API}/api/jobs/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } })
+                    ]);
+                    if (!appsRes.ok) throw new Error();
+                    const apps = await appsRes.json();
+                    const job = jobRes.ok ? await jobRes.json() : null;
+                    const pipeline = job?.hiringPipeline || [];
 
-                document.getElementById('st-apps').textContent = apps.length;
-                document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status) || pipeline.some(s => s.stageKey === a.status)).length;
-                document.getElementById('st-ats').textContent = apps.filter(a => a.status === 'ATS_REJECTED').length;
+                    document.getElementById('st-apps').textContent = apps.length;
+                    document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status) || pipeline.some(s => s.stageKey === a.status)).length;
+                    document.getElementById('st-ats').textContent = apps.filter(a => a.status === 'ATS_REJECTED').length;
 
-                if (!apps.length) { document.getElementById('modalApps').innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No applications yet</p>'; return; }
-                document.getElementById('modalApps').innerHTML = apps.map(a => {
-                    const pipeline_stage = pipeline.find(s => s.stageKey === a.status);
-                    // Notes history timeline
-                    const notesHtml = a.notesHistory && a.notesHistory.length ? `
+                    if (!apps.length) { document.getElementById('modalApps').innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No applications yet</p>'; return; }
+                    document.getElementById('modalApps').innerHTML = apps.map(a => {
+                        const pipeline_stage = pipeline.find(s => s.stageKey === a.status);
+                        // Notes history timeline
+                        const notesHtml = a.notesHistory && a.notesHistory.length ? `
         <div style="margin-top:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px">
           <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:0.5rem">📋 Notes History</div>
           ${a.notesHistory.map(n => `<div class="note-item">
@@ -1270,7 +1291,7 @@
             <div style="color:var(--muted);font-size:11px">${new Date(n.timestamp).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div></div>
           </div>`).join('')}
         </div>`: '';
-                    return `<div class="app-card ${a.status === 'ATS_REJECTED' ? 'ats-rejected' : ''}">
+                        return `<div class="app-card ${a.status === 'ATS_REJECTED' ? 'ats-rejected' : ''}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
           <div style="flex:1">
             <div style="font-weight:600;font-size:15px">${a.candidateName || 'Unknown'}</div>
@@ -1294,79 +1315,83 @@
           ${getPipelineButtons(a.id, a.status, pipeline)}
         </div>
       </div>`;
-                }).join('');
-            } catch (e) { document.getElementById('modalApps').innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load</p>'; }
-        }
+                    }).join('');
+                } catch (e) { document.getElementById('modalApps').innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load</p>'; }
+            }
 
-        async function viewResume(appId) {
-            try {
-                const r = await fetch(`${API}/api/applications/${appId}/resume`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!r.ok) throw new Error();
-                const blob = await r.blob();
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                setTimeout(() => window.URL.revokeObjectURL(url), 100);
-            } catch (e) { alert('Failed: ' + e.message); }
-        }
+            async function viewResume(appId) {
+                try {
+                    const r = await fetch(`${API}/api/applications/${appId}/resume`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!r.ok) throw new Error();
+                    const blob = await r.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                    setTimeout(() => window.URL.revokeObjectURL(url), 100);
+                } catch (e) { alert('Failed: ' + e.message); }
+            }
 
-        function exportCsv() {
-            if (!currentJobId) return;
-            window.open(`${API}/api/applications/job/${currentJobId}/export.csv?token=${encodeURIComponent(token)}`, '_blank');
-        }
+            function exportCsv() {
+                if (!currentJobId) return;
+                window.open(`${API}/api/applications/job/${currentJobId}/export.csv?token=${encodeURIComponent(token)}`, '_blank');
+            }
 
-        function closeModal() { document.getElementById('appsModal').classList.remove('active'); currentJobId = null; }
-        document.getElementById('appsModal').addEventListener('click', e => { if (e.target === document.getElementById('appsModal')) closeModal(); });
-        document.getElementById('previewModal').addEventListener('click', e => { if (e.target === document.getElementById('previewModal')) closePreview(); });
+            function closeModal() { document.getElementById('appsModal').classList.remove('active'); currentJobId = null; }
+            document.getElementById('appsModal').addEventListener('click', e => { if (e.target === document.getElementById('appsModal')) closeModal(); });
+            document.getElementById('previewModal').addEventListener('click', e => { if (e.target === document.getElementById('previewModal')) closePreview(); });
 
-        // ===================== ANALYTICS =====================
-        async function loadAnalytics() {
-            const el = document.getElementById('analytics-content');
-            el.innerHTML = '<div class="loading">Loading…</div>';
-            try {
-                const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!r.ok) throw new Error();
-                const jobs = await r.json();
-                if (!jobs.length) { el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No jobs to analyze</p>'; return; }
+            // ===================== ANALYTICS =====================
+            async function loadAnalytics() {
+                const el = document.getElementById('analytics-content');
+                el.innerHTML = '<div class="loading">Loading…</div>';
+                try {
+                    const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!r.ok) throw new Error();
+                    const jobs = await r.json();
+                    if (!jobs.length) { el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No jobs to analyze</p>'; return; }
 
-                const jobDataPromises = jobs.map(j =>
-                    fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } })
-                        .then(r => r.ok ? r.json() : []).catch(() => [])
-                );
-                const allAppLists = await Promise.all(jobDataPromises);
+                    const jobDataPromises = jobs.map(j =>
+                        fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } })
+                            .then(r => r.ok ? r.json() : []).catch(() => [])
+                    );
+                    const allAppLists = await Promise.all(jobDataPromises);
 
-                const colors = {
-                    ATS_REJECTED: 'rgba(239,68,68,0.6)', PENDING: 'rgba(148,163,184,0.5)', UNDER_REVIEW: 'rgba(37,99,235,0.6)',
-                    SHORTLISTED: 'rgba(0,212,170,0.6)', INTERVIEW: 'rgba(16,185,129,0.6)', OFFERED: 'rgba(245,158,11,0.6)', REJECTED: 'rgba(239,68,68,0.4)'
-                };
-                const statusLabels = { ATS_REJECTED: 'ATS Filtered', PENDING: 'Pending', UNDER_REVIEW: 'Under Review', SHORTLISTED: 'Shortlisted', INTERVIEW: 'Interview', OFFERED: 'Offered', REJECTED: 'Rejected' };
+                    const colors = {
+                        ATS_REJECTED: 'rgba(239,68,68,0.6)', PENDING: 'rgba(148,163,184,0.5)', UNDER_REVIEW: 'rgba(37,99,235,0.6)',
+                        SHORTLISTED: 'rgba(0,212,170,0.6)', INTERVIEW: 'rgba(16,185,129,0.6)', OFFERED: 'rgba(245,158,11,0.6)', REJECTED: 'rgba(239,68,68,0.4)'
+                    };
+                    const statusLabels = { ATS_REJECTED: 'ATS Filtered', PENDING: 'Pending', UNDER_REVIEW: 'Under Review', SHORTLISTED: 'Shortlisted', INTERVIEW: 'Interview', OFFERED: 'Offered', REJECTED: 'Rejected' };
 
-                el.innerHTML = jobs.map((job, ji) => {
-                    const apps = allAppLists[ji];
-                    const total = apps.length; if (!total) return `<div class="card" style="margin-bottom:1rem"><div style="font-weight:600">${job.title}</div><div style="color:var(--muted);font-size:13px">No applications</div></div>`;
-                    const counts = {};
-                    apps.forEach(a => { counts[a.status] = (counts[a.status] || 0) + 1; });
-                    const barsHtml = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([st, cnt]) => {
-                        const pct = Math.round((cnt / total) * 100);
-                        const col = colors[st] || 'rgba(100,100,100,0.5)';
-                        return `<div class="a-bar-row">
+                    el.innerHTML = jobs.map((job, ji) => {
+                        const apps = allAppLists[ji];
+                        const total = apps.length; if (!total) return `<div class="card" style="margin-bottom:1rem"><div style="font-weight:600">${job.title}</div><div style="color:var(--muted);font-size:13px">No applications</div></div>`;
+                        const counts = {};
+                        apps.forEach(a => { counts[a.status] = (counts[a.status] || 0) + 1; });
+                        const barsHtml = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([st, cnt]) => {
+                            const pct = Math.round((cnt / total) * 100);
+                            const col = colors[st] || 'rgba(100,100,100,0.5)';
+                            return `<div class="a-bar-row">
           <div class="a-bar-label">${statusLabels[st] || st}</div>
           <div class="a-bar-bg"><div class="a-bar" style="width:${pct}%;background:${col}"></div></div>
           <div class="a-bar-val" style="color:${col.replace(/0\.\d+\)/, '1)')}'">${cnt}</div>
         </div>`;
-                    }).join('');
-                    return `<div class="card" style="margin-bottom:1.25rem">
+                        }).join('');
+                        return `<div class="card" style="margin-bottom:1.25rem">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
           <div><div style="font-weight:600;font-size:15px">${job.title}</div><div style="font-size:12px;color:var(--muted)">${job.company || ''}</div></div>
           <div style="font-size:24px;font-weight:700;color:var(--accent)">${total}</div>
         </div>
         ${barsHtml}
       </div>`;
-                }).join('');
-            } catch (e) { el.innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load analytics</p>'; }
-        }
+                    }).join('');
+                } catch (e) { el.innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load analytics</p>'; }
+            }
 
-        loadJobs('overview');
-    </script>
+            loadJobs('overview');
+        </script>
+    </div>
+    </div>
 </body>
+
+</html>
 
 </html>
