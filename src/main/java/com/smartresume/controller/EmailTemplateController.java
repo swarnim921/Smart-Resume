@@ -1,6 +1,10 @@
 package com.smartresume.controller;
 
+import com.smartresume.model.Application;
+import com.smartresume.model.Job;
 import com.smartresume.model.HiringStage;
+import com.smartresume.repository.ApplicationRepository;
+import com.smartresume.repository.JobRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,20 +14,103 @@ import java.util.Map;
 
 /**
  * Controller that generates smart email template suggestions for custom hiring
- * pipeline stages.
- * Recruiter provides stage name + job info → gets a professional template they
- * can edit/replace.
+ * pipeline stages and provides email preview before sending.
  */
 @RestController
 @RequestMapping("/api/email-templates")
 @RequiredArgsConstructor
 public class EmailTemplateController {
 
+    private final ApplicationRepository applicationRepository;
+    private final JobRepository jobRepository;
+
+    /**
+     * Preview the email that would be sent for a given status update — without
+     * sending it.
+     * POST /api/email-templates/preview
+     */
+    @PostMapping("/preview")
+    @PreAuthorize("hasRole('RECRUITER')")
+    public ResponseEntity<Map<String, String>> previewEmail(@RequestBody Map<String, String> req) {
+        String appId = req.get("appId");
+        String status = req.getOrDefault("status", "");
+        String notes = req.getOrDefault("notes", "");
+        String stageName = req.getOrDefault("stageName", status);
+        String interviewDateTime = req.getOrDefault("interviewDateTime", "");
+
+        try {
+            Application app = applicationRepository.findById(appId).orElse(null);
+            Job job = app != null ? jobRepository.findById(app.getJobId()).orElse(null) : null;
+            String candidateName = app != null ? app.getCandidateName() : "{{candidateName}}";
+            String jobTitle = job != null ? job.getTitle() : "the position";
+            String company = job != null ? (job.getCompany() != null ? job.getCompany() : "our company")
+                    : "our company";
+            String notesText = (notes != null && !notes.isEmpty()) ? "\n\nNote from recruiter: " + notes : "";
+
+            String subject;
+            String body;
+
+            if ("INTERVIEW".equals(status) && !interviewDateTime.isEmpty()) {
+                subject = "📅 Interview Invitation — " + jobTitle + " | " + company;
+                body = "Dear " + candidateName + ",\n\nWe are delighted to invite you for an interview for \""
+                        + jobTitle + "\" at " + company + ".\n\n📅 Date/Time: " + interviewDateTime
+                        + "\n\nA calendar invite (.ics) will be attached to the email." + notesText
+                        + "\n\nPlease confirm your availability.\n\nBest regards,\nRecruitment Team, " + company;
+            } else {
+                // Get the email content based on status
+                Map<String, String[]> templates = Map.of(
+                        "UNDER_REVIEW",
+                        new String[] { "✅ Application Update — " + jobTitle,
+                                "Dear " + candidateName + ",\n\nYour application for " + jobTitle + " at " + company
+                                        + " has passed our initial screening and is now UNDER REVIEW by our recruiter."
+                                        + notesText
+                                        + "\n\nWe'll be in touch with next steps.\n\nBest regards,\nRecruitment Team" },
+                        "SHORTLISTED",
+                        new String[] { "⭐ You've been Shortlisted — " + jobTitle,
+                                "Dear " + candidateName + ",\n\nCongratulations! You have been SHORTLISTED for "
+                                        + jobTitle + " at " + company + "." + notesText
+                                        + "\n\nWe will share next steps shortly.\n\nBest regards,\nRecruitment Team" },
+                        "OFFERED",
+                        new String[] { "🎉 Job Offer — " + jobTitle, "Dear " + candidateName
+                                + ",\n\nWe are delighted to extend an offer for " + jobTitle + " at " + company + "!"
+                                + notesText
+                                + "\n\nOur HR team will reach out with the offer letter.\n\nBest regards,\nRecruitment Team" },
+                        "REJECTED",
+                        new String[] { "Application Update — " + jobTitle, "Dear " + candidateName
+                                + ",\n\nThank you for your interest in " + jobTitle + " at " + company
+                                + ". After careful consideration, we have decided to move forward with other candidates."
+                                + notesText
+                                + "\n\nWe encourage you to apply to future openings.\n\nBest regards,\nRecruitment Team" },
+                        "ATS_REJECTED",
+                        new String[] { "Application Update — " + jobTitle, "Dear " + candidateName
+                                + ",\n\nThank you for applying for " + jobTitle + " at " + company
+                                + ". Our automated system indicates your current profile does not closely match this role's requirements."
+                                + notesText
+                                + "\n\nWe encourage you to update your resume and apply to future roles.\n\nBest regards,\nRecruitment Team" });
+                String[] tmpl = templates.get(status);
+                if (tmpl != null) {
+                    subject = tmpl[0];
+                    body = tmpl[1];
+                } else {
+                    subject = "📋 Application Update — " + jobTitle;
+                    body = "Dear " + candidateName + ",\n\nYour application status for " + jobTitle + " at " + company
+                            + " has been updated to: " + stageName + "." + notesText
+                            + "\n\nBest regards,\nRecruitment Team";
+                }
+            }
+            return ResponseEntity.ok(Map.of("subject", subject, "body", body));
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of("subject", "Application Update", "body",
+                    "Status update email will be sent to the candidate."));
+        }
+    }
+
     /**
      * Generate an email template suggestion based on stage name and job details.
      * POST /api/email-templates/generate
      * Body: { stageName, jobTitle, companyName, stageOrder }
      */
+
     @PostMapping("/generate")
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<Map<String, String>> generateTemplate(@RequestBody Map<String, String> request) {

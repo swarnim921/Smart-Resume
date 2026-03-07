@@ -195,4 +195,89 @@ public class EmailService {
                 .replace("{{companyName}}", companyName != null ? companyName : "")
                 .replace("{{recruiterNotes}}", notes != null && !notes.isEmpty() ? "Note: " + notes : "");
     }
+
+    /**
+     * Send an interview invitation email with an .ics calendar invite attached.
+     * Uses MimeMessage with multipart to include the ICS file.
+     */
+    public void sendInterviewEmailWithICS(String toEmail, String candidateName,
+            String jobTitle, String company, String interviewDateTimeStr, String notes) {
+        try {
+            jakarta.mail.internet.MimeMessage message = mailSender.createMimeMessage();
+            org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(
+                    message, true, "UTF-8");
+
+            String sender = (fromEmail != null && !fromEmail.isEmpty()) ? fromEmail : "noreply@talentsync.in";
+            helper.setFrom(sender);
+            helper.setTo(toEmail);
+            helper.setSubject("📅 Interview Invitation — " + jobTitle + " | " + company);
+
+            java.time.LocalDateTime interviewDt;
+            try {
+                interviewDt = java.time.LocalDateTime.parse(interviewDateTimeStr);
+            } catch (Exception e) {
+                interviewDt = java.time.LocalDateTime.now().plusDays(3);
+            }
+
+            String formattedDate = interviewDt
+                    .format(java.time.format.DateTimeFormatter.ofPattern("EEEE, MMMM d yyyy 'at' h:mm a",
+                            java.util.Locale.ENGLISH));
+            String notesText = (notes != null && !notes.isEmpty()) ? "\n\nAdditional Notes: " + notes : "";
+
+            String emailBody = "Dear " + candidateName + ",\n\n" +
+                    "We are delighted to invite you for an interview for the position of \"" + jobTitle + "\" at "
+                    + company + ".\n\n" +
+                    "📅 Interview Date & Time: " + formattedDate + "\n" +
+                    "📍 Format: Please check the calendar invite attached to this email for join details.\n\n" +
+                    "A calendar invite (.ics) is attached — click it to save the event to your calendar." +
+                    notesText + "\n\n" +
+                    "Please reply to this email to confirm your availability.\n\n" +
+                    "Best regards,\nRecruitment Team\n" + company;
+
+            helper.setText(emailBody);
+
+            // Build ICS content
+            String uid = java.util.UUID.randomUUID().toString();
+            String dtStart = interviewDt.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"));
+            String dtEnd = interviewDt.plusHours(1)
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"));
+            String now = java.time.LocalDateTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"));
+
+            String ics = "BEGIN:VCALENDAR\r\n" +
+                    "VERSION:2.0\r\n" +
+                    "PRODID:-//TalentSync//Interview//EN\r\n" +
+                    "METHOD:REQUEST\r\n" +
+                    "BEGIN:VEVENT\r\n" +
+                    "UID:" + uid + "\r\n" +
+                    "DTSTART:" + dtStart + "\r\n" +
+                    "DTEND:" + dtEnd + "\r\n" +
+                    "DTSTAMP:" + now + "\r\n" +
+                    "SUMMARY:Interview - " + jobTitle + " at " + company + "\r\n" +
+                    "DESCRIPTION:Interview for " + jobTitle + " at " + company + ". Candidate: " + candidateName
+                    + "\r\n" +
+                    "ORGANIZER;CN=" + company + ":mailto:" + sender + "\r\n" +
+                    "ATTENDEE;CN=" + candidateName + ";RSVP=TRUE:mailto:" + toEmail + "\r\n" +
+                    "STATUS:CONFIRMED\r\n" +
+                    "BEGIN:VALARM\r\n" +
+                    "TRIGGER:-PT30M\r\n" +
+                    "ACTION:DISPLAY\r\n" +
+                    "DESCRIPTION:Interview reminder\r\n" +
+                    "END:VALARM\r\n" +
+                    "END:VEVENT\r\n" +
+                    "END:VCALENDAR\r\n";
+
+            byte[] icsBytes = ics.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            helper.addAttachment("interview-invite.ics",
+                    new org.springframework.core.io.ByteArrayResource(icsBytes),
+                    "text/calendar; charset=UTF-8; method=REQUEST");
+
+            mailSender.send(message);
+            System.out.println("✅ Interview email with ICS sent to " + toEmail);
+        } catch (Exception e) {
+            System.err.println("Failed to send ICS email: " + e.getMessage());
+            // Fallback to simple email
+            sendStatusUpdateEmail(toEmail, candidateName, jobTitle, "INTERVIEW", notes);
+        }
+    }
 }

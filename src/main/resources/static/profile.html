@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - TalentSync</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --bg1: #0d1b3e;
+            --bg2: #0a3d62;
+            --accent: #00d4aa;
+            --accent2: #2563eb;
+            --glass: rgba(255, 255, 255, 0.07);
+            --gb: rgba(255, 255, 255, 0.15);
+            --ghov: rgba(255, 255, 255, 0.12);
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --danger: #ef4444
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg1), var(--bg2));
+            min-height: 100vh;
+            color: var(--text)
+        }
+
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.2;
+            pointer-events: none;
+            animation: fl 20s infinite ease-in-out
+        }
+
+        .b1 {
+            width: 500px;
+            height: 500px;
+            background: #1e40af;
+            top: -100px;
+            left: -100px
+        }
+
+        .b2 {
+            width: 400px;
+            height: 400px;
+            background: #00d4aa;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 7s
+        }
+
+        @keyframes fl {
+
+            0%,
+            100% {
+                transform: translate(0, 0)
+            }
+
+            50% {
+                transform: translate(20px, -20px)
+            }
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--gb);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700
+        }
+
+        .logo span {
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem
+        }
+
+        .nav-link {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            transition: all 0.3s
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+            background: var(--glass)
+        }
+
+        .main {
+            max-width: 780px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 0.25rem
+        }
+
+        .page-sub {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 2rem
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--gb);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem
+        }
+
+        .form-group {
+            margin-bottom: 1.1rem
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted)
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.65rem 1rem;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--gb);
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            transition: all 0.3s
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1)
+        }
+
+        textarea.form-input {
+            min-height: 90px;
+            resize: vertical
+        }
+
+        .btn {
+            padding: 0.55rem 1.2rem;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s
+        }
+
+        .btn-p {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white
+        }
+
+        .btn-p:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 18px rgba(0, 212, 170, 0.3)
+        }
+
+        .btn-o {
+            background: var(--glass);
+            border: 1px solid var(--gb);
+            color: var(--text)
+        }
+
+        .btn-o:hover {
+            background: var(--ghov)
+        }
+
+        /* Skills chips */
+        .skills-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            min-height: 38px;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--gb);
+            border-radius: 10px
+        }
+
+        .skill-chip {
+            background: rgba(0, 212, 170, 0.12);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            color: var(--accent);
+            border-radius: 50px;
+            padding: 0.25rem 0.75rem;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem
+        }
+
+        .skill-chip button {
+            background: none;
+            border: none;
+            color: rgba(0, 212, 170, 0.6);
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            padding: 0
+        }
+
+        .skill-chip button:hover {
+            color: var(--danger)
+        }
+
+        .skill-input-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem
+        }
+
+        .skill-input {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--gb);
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            color: var(--text);
+            outline: none
+        }
+
+        .skill-input:focus {
+            border-color: var(--accent)
+        }
+
+        .add-skill-btn {
+            background: rgba(0, 212, 170, 0.15);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            color: var(--accent);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s
+        }
+
+        .add-skill-btn:hover {
+            background: rgba(0, 212, 170, 0.25)
+        }
+
+        /* Profile completeness */
+        .completeness {
+            margin-bottom: 1.5rem;
+            padding: 1.25rem 1.5rem;
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: 14px
+        }
+
+        .comp-bar-bg {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50px;
+            margin: 0.75rem 0 0.5rem
+        }
+
+        .comp-bar {
+            height: 8px;
+            border-radius: 50px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            transition: width 0.6s ease
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 0.85rem 1.5rem;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000
+        }
+
+        .toast.show {
+            opacity: 1
+        }
+
+        .toast.success {
+            background: rgba(16, 185, 129, 0.9);
+            color: white
+        }
+
+        .toast.error {
+            background: rgba(239, 68, 68, 0.9);
+            color: white
+        }
+    </style>
+</head>
+
+<body>
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+
+    <div class="header">
+        <div class="logo">Talent<span>Sync</span></div>
+        <div class="nav-links">
+            <button class="nav-link" onclick="location.href='/candidate-dashboard.html'">← Dashboard</button>
+            <button class="nav-link" onclick="logout()">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="page-title">👤 My Profile</div>
+        <div class="page-sub">Complete your profile to get better job matches</div>
+
+        <!-- Completeness bar -->
+        <div class="completeness">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div style="font-size:14px;font-weight:600">Profile Completeness</div>
+                <div style="font-size:18px;font-weight:700;color:var(--accent)" id="compPct">0%</div>
+            </div>
+            <div class="comp-bar-bg">
+                <div class="comp-bar" id="compBar" style="width:0%"></div>
+            </div>
+            <div style="font-size:12px;color:var(--muted)" id="compHint">Fill in your details to increase your match
+                quality</div>
+        </div>
+
+        <form onsubmit="saveProfile(event)">
+            <!-- Basic Info -->
+            <div class="card">
+                <div class="section-title">✏️ Basic Info</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="pName" class="form-input" placeholder="Your full name"
+                            oninput="updateCompleteness()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input type="text" id="pLocation" class="form-input" placeholder="Mumbai, India / Remote"
+                            oninput="updateCompleteness()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bio / About Me</label>
+                    <textarea id="pBio" class="form-input"
+                        placeholder="Brief intro — what you do, what you're looking for…"
+                        oninput="updateCompleteness()"></textarea>
+                </div>
+            </div>
+
+            <!-- Links -->
+            <div class="card">
+                <div class="section-title">🔗 Online Presence</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                    <div class="form-group">
+                        <label class="form-label">LinkedIn URL</label>
+                        <input type="url" id="pLinkedin" class="form-input"
+                            placeholder="https://linkedin.com/in/your-name" oninput="updateCompleteness()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">GitHub URL</label>
+                        <input type="url" id="pGithub" class="form-input" placeholder="https://github.com/your-handle"
+                            oninput="updateCompleteness()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills -->
+            <div class="card">
+                <div class="section-title">🛠 Skills</div>
+                <div class="form-label" style="margin-bottom:0.5rem">Add your skills — used to improve ATS scoring</div>
+                <div class="skills-area" id="skillsArea"></div>
+                <div class="skill-input-row">
+                    <input type="text" id="skillInput" class="skill-input" placeholder="e.g. React, Python, AWS"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();addSkill()}">
+                    <button type="button" class="add-skill-btn" onclick="addSkill()">+ Add</button>
+                </div>
+            </div>
+
+            <!-- Experience -->
+            <div class="card">
+                <div class="section-title">💼 Experience</div>
+                <div class="form-group">
+                    <label class="form-label">Years of Experience</label>
+                    <input type="number" id="pExp" class="form-input" min="0" max="50" placeholder="0"
+                        style="max-width:160px" oninput="updateCompleteness()">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-p" style="width:100%;padding:0.85rem;font-size:15px">💾 Save
+                Profile</button>
+        </form>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API = 'https://api.talentsynctech.in';
+        const token = localStorage.getItem('token');
+        if (!token) { location.href = '/smart_resume_signin_page.html'; }
+        let skills = [];
+
+        function logout() { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.className = 'toast ' + type + ' show';
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function addSkill() {
+            const input = document.getElementById('skillInput');
+            const val = input.value.trim();
+            if (!val || skills.includes(val)) return;
+            skills.push(val);
+            input.value = '';
+            renderSkills();
+            updateCompleteness();
+        }
+
+        function removeSkill(s) { skills = skills.filter(x => x !== s); renderSkills(); updateCompleteness(); }
+
+        function renderSkills() {
+            const area = document.getElementById('skillsArea');
+            area.innerHTML = skills.map(s => `<div class="skill-chip">${s}<button type="button" onclick="removeSkill('${s}')">✕</button></div>`).join('');
+        }
+
+        function updateCompleteness() {
+            const fields = [
+                document.getElementById('pName')?.value.trim(),
+                document.getElementById('pBio')?.value.trim(),
+                document.getElementById('pLinkedin')?.value.trim(),
+                document.getElementById('pGithub')?.value.trim(),
+                document.getElementById('pLocation')?.value.trim(),
+                skills.length > 0 ? 'yes' : '',
+                document.getElementById('pExp')?.value.trim()
+            ];
+            const filled = fields.filter(Boolean).length;
+            const pct = Math.round((filled / fields.length) * 100);
+            document.getElementById('compPct').textContent = pct + '%';
+            document.getElementById('compBar').style.width = pct + '%';
+            const hints = ['Add your name and bio to start', 'Great start! Add your social links', 'Looking good! Add your skills', 'Almost complete! Add experience years', 'Profile complete! 🎉'];
+            const hi = Math.min(Math.floor(pct / 25), hints.length - 1);
+            document.getElementById('compHint').textContent = hints[hi];
+        }
+
+        async function loadProfile() {
+            try {
+                const r = await fetch(`${API}/api/users/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) return;
+                const d = await r.json();
+                document.getElementById('pName').value = d.name || '';
+                document.getElementById('pBio').value = d.bio || '';
+                document.getElementById('pLinkedin').value = d.linkedinUrl || '';
+                document.getElementById('pGithub').value = d.githubUrl || '';
+                document.getElementById('pLocation').value = d.location || '';
+                document.getElementById('pExp').value = d.yearsOfExperience || '';
+                skills = d.skills || [];
+                renderSkills();
+                updateCompleteness();
+            } catch (e) { console.error('Failed to load profile', e); }
+        }
+
+        async function saveProfile(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('[type=submit]');
+            btn.textContent = 'Saving…'; btn.disabled = true;
+            try {
+                const r = await fetch(`${API}/api/users/profile`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: document.getElementById('pName').value,
+                        bio: document.getElementById('pBio').value,
+                        linkedinUrl: document.getElementById('pLinkedin').value,
+                        githubUrl: document.getElementById('pGithub').value,
+                        location: document.getElementById('pLocation').value,
+                        yearsOfExperience: parseInt(document.getElementById('pExp').value) || 0,
+                        skills
+                    })
+                });
+                if (!r.ok) throw new Error('Failed');
+                showToast('✅ Profile saved!');
+            } catch (err) { showToast('Failed: ' + err.message, 'error'); }
+            btn.textContent = '💾 Save Profile'; btn.disabled = false;
+        }
+
+        loadProfile();
+    </script>
+</body>
+
+</html>

@@ -32,7 +32,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+            background: linear-gradient(135deg, var(--bg1), var(--bg2));
             min-height: 100vh;
             color: var(--text);
             overflow-x: hidden
@@ -176,7 +176,7 @@
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem
         }
@@ -211,47 +211,17 @@
             margin-top: 0.25rem
         }
 
-        .section-title {
-            font-size: 17px;
-            font-weight: 600;
-            margin-bottom: 1rem
-        }
-
-        .upload-area {
-            border: 2px dashed var(--gb);
-            border-radius: 14px;
-            padding: 2.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s
-        }
-
-        .upload-area:hover {
-            border-color: var(--accent);
-            background: rgba(0, 212, 170, 0.05)
-        }
-
-        .upload-area.has-file {
-            border-color: var(--success)
-        }
-
-        .job-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem
-        }
-
-        .job-card {
+        .app-card {
             background: var(--glass);
             border: 1px solid var(--gb);
             border-radius: 16px;
             padding: 1.5rem;
+            margin-bottom: 1rem;
             transition: all 0.3s
         }
 
-        .job-card:hover {
-            background: var(--ghov);
-            border-color: rgba(0, 212, 170, 0.3)
+        .app-card:hover {
+            background: var(--ghov)
         }
 
         .badge {
@@ -298,10 +268,10 @@
         }
 
         .btn {
-            padding: 0.6rem 1.2rem;
-            border-radius: 10px;
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
             font-family: 'Poppins', sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             border: none;
@@ -310,13 +280,12 @@
 
         .btn-p {
             background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 212, 170, 0.25)
+            color: white
         }
 
         .btn-p:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 212, 170, 0.35)
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3)
         }
 
         .btn-o {
@@ -329,16 +298,6 @@
             background: var(--ghov)
         }
 
-        .btn-d {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #f87171
-        }
-
-        .btn-d:hover {
-            background: rgba(239, 68, 68, 0.25)
-        }
-
         .btn-logout {
             background: rgba(239, 68, 68, 0.15);
             border: 1px solid rgba(239, 68, 68, 0.3);
@@ -348,12 +307,128 @@
             cursor: pointer;
             font-family: 'Poppins', sans-serif;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 500
+        }
+
+        /* Score circle */
+        .sc {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 700;
+            border: 3px solid;
+            flex-shrink: 0
+        }
+
+        /* Pipeline */
+        .pipeline {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin: 1rem 0;
+            overflow-x: auto;
+            padding-bottom: 0.25rem
+        }
+
+        .pip-step {
+            display: flex;
+            align-items: center;
+            gap: 0
+        }
+
+        .pip-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.04);
+            flex-shrink: 0;
             transition: all 0.3s
         }
 
-        .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.25)
+        .pip-dot.active {
+            border-color: var(--accent);
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--accent)
+        }
+
+        .pip-dot.done {
+            border-color: rgba(0, 212, 170, 0.4);
+            background: rgba(0, 212, 170, 0.08);
+            color: rgba(0, 212, 170, 0.6)
+        }
+
+        .pip-dot.rejected {
+            border-color: rgba(239, 68, 68, 0.5);
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171
+        }
+
+        .pip-label {
+            font-size: 10px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 0.3rem;
+            white-space: nowrap
+        }
+
+        .pip-step-w {
+            display: flex;
+            flex-direction: column;
+            align-items: center
+        }
+
+        .pip-line {
+            width: 28px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            flex-shrink: 0
+        }
+
+        .pip-line.done {
+            background: rgba(0, 212, 170, 0.3)
+        }
+
+        /* Skills gap */
+        .skill-gap-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 0.9rem;
+            background: rgba(239, 68, 68, 0.06);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            border-radius: 10px;
+            margin-bottom: 0.5rem
+        }
+
+        .skill-gap-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #f87171
+        }
+
+        .learn-link {
+            font-size: 12px;
+            color: #60a5fa;
+            text-decoration: none;
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.25);
+            border-radius: 6px;
+            padding: 0.2rem 0.6rem;
+            transition: all 0.3s
+        }
+
+        .learn-link:hover {
+            background: rgba(37, 99, 235, 0.25)
         }
 
         .user-badge {
@@ -365,76 +440,10 @@
             font-weight: 500
         }
 
-        .pipeline {
+        .user-area {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            flex-wrap: wrap;
-            margin: 0.75rem 0
-        }
-
-        .ps {
-            display: flex;
-            align-items: center;
-            gap: 0.2rem;
-            font-size: 11px;
-            font-weight: 500;
-            padding: 0.25rem 0.65rem;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--muted);
-            border: 1px solid rgba(255, 255, 255, 0.1)
-        }
-
-        .ps.done {
-            background: rgba(0, 212, 170, 0.12);
-            color: var(--accent);
-            border-color: rgba(0, 212, 170, 0.3)
-        }
-
-        .ps.cur {
-            background: rgba(37, 99, 235, 0.18);
-            color: #60a5fa;
-            border-color: rgba(37, 99, 235, 0.4)
-        }
-
-        .ps.rej {
-            background: rgba(239, 68, 68, 0.12);
-            color: #f87171;
-            border-color: rgba(239, 68, 68, 0.3)
-        }
-
-        .pa {
-            color: var(--muted);
-            font-size: 10px
-        }
-
-        .score-c {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: 700;
-            border: 3px solid;
-            flex-shrink: 0
-        }
-
-        .gap-box {
-            background: rgba(239, 68, 68, 0.07);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: 10px;
-            padding: 0.75rem;
-            margin-top: 0.75rem
-        }
-
-        .gap-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: #f87171;
-            margin-bottom: 0.5rem
+            gap: 0.75rem
         }
 
         .loading {
@@ -443,10 +452,15 @@
             color: var(--muted)
         }
 
-        .user-area {
-            display: flex;
-            align-items: center;
-            gap: 1rem
+        .spin {
+            display: inline-block;
+            animation: spin 1s linear infinite
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
         }
 
         @media(max-width:768px) {
@@ -469,81 +483,53 @@
     <div class="header">
         <div class="logo">Talent<span>Sync</span></div>
         <div class="user-area">
-            <div class="user-badge">👤 <span id="userName">…</span></div>
+            <div class="user-badge">👋 <span id="userName">…</span></div>
+            <button class="btn btn-o" style="font-size:13px" onclick="location.href='/profile.html'">👤 Profile</button>
             <button class="btn-logout" onclick="logout()">Sign Out</button>
         </div>
     </div>
 
     <div class="layout">
         <div class="sidebar">
-            <button class="nav-item active" onclick="showSection('overview')">🏠 Overview</button>
-            <button class="nav-item" onclick="showSection('resume')">📄 Resume</button>
-            <button class="nav-item" onclick="showSection('jobs')">🎯 Job Board</button>
-            <button class="nav-item" onclick="showSection('applications')">📋 Applications</button>
+            <button class="nav-item active" onclick="showSection('apps')">📋 Applications</button>
+            <button class="nav-item" onclick="showSection('jobs')">🔍 Browse Jobs</button>
+            <button class="nav-item" onclick="location.href='/profile.html'">👤 My Profile</button>
         </div>
 
         <div class="main">
-            <!-- Overview -->
-            <div id="sec-overview">
-                <div class="page-title">Welcome back, <span id="userWelcome">Candidate</span>! 👋</div>
-                <div class="page-sub">Track your applications and find your next opportunity</div>
+            <!-- Applications -->
+            <div id="sec-apps">
+                <div class="page-title">My Applications</div>
+                <div class="page-sub">Track your application pipeline and scores</div>
                 <div class="stats">
                     <div class="card">
                         <div class="stat-val" id="st-total">0</div>
-                        <div class="stat-lbl">Applications</div>
+                        <div class="stat-lbl">Total Applied</div>
                     </div>
                     <div class="card">
-                        <div class="stat-val" id="st-active">0</div>
-                        <div class="stat-lbl">In Pipeline</div>
+                        <div class="stat-val" id="st-review">0</div>
+                        <div class="stat-lbl">Under Review</div>
                     </div>
                     <div class="card">
-                        <div class="stat-val" id="st-score">-</div>
-                        <div class="stat-lbl">Avg ATS Score</div>
+                        <div class="stat-val" id="st-short">0</div>
+                        <div class="stat-lbl">Shortlisted</div>
                     </div>
                     <div class="card">
-                        <div class="stat-val" id="st-resume">❌</div>
-                        <div class="stat-lbl">Resume</div>
+                        <div class="stat-val" id="st-offer">0</div>
+                        <div class="stat-lbl">Offers</div>
                     </div>
                 </div>
-                <div class="section-title">📋 Recent Applications</div>
-                <div id="recent-list" class="job-list">
-                    <div class="loading">Loading…</div>
-                </div>
-            </div>
-
-            <!-- Resume -->
-            <div id="sec-resume" style="display:none">
-                <div class="page-title">📄 Resume</div>
-                <div class="page-sub">Your PDF resume is used for ATS scoring when you apply</div>
-                <div class="card">
-                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('resFile').click()">
-                        <input type="file" id="resFile" accept=".pdf" style="display:none"
-                            onchange="uploadResume(event)">
-                        <div id="uploadText">
-                            <div style="font-size:48px;margin-bottom:1rem">📤</div>
-                            <h3 style="font-size:16px;font-weight:600;margin-bottom:0.5rem">Click to upload your resume
-                            </h3>
-                            <p style="color:var(--muted);font-size:13px">PDF only, max 20MB</p>
-                        </div>
-                    </div>
+                <div id="apps-list">
+                    <div class="loading"><span class="spin">⏳</span> Loading…</div>
                 </div>
             </div>
 
-            <!-- Jobs -->
+            <!-- Browse Jobs -->
             <div id="sec-jobs" style="display:none">
-                <div class="page-title">🎯 Job Board</div>
-                <div class="page-sub">Browse and apply to open positions</div>
-                <div id="jobs-list" class="job-list">
-                    <div class="loading">Loading…</div>
-                </div>
-            </div>
-
-            <!-- Applications -->
-            <div id="sec-applications" style="display:none">
-                <div class="page-title">📋 My Applications</div>
-                <div class="page-sub">Track your application pipeline in real time</div>
-                <div id="apps-list" class="job-list">
-                    <div class="loading">Loading…</div>
+                <div class="page-title">🔍 Browse Jobs</div>
+                <div class="page-sub">Find your next opportunity</div>
+                <div id="jobs-list">
+                    <div class="loading"><span class="spin">⏳</span> Loading…</div>
                 </div>
             </div>
         </div>
@@ -553,141 +539,198 @@
         const API = 'https://api.talentsynctech.in';
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-        if (!token) { location.href = '/smart_resume_signin_page.html'; }
-        try {
-            const p = JSON.parse(atob(token.split('.')[1]));
-            if (p.exp && p.exp * 1000 < Date.now()) { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
-            if (p.role !== 'ROLE_USER') { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
-        } catch (e) { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
-
+        if (!token || user.role === 'recruiter') { location.href = '/smart_resume_signin_page.html'; }
         document.getElementById('userName').textContent = user.name || 'Candidate';
-        document.getElementById('userWelcome').textContent = user.name || 'Candidate';
 
         function logout() { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
-        const sections = ['overview', 'resume', 'jobs', 'applications'];
+        const sections = ['apps', 'jobs'];
         function showSection(n) {
             sections.forEach(s => document.getElementById('sec-' + s).style.display = s === n ? 'block' : 'none');
             document.querySelectorAll('.nav-item').forEach((el, i) => el.classList.toggle('active', sections[i] === n));
             if (n === 'jobs') loadJobs();
-            if (n === 'applications') loadApps(null, 'apps-list');
         }
 
         function statusBadge(s) {
             const m = {
                 PENDING: ['bg', '⏳ Pending'], UNDER_REVIEW: ['bb', '🔍 Under Review'], SHORTLISTED: ['bc', '⭐ Shortlisted'],
-                INTERVIEW: ['bs', '📅 Interview'], OFFERED: ['bs', '🎉 Offered'], REJECTED: ['bd', '❌ Rejected'], ATS_REJECTED: ['bd', '🤖 ATS Filtered']
+                INTERVIEW: ['bs', '📅 Interview'], OFFERED: ['bw', '🎉 Offered'], REJECTED: ['bd', '❌ Rejected'], ATS_REJECTED: ['bd', '🤖 ATS Filtered']
             };
-            const [c, l] = m[s] || ['bg', s];
-            return `<span class="badge ${c}">${l}</span>`;
+            const [c, l] = m[s] || ['bg', s]; return `<span class="badge ${c}">${l}</span>`;
         }
 
-        function pipeline(status) {
-            const stages = ['UNDER_REVIEW', 'SHORTLISTED', 'INTERVIEW', 'OFFERED'];
-            const labels = { UNDER_REVIEW: 'Under Review', SHORTLISTED: 'Shortlisted', INTERVIEW: 'Interview', OFFERED: 'Offered' };
-            if (status === 'PENDING') return `<div class="pipeline"><span class="ps cur">⏳ ATS Pending</span></div>`;
-            if (status === 'ATS_REJECTED') return `<div class="pipeline"><span class="ps rej">🤖 ATS Filtered</span></div>`;
-            if (status === 'REJECTED') return `<div class="pipeline"><span class="ps rej">❌ Not Selected</span></div>`;
-            const idx = stages.indexOf(status);
-            return `<div class="pipeline">${stages.map((s, i) => `${i > 0 ? '<span class="pa">→</span>' : ''}<span class="ps ${i < idx ? 'done' : i === idx ? 'cur' : ''}">${i <= idx ? '✓ ' : ''}${labels[s]}</span>`).join('')}</div>`;
+        const PIPELINE_STAGES = [
+            { key: 'ATS', label: 'ATS', statuses: ['PENDING', 'ATS_REJECTED', 'UNDER_REVIEW', 'SHORTLISTED', 'INTERVIEW', 'OFFERED', 'REJECTED'] },
+            { key: 'UNDER_REVIEW', label: 'Review' },
+            { key: 'SHORTLISTED', label: 'Shortlist' },
+            { key: 'INTERVIEW', label: 'Interview' },
+            { key: 'OFFERED', label: 'Offered' }
+        ];
+
+        function stageIndex(status) {
+            const map = { PENDING: 0, ATS_REJECTED: -1, UNDER_REVIEW: 1, SHORTLISTED: 2, INTERVIEW: 3, OFFERED: 4, REJECTED: -1 };
+            return map[status] ?? 0;
+        }
+
+        function renderPipeline(status) {
+            const labels = ['ATS', 'Review', 'Shortlist', 'Interview', 'Offered'];
+            const keys = ['UNDER_REVIEW', 'UNDER_REVIEW', 'SHORTLISTED', 'INTERVIEW', 'OFFERED'];
+            const curIdx = stageIndex(status);
+            const rejected = status === 'REJECTED' || status === 'ATS_REJECTED';
+            return `<div class="pipeline">${labels.map((l, i) => {
+                let cls = '';
+                if (rejected) cls = 'rejected';
+                else if (i < curIdx) cls = 'done';
+                else if (i === curIdx) cls = 'active';
+                const line = i < labels.length - 1 ? `<div class="pip-line${i < curIdx && !rejected ? ' done' : ''}"></div>` : '';
+                return `<div class="pip-step-w">
+      <div class="pip-dot ${cls}">${cls === 'done' ? '✓' : cls === 'active' ? '●' : i === labels.length - 1 && status === 'OFFERED' ? '🎉' : '○'}</div>
+      <div class="pip-label">${l}</div>
+    </div>${line}`;
+            }).join('')}</div>`;
         }
 
         function scoreCircle(score) {
-            if (score === null || score === undefined) return '';
+            if (score === null || score === undefined) return '<div style="width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);border:3px solid rgba(255,255,255,0.15)"><span style="text-align:center;line-height:1.2">No<br>Score</span></div>';
             const c = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
-            return `<div class="score-c" style="border-color:${c};color:${c}">${score.toFixed(0)}%</div>`;
+            return `<div class="sc" style="border-color:${c};color:${c}">${score.toFixed(0)}%</div>`;
         }
 
-        function appCard(a) {
-            return `<div class="job-card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
-            <div style="flex:1">
-                <div style="font-size:15px;font-weight:600;margin-bottom:0.25rem">Application #${a.id.substring(0, 8).toUpperCase()}</div>
-                <div style="color:var(--muted);font-size:13px;margin-bottom:0.5rem">Applied: ${new Date(a.appliedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-                ${pipeline(a.status)}
-            </div>
-            ${scoreCircle(a.matchScore)}
-        </div>
-        ${a.skillsGap && a.skillsGap.length ? `<div class="gap-box"><div class="gap-title">🎯 Skills gap for this role:</div><div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.4rem">${a.skillsGap.map(s => `<span class="badge bd">${s}</span>`).join('')}</div></div>` : ''}
-        ${a.reviewNotes ? `<div style="margin-top:0.75rem;padding:0.65rem;background:rgba(255,255,255,0.05);border-radius:8px;font-size:13px;color:var(--muted)">💬 ${a.reviewNotes}</div>` : ''}
-        <div style="margin-top:1rem"><button class="btn btn-d" onclick="withdraw('${a.id}')">Withdraw</button></div>
-    </div>`;
+        function getCourseSuggestion(skill) {
+            const sk = skill.toLowerCase();
+            if (sk.includes('python')) return 'https://www.coursera.org/learn/python';
+            if (sk.includes('react') || sk.includes('javascript') || sk.includes('js')) return 'https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/';
+            if (sk.includes('java')) return 'https://www.codecademy.com/learn/learn-java';
+            if (sk.includes('sql')) return 'https://www.w3schools.com/sql/';
+            if (sk.includes('aws')) return 'https://aws.amazon.com/training/';
+            if (sk.includes('docker') || sk.includes('kubernetes')) return 'https://www.docker.com/101-tutorial/';
+            if (sk.includes('machine learning') || sk.includes('ml') || sk.includes('ai')) return 'https://www.coursera.org/learn/machine-learning';
+            if (sk.includes('spring')) return 'https://spring.io/guides';
+            if (sk.includes('node')) return 'https://nodejs.dev/learn';
+            return `https://www.google.com/search?q=learn+${encodeURIComponent(skill)}+course+free`;
         }
 
-        async function uploadResume(e) {
-            const file = e.target.files[0]; if (!file) return;
-            const fd = new FormData(); fd.append('file', file);
+        async function reAnalyze(appId, btn) {
+            btn.textContent = '⏳ Analyzing…'; btn.disabled = true;
             try {
-                const r = await fetch(`${API}/api/resumes/upload`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
-                if (!r.ok) throw new Error('Upload failed');
-                document.getElementById('uploadArea').classList.add('has-file');
-                document.getElementById('uploadText').innerHTML = `<div style="font-size:48px;margin-bottom:1rem">✅</div><h3 style="font-size:16px;font-weight:600">Resume Uploaded</h3><p style="color:var(--muted);font-size:13px">${file.name}</p>`;
-                document.getElementById('st-resume').textContent = '✅';
-                alert('Resume uploaded!');
-            } catch (err) { alert('Upload failed: ' + err.message); }
-        }
-
-        async function loadJobs() {
-            try {
-                const r = await fetch(`${API}/api/jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const r = await fetch(`${API}/api/applications/${appId}/reanalyze`, {
+                    method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
+                });
                 if (!r.ok) throw new Error('Failed');
-                const jobs = await r.json();
-                const el = document.getElementById('jobs-list');
-                if (!jobs.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted);padding:2rem">No jobs available</p>'; return; }
-                el.innerHTML = jobs.map(j => `<div class="job-card">
-            <div style="font-size:15px;font-weight:600;margin-bottom:0.25rem">${j.title}</div>
-            <div style="color:var(--muted);font-size:13px;margin-bottom:0.75rem">${j.company || 'TalentSync'}</div>
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem">
-                ${j.location ? `<span class="badge bc">📍 ${j.location}</span>` : ''}
-                ${j.type ? `<span class="badge bb">${j.type}</span>` : ''}
-                ${j.salary ? `<span class="badge bs">💰 ${j.salary}</span>` : ''}
-            </div>
-            <p style="color:var(--muted);font-size:13px;margin-bottom:1rem">${j.description || ''}</p>
-            <button class="btn btn-p" onclick="applyJob('${j.id}')">Apply Now →</button>
-        </div>`).join('');
-            } catch (err) { document.getElementById('jobs-list').innerHTML = '<p style="text-align:center;color:var(--danger)">Failed to load jobs</p>'; }
+                loadApplications(); // refresh
+            } catch (e) { alert('Re-analysis failed: ' + e.message); }
+            btn.textContent = '🔄 Re-run ATS'; btn.disabled = false;
         }
 
-        async function applyJob(id) {
-            if (!confirm('Submit your application for this job?')) return;
-            try {
-                const r = await fetch(`${API}/api/applications`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ jobId: id }) });
-                const d = await r.json();
-                if (!r.ok) throw new Error(d.error || 'Failed');
-                alert('✅ Application submitted!\nCheck your email for the ATS screening result.');
-                showSection('applications');
-            } catch (err) { alert('Error: ' + err.message); }
-        }
-
-        async function loadApps(limit, containerId) {
-            const el = document.getElementById(containerId || 'apps-list');
+        async function loadApplications() {
+            const el = document.getElementById('apps-list');
             try {
                 const r = await fetch(`${API}/api/applications/my-applications`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (!r.ok) throw new Error('Failed');
                 const apps = await r.json();
                 document.getElementById('st-total').textContent = apps.length;
-                const active = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED', 'INTERVIEW'].includes(a.status)).length;
-                document.getElementById('st-active').textContent = active;
-                const scored = apps.filter(a => a.matchScore != null);
-                document.getElementById('st-score').textContent = scored.length ? (scored.reduce((s, a) => s + a.matchScore, 0) / scored.length).toFixed(0) + '%' : '-';
-                if (apps.length) document.getElementById('st-resume').textContent = '✅';
-                const show = limit ? apps.slice(0, limit) : apps;
-                if (!show.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted);padding:2rem">No applications yet. Browse the Job Board to apply!</p>'; return; }
-                el.innerHTML = show.map(appCard).join('');
-            } catch (err) { el.innerHTML = '<p style="text-align:center;color:var(--danger)">Failed to load</p>'; }
+                document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
+                document.getElementById('st-short').textContent = apps.filter(a => a.status === 'SHORTLISTED').length;
+                document.getElementById('st-offer').textContent = apps.filter(a => a.status === 'OFFERED').length;
+                if (!apps.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted);padding:3rem">No applications yet. Browse jobs to apply!</p>'; return; }
+                el.innerHTML = apps.map(a => {
+                    const atsRejected = a.status === 'ATS_REJECTED';
+                    const skillsSection = a.skillsGap && a.skillsGap.length ? `
+        <div style="margin-top:1rem;padding:1rem;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:12px">
+          <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:0.75rem">🎯 Skills to Improve (${a.skillsGap.length} identified)</div>
+          ${a.skillsGap.map(s => `<div class="skill-gap-item">
+            <span class="skill-gap-name">📌 ${s}</span>
+            <a href="${getCourseSuggestion(s)}" target="_blank" rel="noopener" class="learn-link">📚 Learn</a>
+          </div>`).join('')}
+        </div>`: '';
+
+                    const notesHistory = a.notesHistory && a.notesHistory.length ? `
+        <div style="margin-top:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:0.5rem">💬 Recruiter Notes</div>
+          ${a.notesHistory.map(n => `<div style="display:flex;gap:0.5rem;margin-bottom:0.4rem;font-size:12px">
+            <span style="color:var(--muted);white-space:nowrap">${new Date(n.timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+            <span style="color:var(--text)">${n.text}</span>
+            <span class="badge bg" style="margin-left:auto">${n.status}</span>
+          </div>`).join('')}
+        </div>`: '';
+
+                    return `<div class="app-card" style="${atsRejected ? 'opacity:0.75;border-color:rgba(239,68,68,0.25)' : ''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
+          <div style="flex:1">
+            <div style="font-size:16px;font-weight:700;margin-bottom:0.25rem">${a.jobTitle || 'Job Application'}</div>
+            <div style="color:var(--muted);font-size:13px;margin-bottom:0.75rem">${a.jobCompany || ''} • Applied ${new Date(a.appliedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
+              ${statusBadge(a.status)}
+              ${a.reAnalyzedAt ? `<span style="font-size:11px;color:var(--muted)">Re-analyzed ${new Date(a.reAnalyzedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>` : ''}
+              ${a.interviewDateTime ? `<span class="badge bs">📅 Interview: ${new Date(a.interviewDateTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>` : ''}
+            </div>
+          </div>
+          ${scoreCircle(a.matchScore)}
+        </div>
+        ${renderPipeline(a.status)}
+        ${skillsSection}
+        ${notesHistory}
+        <div style="display:flex;gap:0.5rem;margin-top:1rem;flex-wrap:wrap">
+          ${a.status === 'PENDING' || a.status === 'ATS_REJECTED' ? `<button class="btn btn-o" style="font-size:12px" onclick="reAnalyze('${a.id}',this)">🔄 Re-run ATS</button>` : ''}
+          <button class="btn btn-o" style="font-size:12px;color:#f87171;border-color:rgba(239,68,68,0.3)" onclick="withdraw('${a.id}')">✕ Withdraw</button>
+        </div>
+      </div>`;
+                }).join('');
+            } catch (e) { el.innerHTML = '<p style="text-align:center;color:var(--danger)">Failed to load applications</p>'; }
         }
 
-        async function withdraw(id) {
+        async function loadJobs() {
+            const el = document.getElementById('jobs-list');
+            try {
+                const r = await fetch(`${API}/api/jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) throw new Error('Failed');
+                const jobs = await r.json();
+                if (!jobs.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted);padding:2rem">No jobs available right now</p>'; return; }
+                el.innerHTML = jobs.map(j => `<div class="app-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;margin-bottom:0.25rem">${j.title}</div>
+          <div style="color:var(--muted);font-size:13px;margin-bottom:0.75rem">${j.company || ''}</div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+            ${j.location ? `<span class="badge bc">📍 ${j.location}</span>` : ''}
+            ${j.type ? `<span class="badge bb">${j.type}</span>` : ''}
+            ${j.salary ? `<span class="badge bs">💰 ${j.salary}</span>` : ''}
+            ${j.expiresAt ? `<span class="badge bw">⏰ Closes ${new Date(j.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>` : ''}
+          </div>
+        </div>
+        <button class="btn btn-p" onclick="applyToJob('${j.id}',this)">Apply Now →</button>
+      </div>
+      ${j.description ? `<div style="margin-top:0.75rem;font-size:13px;color:var(--muted);line-height:1.6">${j.description.substring(0, 200)}${j.description.length > 200 ? '…' : ''}</div>` : ''}
+    </div>`).join('');
+            } catch (e) { el.innerHTML = '<p style="text-align:center;color:var(--danger)">Failed to load jobs</p>'; }
+        }
+
+        async function applyToJob(jobId, btn) {
+            btn.textContent = 'Applying…'; btn.disabled = true;
+            try {
+                const r = await fetch(`${API}/api/applications`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ jobId })
+                });
+                const d = await r.json();
+                if (!r.ok) throw new Error(d.error || 'Failed');
+                alert('✅ Applied! Our ATS is scoring your resume…');
+                showSection('apps');
+            } catch (e) { alert('❌ ' + e.message); }
+            btn.textContent = 'Apply Now →'; btn.disabled = false;
+        }
+
+        async function withdraw(appId) {
             if (!confirm('Withdraw this application?')) return;
             try {
-                const r = await fetch(`${API}/api/applications/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                const r = await fetch(`${API}/api/applications/${appId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
                 if (!r.ok) throw new Error('Failed');
-                loadApps(null, 'apps-list');
-            } catch (err) { alert('Failed: ' + err.message); }
+                loadApplications();
+            } catch (e) { alert('Failed: ' + e.message); }
         }
 
-        loadApps(3, 'recent-list');
+        loadApplications();
     </script>
 </body>
 

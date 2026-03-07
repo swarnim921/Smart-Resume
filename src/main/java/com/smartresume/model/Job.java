@@ -32,4 +32,6 @@ public class Job {
      * INTERVIEW → OFFERED).
      */
     private List<HiringStage> hiringPipeline;
+    /** Auto-close date — if set, job moves to CLOSED after this datetime */
+    private LocalDateTime expiresAt;
 }

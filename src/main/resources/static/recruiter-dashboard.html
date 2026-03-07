@@ -32,7 +32,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+            background: linear-gradient(135deg, var(--bg1), var(--bg2));
             min-height: 100vh;
             color: var(--text);
             overflow-x: hidden
@@ -176,7 +176,7 @@
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem
         }
@@ -211,17 +211,12 @@
             margin-top: 0.25rem
         }
 
-        .job-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem
-        }
-
         .job-card {
             background: var(--glass);
             border: 1px solid var(--gb);
             border-radius: 16px;
             padding: 1.5rem;
+            margin-bottom: 1rem;
             transition: all 0.3s
         }
 
@@ -265,7 +260,7 @@
         .bw {
             background: rgba(245, 158, 11, 0.15);
             color: var(--warning);
-            border: 1px solid rgba(245, 158, 11, 0.3)
+            border: 1px solid rgba(245, 158, 11, 0.4)
         }
 
         .bd {
@@ -320,12 +315,7 @@
             cursor: pointer;
             font-family: 'Poppins', sans-serif;
             font-size: 13px;
-            font-weight: 500;
-            transition: all 0.3s
-        }
-
-        .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.25)
+            font-weight: 500
         }
 
         .user-badge {
@@ -379,91 +369,7 @@
             resize: vertical
         }
 
-        /* Pipeline Builder */
-        .stage-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-            position: relative
-        }
-
-        .stage-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem
-        }
-
-        .stage-num {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--accent);
-            background: rgba(0, 212, 170, 0.12);
-            border: 1px solid rgba(0, 212, 170, 0.25);
-            border-radius: 6px;
-            padding: 0.2rem 0.6rem
-        }
-
-        .stage-del {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            border-radius: 6px;
-            padding: 0.2rem 0.6rem;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s
-        }
-
-        .stage-del:hover {
-            background: rgba(239, 68, 68, 0.25)
-        }
-
-        .gen-btn {
-            background: rgba(37, 99, 235, 0.15);
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            color: #60a5fa;
-            border-radius: 8px;
-            padding: 0.4rem 0.9rem;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s;
-            white-space: nowrap
-        }
-
-        .gen-btn:hover {
-            background: rgba(37, 99, 235, 0.25);
-            transform: translateY(-1px)
-        }
-
-        .gen-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none
-        }
-
-        .ph-hint {
-            font-size: 11px;
-            color: var(--muted);
-            margin-top: 0.4rem;
-            line-height: 1.4
-        }
-
-        .ph-hint code {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 4px;
-            padding: 0.1rem 0.3rem;
-            font-size: 10px;
-            color: var(--accent)
-        }
-
-        /* Pipeline stage action buttons */
+        /* Pipeline action buttons */
         .pipeline-actions {
             display: flex;
             gap: 0.5rem;
@@ -516,19 +422,76 @@
             color: #f87171
         }
 
+        /* Score circle */
         .sc {
-            width: 62px;
-            height: 62px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             border: 3px solid;
             flex-shrink: 0
         }
 
+        /* Notes timeline */
+        .note-item {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 12px
+        }
+
+        .note-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+            margin-top: 4px
+        }
+
+        /* Analytics bar */
+        .a-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.6rem
+        }
+
+        .a-bar-label {
+            font-size: 12px;
+            color: var(--muted);
+            width: 90px;
+            text-align: right;
+            flex-shrink: 0
+        }
+
+        .a-bar-bg {
+            flex: 1;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 50px;
+            overflow: hidden
+        }
+
+        .a-bar {
+            height: 100%;
+            border-radius: 50px;
+            transition: width 0.6s ease
+        }
+
+        .a-bar-val {
+            font-size: 12px;
+            font-weight: 600;
+            width: 30px;
+            text-align: right;
+            flex-shrink: 0
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -536,9 +499,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.65);
             z-index: 1000;
-            backdrop-filter: blur(4px)
+            backdrop-filter: blur(5px)
         }
 
         .modal.active {
@@ -552,9 +515,9 @@
             border: 1px solid var(--gb);
             border-radius: 20px;
             padding: 2rem;
-            max-width: 820px;
-            width: 90%;
-            max-height: 88vh;
+            max-width: 840px;
+            width: 92%;
+            max-height: 90vh;
             overflow-y: auto
         }
 
@@ -575,28 +538,95 @@
             border: none;
             font-size: 22px;
             cursor: pointer;
-            color: var(--muted)
+            color: var(--muted);
+            transition: color 0.3s
         }
 
         .close-btn:hover {
             color: var(--text)
         }
 
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: var(--muted)
+        /* Preview modal */
+        .preview-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            white-space: pre-wrap;
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--text)
         }
 
-        .ats-rejected {
-            opacity: 0.6;
-            border-color: rgba(239, 68, 68, 0.3) !important
+        /* Stage builder */
+        .stage-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 1.25rem;
+            margin-bottom: 1rem
         }
 
-        .section-divider {
-            height: 1px;
-            background: var(--gb);
-            margin: 1.5rem 0
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem
+        }
+
+        .stage-num {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            background: rgba(0, 212, 170, 0.12);
+            border: 1px solid rgba(0, 212, 170, 0.25);
+            border-radius: 6px;
+            padding: 0.2rem 0.6rem
+        }
+
+        .stage-del {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            border-radius: 6px;
+            padding: 0.2rem 0.6rem;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif
+        }
+
+        .gen-btn {
+            background: rgba(37, 99, 235, 0.15);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            color: #60a5fa;
+            border-radius: 8px;
+            padding: 0.4rem 0.9rem;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s
+        }
+
+        .gen-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed
+        }
+
+        .ph-hint {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 0.4rem
+        }
+
+        .ph-hint code {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            padding: 0.1rem 0.3rem;
+            font-size: 10px;
+            color: var(--accent)
         }
 
         .add-stage-btn {
@@ -615,6 +645,23 @@
 
         .add-stage-btn:hover {
             background: rgba(0, 212, 170, 0.18)
+        }
+
+        .section-divider {
+            height: 1px;
+            background: var(--gb);
+            margin: 1.5rem 0
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2.5rem;
+            color: var(--muted)
+        }
+
+        .ats-rejected {
+            opacity: 0.65;
+            border-color: rgba(239, 68, 68, 0.3) !important
         }
 
         @media(max-width:768px) {
@@ -647,13 +694,14 @@
             <button class="nav-item active" onclick="showSection('overview')">📊 Overview</button>
             <button class="nav-item" onclick="showSection('post')">➕ Post Job</button>
             <button class="nav-item" onclick="showSection('jobs')">💼 My Jobs</button>
+            <button class="nav-item" onclick="showSection('analytics')">📈 Analytics</button>
         </div>
 
         <div class="main">
             <!-- Overview -->
             <div id="sec-overview">
                 <div class="page-title">Recruiter Dashboard</div>
-                <div class="page-sub">Manage job postings and review candidates</div>
+                <div class="page-sub">Manage postings and review candidates</div>
                 <div class="stats">
                     <div class="card">
                         <div class="stat-val" id="st-jobs">0</div>
@@ -673,15 +721,13 @@
                     </div>
                 </div>
                 <div style="font-size:16px;font-weight:600;margin-bottom:1rem">💼 Your Job Postings</div>
-                <div id="ov-jobs" class="job-list">
-                    <div class="loading">Loading…</div>
-                </div>
+                <div id="ov-jobs" class="loading">Loading…</div>
             </div>
 
             <!-- Post Job -->
             <div id="sec-post" style="display:none">
                 <div class="page-title">➕ Post New Job</div>
-                <div class="page-sub">Define role details and optionally customise hiring stage email templates</div>
+                <div class="page-sub">Define your role and optionally customise the hiring pipeline</div>
                 <div class="card">
                     <form onsubmit="postJob(event)">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
@@ -689,38 +735,34 @@
                                     id="jTitle" class="form-input" required placeholder="e.g. Senior Software Engineer">
                             </div>
                             <div class="form-group"><label class="form-label">Company *</label><input type="text"
-                                    id="jCompany" class="form-input" required placeholder="Your company name"></div>
+                                    id="jCompany" class="form-input" required placeholder="Company name"></div>
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
                             <div class="form-group"><label class="form-label">Location</label><input type="text"
                                     id="jLocation" class="form-input" placeholder="Mumbai / Remote"></div>
                             <div class="form-group"><label class="form-label">Job Type</label><input type="text"
                                     id="jType" class="form-input" placeholder="Full-time, Contract…"></div>
-                            <div class="form-group"><label class="form-label">Salary Range</label><input type="text"
+                            <div class="form-group"><label class="form-label">Salary</label><input type="text"
                                     id="jSalary" class="form-input" placeholder="₹8L – ₹15L"></div>
                         </div>
+                        <div class="form-group"><label class="form-label">Auto-Close Date (optional)</label><input
+                                type="datetime-local" id="jExpires" class="form-input" style="max-width:260px"></div>
                         <div class="form-group"><label class="form-label">Job Description *</label><textarea
                                 id="jDescription" class="form-input" required
-                                placeholder="Describe the role and responsibilities…"></textarea></div>
+                                placeholder="Role and responsibilities…"></textarea></div>
                         <div class="form-group"><label class="form-label">Requirements *</label><textarea
                                 id="jRequirements" class="form-input" required
-                                placeholder="Required skills, experience, qualifications…"></textarea></div>
-
-                        <!-- Pipeline Builder -->
+                                placeholder="Skills, experience, qualifications…"></textarea></div>
                         <div class="section-divider"></div>
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
                             <div>
                                 <div style="font-size:15px;font-weight:700">🔄 Hiring Pipeline & Email Templates</div>
-                                <div style="font-size:12px;color:var(--muted);margin-top:0.2rem">Define your interview
-                                    rounds, then generate or write custom emails for each stage</div>
+                                <div style="font-size:12px;color:var(--muted);margin-top:0.2rem">Optional — define
+                                    rounds with custom emails per stage</div>
                             </div>
-                            <div style="font-size:12px;color:var(--muted);text-align:right">Optional — skip to
-                                use<br>default pipeline</div>
                         </div>
-
                         <div id="stages-container"></div>
                         <button type="button" class="add-stage-btn" onclick="addStage()">+ Add Hiring Stage</button>
-
                         <div class="section-divider"></div>
                         <button type="submit" class="btn btn-p" style="width:100%;padding:0.75rem;font-size:15px">Post
                             Job →</button>
@@ -732,9 +774,14 @@
             <div id="sec-jobs" style="display:none">
                 <div class="page-title">💼 My Job Postings</div>
                 <div class="page-sub">Click "View Applications" to manage candidates</div>
-                <div id="jobs-list" class="job-list">
-                    <div class="loading">Loading…</div>
-                </div>
+                <div id="jobs-list" class="loading">Loading…</div>
+            </div>
+
+            <!-- Analytics -->
+            <div id="sec-analytics" style="display:none">
+                <div class="page-title">📈 Analytics</div>
+                <div class="page-sub">Application pipeline overview per job</div>
+                <div id="analytics-content" class="loading">Loading…</div>
             </div>
         </div>
     </div>
@@ -744,10 +791,35 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title" id="modalTitle">Applications</div>
-                <button class="close-btn" onclick="closeModal()">✕</button>
+                <div style="display:flex;gap:0.5rem">
+                    <button class="btn btn-o" style="font-size:12px;padding:0.35rem 0.75rem" onclick="exportCsv()">📥
+                        Export CSV</button>
+                    <button class="close-btn" onclick="closeModal()">✕</button>
+                </div>
             </div>
             <div id="modalApps">
                 <div class="loading">Loading…</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content" style="max-width:620px">
+            <div class="modal-header">
+                <div class="modal-title">📧 Email Preview</div>
+                <button class="close-btn" onclick="closePreview()">✕</button>
+            </div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:0.75rem">This email will be sent to the
+                candidate. Confirm to proceed.</div>
+            <div><span class="form-label">Subject:</span>
+                <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:0.25rem" id="previewSubj">—
+                </div>
+            </div>
+            <div class="preview-box" id="previewBody">—</div>
+            <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
+                <button class="btn btn-p" style="flex:1" onclick="confirmStatusUpdate()">✅ Send & Update Status</button>
+                <button class="btn btn-o" style="flex:1" onclick="closePreview()">Cancel</button>
             </div>
         </div>
     </div>
@@ -756,124 +828,23 @@
         const API = 'https://api.talentsynctech.in';
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        let currentJobId = null;
-        let stageCount = 0;
+        let currentJobId = null, currentJobTitle = '', pendingStatusUpdate = null, stageCount = 0;
+        let allJobsCache = [];
 
         if (!token || user.role !== 'recruiter') { location.href = '/smart_resume_signin_page.html'; }
         document.getElementById('userName').textContent = user.name || 'Recruiter';
-
         function logout() { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
-        const sections = ['overview', 'post', 'jobs'];
+        // ===================== NAVIGATION =====================
+        const sections = ['overview', 'post', 'jobs', 'analytics'];
         function showSection(n) {
-            sections.forEach(s => document.getElementById('sec-' + s).style.display = s === n ? 'block' : 'none');
+            sections.forEach(s => { const el = document.getElementById('sec-' + s); if (el) el.style.display = s === n ? 'block' : 'none'; });
             document.querySelectorAll('.nav-item').forEach((el, i) => el.classList.toggle('active', sections[i] === n));
             if (n === 'jobs' || n === 'overview') loadJobs(n);
+            if (n === 'analytics') loadAnalytics();
         }
 
-        // ===================== PIPELINE BUILDER =====================
-        function addStage() {
-            stageCount++;
-            const idx = stageCount;
-            const container = document.getElementById('stages-container');
-            const div = document.createElement('div');
-            div.className = 'stage-card';
-            div.id = 'stage-' + idx;
-            div.innerHTML = `
-        <div class="stage-header">
-            <span class="stage-num">Stage ${idx}</span>
-            <button type="button" class="stage-del" onclick="removeStage(${idx})">✕ Remove</button>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Stage Name *</label>
-            <div style="display:flex;gap:0.75rem;align-items:center">
-                <input type="text" id="sname-${idx}" class="form-input" placeholder="e.g. Round 1: Aptitude Test" oninput="validateStageName(${idx})">
-                <button type="button" class="gen-btn" id="genbtn-${idx}" onclick="generateTemplate(${idx})" disabled>✨ Generate</button>
-            </div>
-            <div class="ph-hint">Type the stage name first, then click Generate to get a pre-written professional email template which you can edit.</div>
-        </div>
-        <div id="template-area-${idx}" style="display:none">
-            <div class="form-group">
-                <label class="form-label">Email Subject</label>
-                <input type="text" id="subj-${idx}" class="form-input" placeholder="Subject line for this stage…">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Email Body</label>
-                <textarea id="body-${idx}" class="form-input" style="min-height:180px" placeholder="Email body for this stage…"></textarea>
-                <div class="ph-hint">
-                    Placeholders: <code>{{candidateName}}</code> <code>{{jobTitle}}</code> <code>{{stageName}}</code> <code>{{companyName}}</code> <code>{{recruiterNotes}}</code>
-                </div>
-            </div>
-            <div style="display:flex;gap:0.5rem">
-                <button type="button" class="btn btn-o" onclick="generateTemplate(${idx})" style="font-size:12px;padding:0.35rem 0.8rem">↺ Regenerate</button>
-                <button type="button" class="btn btn-o" onclick="clearTemplate(${idx})" style="font-size:12px;padding:0.35rem 0.8rem">🗑 Clear</button>
-            </div>
-        </div>
-    `;
-            container.appendChild(div);
-        }
-
-        function removeStage(idx) { document.getElementById('stage-' + idx)?.remove(); }
-
-        function validateStageName(idx) {
-            const val = document.getElementById('sname-' + idx)?.value.trim();
-            const btn = document.getElementById('genbtn-' + idx);
-            if (btn) btn.disabled = !val;
-        }
-
-        async function generateTemplate(idx) {
-            const stageName = document.getElementById('sname-' + idx)?.value.trim();
-            if (!stageName) { alert('Enter a stage name first'); return; }
-            const btn = document.getElementById('genbtn-' + idx);
-            const origText = btn.textContent;
-            btn.textContent = '⏳ Generating…'; btn.disabled = true;
-            try {
-                const r = await fetch(`${API}/api/email-templates/generate`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        stageName,
-                        jobTitle: document.getElementById('jTitle')?.value || 'the position',
-                        companyName: document.getElementById('jCompany')?.value || 'our company',
-                        stageOrder: String(idx)
-                    })
-                });
-                if (!r.ok) throw new Error('Generation failed');
-                const d = await r.json();
-                document.getElementById('subj-' + idx).value = d.subject || '';
-                document.getElementById('body-' + idx).value = d.body || '';
-                document.getElementById('template-area-' + idx).style.display = 'block';
-            } catch (e) { alert('Failed to generate: ' + e.message); }
-            btn.textContent = origText; btn.disabled = false;
-        }
-
-        function clearTemplate(idx) {
-            document.getElementById('subj-' + idx).value = '';
-            document.getElementById('body-' + idx).value = '';
-            document.getElementById('template-area-' + idx).style.display = 'none';
-        }
-
-        function collectPipeline() {
-            const stages = [];
-            document.querySelectorAll('.stage-card').forEach((card, i) => {
-                const id = card.id.replace('stage-', '');
-                const stageName = document.getElementById('sname-' + id)?.value.trim();
-                if (!stageName) return;
-                const subject = document.getElementById('subj-' + id)?.value.trim() || '';
-                const body = document.getElementById('body-' + id)?.value.trim() || '';
-                stages.push({
-                    stageName,
-                    stageOrder: i + 1,
-                    stageKey: 'STAGE_' + (i + 1),
-                    emailSubject: subject,
-                    emailBody: body,
-                    customTemplate: !!(subject || body)
-                });
-            });
-            return stages;
-        }
-
-        // ===================== JOBS =====================
+        // ===================== BADGES & HELPERS =====================
         function statusBadge(s) {
             const m = {
                 PENDING: ['bg', '⏳ Pending'], UNDER_REVIEW: ['bb', '🔍 Under Review'], SHORTLISTED: ['bc', '⭐ Shortlisted'],
@@ -881,38 +852,29 @@
             };
             const [c, l] = m[s] || ['bg', s]; return `<span class="badge ${c}">${l}</span>`;
         }
-
         function scoreCircle(score) {
-            if (score === null || score === undefined) return '<div style="width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);border:3px solid rgba(255,255,255,0.15)">-</div>';
+            if (score === null || score === undefined) return '<div style="width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);border:3px solid rgba(255,255,255,0.15)">-</div>';
             const c = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
             return `<div class="sc" style="border-color:${c};color:${c}">${score.toFixed(0)}%</div>`;
         }
 
+        // ===================== PIPELINE BUTTONS =====================
         function getPipelineButtons(appId, status, jobPipeline) {
-            // If job has custom pipeline, show pipeline stage buttons
             if (jobPipeline && jobPipeline.length > 0) {
-                // Find current stage index
-                const stageKeys = jobPipeline.map(s => s.stageKey);
-                const curIdx = stageKeys.indexOf(status);
-                const buttons = [];
+                const keys = jobPipeline.map(s => s.stageKey);
+                const curIdx = keys.indexOf(status);
+                const btns = [];
                 if (curIdx === -1) {
-                    // Not in pipeline yet (ATS_REJECTED, PENDING, etc.) — show first stage
-                    if (status === 'UNDER_REVIEW' || status === 'PENDING') {
-                        buttons.push(`<button class="pipe-btn pb-review" onclick="updateStatus('${appId}','${stageKeys[0]}','${jobPipeline[0].stageName}')">▶ ${jobPipeline[0].stageName}</button>`);
-                    }
-                    if (status === 'ATS_REJECTED') {
-                        buttons.push(`<button class="pipe-btn pb-review" onclick="updateStatus('${appId}','UNDER_REVIEW','Under Review')">↩ Override</button>`);
-                    }
-                } else if (curIdx < stageKeys.length - 1) {
-                    const nextStage = jobPipeline[curIdx + 1];
-                    buttons.push(`<button class="pipe-btn pb-short" onclick="updateStatus('${appId}','${nextStage.stageKey}','${nextStage.stageName}')">▶ ${nextStage.stageName}</button>`);
+                    if (status === 'UNDER_REVIEW' || status === 'PENDING') btns.push(`<button class="pipe-btn pb-review" onclick="initiateStatusUpdate('${appId}','${keys[0]}','${jobPipeline[0].stageName}')">▶ ${jobPipeline[0].stageName}</button>`);
+                    if (status === 'ATS_REJECTED') btns.push(`<button class="pipe-btn pb-review" onclick="initiateStatusUpdate('${appId}','UNDER_REVIEW','Under Review')">↩ Override</button>`);
+                } else if (curIdx < keys.length - 1) {
+                    const next = jobPipeline[curIdx + 1];
+                    btns.push(`<button class="pipe-btn pb-short" onclick="initiateStatusUpdate('${appId}','${next.stageKey}','${next.stageName}')">▶ ${next.stageName}</button>`);
                 }
-                buttons.push(`<button class="pipe-btn pb-reject" onclick="updateStatus('${appId}','REJECTED','Rejected')">✕ Reject</button>`);
-                if (!buttons.length) return '<div style="font-size:12px;color:var(--muted);margin-top:0.75rem">Pipeline complete</div>';
-                return `<div class="pipeline-actions">${buttons.join('')}</div>`;
+                btns.push(`<button class="pipe-btn pb-reject" onclick="initiateStatusUpdate('${appId}','REJECTED','Rejected')">✕ Reject</button>`);
+                if (!btns.length) return '<div style="font-size:12px;color:var(--muted);margin-top:0.5rem">Pipeline complete</div>';
+                return `<div class="pipeline-actions">${btns.join('')}</div>`;
             }
-
-            // Default pipeline (no custom stages)
             const flows = {
                 PENDING: [{ s: 'UNDER_REVIEW', cls: 'pb-review', l: '▶ Move to Review' }],
                 ATS_REJECTED: [{ s: 'UNDER_REVIEW', cls: 'pb-review', l: '↩ Override to Review' }],
@@ -922,35 +884,95 @@
                 OFFERED: [], REJECTED: []
             };
             const btns = (flows[status] || []);
-            if (!btns.length) return '<div style="font-size:12px;color:var(--muted);margin-top:0.75rem">No further actions</div>';
-            return `<div class="pipeline-actions">${btns.map(b => `<button class="pipe-btn ${b.cls}" onclick="updateStatus('${appId}','${b.s}','')">${b.l}</button>`).join('')}</div>`;
+            if (!btns.length) return '<div style="font-size:12px;color:var(--muted);margin-top:0.5rem">No further actions</div>';
+            return `<div class="pipeline-actions">${btns.map(b => `<button class="pipe-btn ${b.cls}" onclick="initiateStatusUpdate('${appId}','${b.s}','')">${b.l}</button>`).join('')}</div>`;
         }
 
+        // ===================== EMAIL PREVIEW FLOW =====================
+        async function initiateStatusUpdate(appId, newStatus, stageName) {
+            const notes = prompt(`Moving to "${stageName || newStatus}". Add a note for the candidate (optional):`);
+            if (notes === null) return; // cancelled
+
+            let interviewDateTime = '';
+            if (newStatus === 'INTERVIEW') {
+                interviewDateTime = prompt('📅 Enter interview date & time (format: YYYY-MM-DDTHH:MM, e.g. 2026-03-10T14:30):', '')?.trim() || '';
+            }
+
+            // Fetch email preview from backend
+            try {
+                const r = await fetch(`${API}/api/email-templates/preview`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ appId, status: newStatus, notes, interviewDateTime, stageName })
+                });
+                if (r.ok) {
+                    const d = await r.json();
+                    document.getElementById('previewSubj').textContent = d.subject || '(no subject)';
+                    document.getElementById('previewBody').textContent = d.body || '(no body)';
+                    pendingStatusUpdate = { appId, newStatus, stageName, notes, interviewDateTime };
+                    document.getElementById('previewModal').classList.add('active');
+                    return;
+                }
+            } catch (e) {/* fall through to direct update */ }
+
+            // If preview endpoint not available, proceed directly
+            await doStatusUpdate(appId, newStatus, notes, interviewDateTime);
+        }
+
+        async function confirmStatusUpdate() {
+            if (!pendingStatusUpdate) return;
+            const { appId, newStatus, notes, interviewDateTime } = pendingStatusUpdate;
+            closePreview();
+            await doStatusUpdate(appId, newStatus, notes, interviewDateTime);
+        }
+
+        async function doStatusUpdate(appId, status, notes, interviewDateTime) {
+            try {
+                const r = await fetch(`${API}/api/applications/${appId}/status`, {
+                    method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status, notes: notes || '', interviewDateTime: interviewDateTime || '' })
+                });
+                if (!r.ok) throw new Error('Failed');
+                // Refresh applications
+                if (currentJobId) viewApps(currentJobId, currentJobTitle);
+            } catch (e) { alert('Failed: ' + e.message); }
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').classList.remove('active');
+            pendingStatusUpdate = null;
+        }
+
+        // ===================== JOBS =====================
         async function loadJobs(section) {
             const cid = section === 'overview' ? 'ov-jobs' : 'jobs-list';
             const el = document.getElementById(cid);
+            if (el) el.innerHTML = '<div class="loading">Loading…</div>';
             try {
                 const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!r.ok) throw new Error('Failed');
+                if (!r.ok) throw new Error();
                 const jobs = await r.json();
-                document.getElementById('st-jobs').textContent = jobs.length;
-                if (!jobs.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted);padding:2rem">No jobs yet. Click "Post Job"!</p>'; return; }
-                el.innerHTML = jobs.map(j => `<div class="job-card">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
-                <div>
-                    <div style="font-size:15px;font-weight:600;margin-bottom:0.25rem">${j.title}</div>
-                    <div style="color:var(--muted);font-size:13px;margin-bottom:0.75rem">${j.company || ''}</div>
-                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-                        ${j.location ? `<span class="badge bc">📍 ${j.location}</span>` : ''}
-                        ${j.type ? `<span class="badge bb">${j.type}</span>` : ''}
-                        ${j.salary ? `<span class="badge bs">💰 ${j.salary}</span>` : ''}
-                        ${j.hiringPipeline && j.hiringPipeline.length ? `<span class="badge bc">🔄 ${j.hiringPipeline.length} custom stages</span>` : ''}
-                    </div>
-                </div>
-                <button class="btn btn-p" onclick="viewApps('${j.id}','${(j.title || '').replace(/'/g, '&#39;')}')">View Applications →</button>
-            </div>
-        </div>`).join('');
-            } catch (e) { el.innerHTML = '<p style="text-align:center;color:var(--danger)">Failed to load jobs</p>'; }
+                allJobsCache = jobs;
+                document.getElementById('st-jobs').textContent = jobs.filter(j => j.status === 'ACTIVE').length;
+                if (!jobs.length) { if (el) el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No jobs yet. Post your first job!</p>'; return; }
+                if (el) el.innerHTML = jobs.map(j => `<div class="job-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
+        <div>
+          <div style="font-size:15px;font-weight:600;margin-bottom:0.25rem">${j.title}</div>
+          <div style="color:var(--muted);font-size:13px;margin-bottom:0.75rem">${j.company || ''}</div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+            ${j.location ? `<span class="badge bc">📍 ${j.location}</span>` : ''}
+            ${j.type ? `<span class="badge bb">${j.type}</span>` : ''}
+            ${j.salary ? `<span class="badge bs">💰 ${j.salary}</span>` : ''}
+            ${j.status === 'CLOSED' ? '<span class="badge bd">🔒 Closed</span>' : ''}
+            ${j.expiresAt ? `<span class="badge bw">⏰ Closes ${new Date(j.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>` : ''}
+            ${j.hiringPipeline && j.hiringPipeline.length ? `<span class="badge bc">🔄 ${j.hiringPipeline.length} custom stages</span>` : ''}
+          </div>
+        </div>
+        <button class="btn btn-p" onclick="viewApps('${j.id}','${(j.title || '').replace(/'/g, '&#39;')}')">View Applications →</button>
+      </div>
+    </div>`).join('');
+            } catch (e) { if (el) el.innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load</p>'; }
         }
 
         async function postJob(e) {
@@ -959,99 +981,144 @@
             btn.textContent = 'Posting…'; btn.disabled = true;
             try {
                 const pipeline = collectPipeline();
+                const expires = document.getElementById('jExpires').value;
                 const body = {
-                    title: document.getElementById('jTitle').value,
-                    company: document.getElementById('jCompany').value,
-                    location: document.getElementById('jLocation').value,
-                    type: document.getElementById('jType').value,
-                    salary: document.getElementById('jSalary').value,
-                    description: document.getElementById('jDescription').value,
+                    title: document.getElementById('jTitle').value, company: document.getElementById('jCompany').value,
+                    location: document.getElementById('jLocation').value, type: document.getElementById('jType').value,
+                    salary: document.getElementById('jSalary').value, description: document.getElementById('jDescription').value,
                     requirements: document.getElementById('jRequirements').value
                 };
                 if (pipeline.length) body.hiringPipeline = pipeline;
+                if (expires) body.expiresAt = expires;
                 const r = await fetch(`${API}/api/jobs`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
                 if (!r.ok) throw new Error('Failed');
-                alert('✅ Job posted successfully!' + (pipeline.length ? `\n\n${pipeline.length} custom email stages saved.` : ''));
-                e.target.reset();
-                document.getElementById('stages-container').innerHTML = '';
-                stageCount = 0;
+                alert('✅ Job posted!' + (pipeline.length ? `\n${pipeline.length} custom email stages saved.` : ''));
+                e.target.reset(); document.getElementById('stages-container').innerHTML = ''; stageCount = 0;
                 showSection('jobs');
             } catch (err) { alert('Failed: ' + err.message); }
             btn.textContent = 'Post Job →'; btn.disabled = false;
         }
 
+        // ===================== PIPELINE BUILDER =====================
+        function addStage() {
+            stageCount++; const idx = stageCount;
+            const div = document.createElement('div'); div.className = 'stage-card'; div.id = 'stage-' + idx;
+            div.innerHTML = `<div class="stage-header"><span class="stage-num">Stage ${idx}</span><button type="button" class="stage-del" onclick="removeStage(${idx})">✕ Remove</button></div>
+    <div class="form-group"><label class="form-label">Stage Name *</label>
+    <div style="display:flex;gap:0.75rem;align-items:center">
+      <input type="text" id="sname-${idx}" class="form-input" placeholder="e.g. Round 1: Aptitude Test" oninput="validateStageName(${idx})">
+      <button type="button" class="gen-btn" id="genbtn-${idx}" onclick="generateTemplate(${idx})" disabled>✨ Generate</button>
+    </div></div>
+    <div id="template-area-${idx}" style="display:none">
+      <div class="form-group"><label class="form-label">Email Subject</label><input type="text" id="subj-${idx}" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Email Body</label><textarea id="body-${idx}" class="form-input" style="min-height:160px"></textarea>
+        <div class="ph-hint">Placeholders: <code>{{candidateName}}</code> <code>{{jobTitle}}</code> <code>{{stageName}}</code> <code>{{companyName}}</code> <code>{{recruiterNotes}}</code></div>
+      </div>
+      <div style="display:flex;gap:0.5rem"><button type="button" class="btn btn-o" onclick="generateTemplate(${idx})" style="font-size:12px;padding:0.35rem 0.8rem">↺ Regenerate</button></div>
+    </div>`;
+            document.getElementById('stages-container').appendChild(div);
+        }
+        function removeStage(idx) { document.getElementById('stage-' + idx)?.remove(); }
+        function validateStageName(idx) { const v = document.getElementById('sname-' + idx)?.value.trim(); const b = document.getElementById('genbtn-' + idx); if (b) b.disabled = !v; }
+        async function generateTemplate(idx) {
+            const stageName = document.getElementById('sname-' + idx)?.value.trim();
+            if (!stageName) return;
+            const btn = document.getElementById('genbtn-' + idx); const orig = btn.textContent;
+            btn.textContent = '⏳'; btn.disabled = true;
+            try {
+                const r = await fetch(`${API}/api/email-templates/generate`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        stageName, jobTitle: document.getElementById('jTitle')?.value || 'the position',
+                        companyName: document.getElementById('jCompany')?.value || 'our company', stageOrder: String(idx)
+                    })
+                });
+                if (!r.ok) throw new Error();
+                const d = await r.json();
+                document.getElementById('subj-' + idx).value = d.subject || '';
+                document.getElementById('body-' + idx).value = d.body || '';
+                document.getElementById('template-area-' + idx).style.display = 'block';
+            } catch (e) { alert('Generation failed'); }
+            btn.textContent = orig; btn.disabled = false;
+        }
+        function collectPipeline() {
+            const stages = [];
+            document.querySelectorAll('.stage-card').forEach((card, i) => {
+                const id = card.id.replace('stage-', '');
+                const stageName = document.getElementById('sname-' + id)?.value.trim(); if (!stageName) return;
+                const subject = document.getElementById('subj-' + id)?.value.trim() || '';
+                const body = document.getElementById('body-' + id)?.value.trim() || '';
+                stages.push({ stageName, stageOrder: i + 1, stageKey: 'STAGE_' + (i + 1), emailSubject: subject, emailBody: body, customTemplate: !!(subject || body) });
+            });
+            return stages;
+        }
+
+        // ===================== APPLICATIONS =====================
         async function viewApps(jobId, jobTitle) {
-            currentJobId = jobId;
+            currentJobId = jobId; currentJobTitle = jobTitle;
             document.getElementById('modalTitle').textContent = 'Applications — ' + jobTitle;
             document.getElementById('appsModal').classList.add('active');
             document.getElementById('modalApps').innerHTML = '<div class="loading">Loading…</div>';
             try {
-                // Load job to get pipeline
                 const [appsRes, jobRes] = await Promise.all([
                     fetch(`${API}/api/applications/job/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
                     fetch(`${API}/api/jobs/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } })
                 ]);
-                if (!appsRes.ok) throw new Error('Failed');
+                if (!appsRes.ok) throw new Error();
                 const apps = await appsRes.json();
                 const job = jobRes.ok ? await jobRes.json() : null;
                 const pipeline = job?.hiringPipeline || [];
 
                 document.getElementById('st-apps').textContent = apps.length;
-                document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED', 'INTERVIEW'].includes(a.status) || (pipeline.some(s => s.stageKey === a.status))).length;
+                document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status) || pipeline.some(s => s.stageKey === a.status)).length;
                 document.getElementById('st-ats').textContent = apps.filter(a => a.status === 'ATS_REJECTED').length;
 
-                if (!apps.length) { document.getElementById('modalApps').innerHTML = '<p style="text-align:center;color:var(--muted);padding:2rem">No applications yet</p>'; return; }
-
+                if (!apps.length) { document.getElementById('modalApps').innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No applications yet</p>'; return; }
                 document.getElementById('modalApps').innerHTML = apps.map(a => {
-                    const curStage = pipeline.find(s => s.stageKey === a.status);
-                    const stageLabel = curStage ? curStage.stageName : null;
+                    const pipeline_stage = pipeline.find(s => s.stageKey === a.status);
+                    // Notes history timeline
+                    const notesHtml = a.notesHistory && a.notesHistory.length ? `
+        <div style="margin-top:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px">
+          <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:0.5rem">📋 Notes History</div>
+          ${a.notesHistory.map(n => `<div class="note-item">
+            <div class="note-dot"></div>
+            <div><span style="color:var(--text)">${n.text}</span> <span style="color:var(--muted)">(${n.status})</span>
+            <div style="color:var(--muted);font-size:11px">${new Date(n.timestamp).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div></div>
+          </div>`).join('')}
+        </div>`: '';
                     return `<div class="app-card ${a.status === 'ATS_REJECTED' ? 'ats-rejected' : ''}">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
-                    <div style="flex:1">
-                        <div style="font-weight:600;font-size:15px">${a.candidateName || 'Unknown'}</div>
-                        <div style="color:var(--muted);font-size:13px;margin-bottom:0.5rem">${a.candidateEmail}</div>
-                        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
-                            ${statusBadge(a.status)}
-                            ${stageLabel ? `<span style="font-size:11px;color:var(--muted)">● ${stageLabel}</span>` : ''}
-                            <span style="color:var(--muted);font-size:12px">Applied: ${new Date(a.appliedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
-                        </div>
-                    </div>
-                    ${scoreCircle(a.matchScore)}
-                </div>
-                ${a.skillsGap && a.skillsGap.length ? `<div style="margin-top:0.75rem;padding:0.65rem;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:9px">
-                    <div style="font-size:12px;font-weight:600;color:#f87171;margin-bottom:0.4rem">🎯 Skills Gap:</div>
-                    <div style="display:flex;gap:0.4rem;flex-wrap:wrap">${a.skillsGap.map(s => `<span class="badge bd">${s}</span>`).join('')}</div>
-                </div>`: ''}
-                ${a.reviewNotes ? `<div style="margin-top:0.65rem;padding:0.6rem;background:rgba(255,255,255,0.04);border-radius:8px;font-size:13px;color:var(--muted)">💬 ${a.reviewNotes}</div>` : ''}
-                <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
-                    <button class="btn btn-o" onclick="viewResume('${a.id}')" style="font-size:12px;padding:0.35rem 0.8rem">📄 Resume</button>
-                    ${getPipelineButtons(a.id, a.status, pipeline)}
-                </div>
-            </div>`;
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:15px">${a.candidateName || 'Unknown'}</div>
+            <div style="color:var(--muted);font-size:13px;margin-bottom:0.5rem">${a.candidateEmail}</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+              ${statusBadge(a.status)}
+              ${pipeline_stage ? `<span style="font-size:11px;color:var(--muted)">● ${pipeline_stage.stageName}</span>` : ''}
+              <span style="color:var(--muted);font-size:12px">Applied: ${new Date(a.appliedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+              ${a.reAnalyzedAt ? `<span style="font-size:11px;color:var(--muted)">🔄 Re-analyzed</span>` : ''}
+            </div>
+          </div>
+          ${scoreCircle(a.matchScore)}
+        </div>
+        ${a.skillsGap && a.skillsGap.length ? `<div style="margin-top:0.75rem;padding:0.65rem;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:9px">
+          <div style="font-size:12px;font-weight:600;color:#f87171;margin-bottom:0.4rem">🎯 Skills Gap:</div>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap">${a.skillsGap.map(s => `<span class="badge bd">${s}</span>`).join('')}</div>
+        </div>`: ''}
+        ${notesHtml}
+        <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
+          <button class="btn btn-o" onclick="viewResume('${a.id}')" style="font-size:12px;padding:0.35rem 0.75rem">📄 Resume</button>
+          ${getPipelineButtons(a.id, a.status, pipeline)}
+        </div>
+      </div>`;
                 }).join('');
-            } catch (e) { document.getElementById('modalApps').innerHTML = '<p style="text-align:center;color:var(--danger)">Failed to load</p>'; }
-        }
-
-        async function updateStatus(appId, status, stageName) {
-            const notes = prompt(`Moving to "${stageName || status}". Add a note for the candidate (optional):`) || '';
-            try {
-                const r = await fetch(`${API}/api/applications/${appId}/status`, {
-                    method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status, notes })
-                });
-                if (!r.ok) throw new Error('Failed');
-                alert(`✅ Status updated. Candidate notified by email.`);
-                if (currentJobId) {
-                    const title = document.getElementById('modalTitle').textContent.replace('Applications — ', '');
-                    viewApps(currentJobId, title);
-                }
-            } catch (e) { alert('Failed: ' + e.message); }
+            } catch (e) { document.getElementById('modalApps').innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load</p>'; }
         }
 
         async function viewResume(appId) {
             try {
                 const r = await fetch(`${API}/api/applications/${appId}/resume`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!r.ok) throw new Error('Failed');
+                if (!r.ok) throw new Error();
                 const blob = await r.blob();
                 const url = window.URL.createObjectURL(blob);
                 window.open(url, '_blank');
@@ -1059,8 +1126,61 @@
             } catch (e) { alert('Failed: ' + e.message); }
         }
 
+        function exportCsv() {
+            if (!currentJobId) return;
+            window.open(`${API}/api/applications/job/${currentJobId}/export.csv?token=${encodeURIComponent(token)}`, '_blank');
+        }
+
         function closeModal() { document.getElementById('appsModal').classList.remove('active'); currentJobId = null; }
-        document.getElementById('appsModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+        document.getElementById('appsModal').addEventListener('click', e => { if (e.target === document.getElementById('appsModal')) closeModal(); });
+        document.getElementById('previewModal').addEventListener('click', e => { if (e.target === document.getElementById('previewModal')) closePreview(); });
+
+        // ===================== ANALYTICS =====================
+        async function loadAnalytics() {
+            const el = document.getElementById('analytics-content');
+            el.innerHTML = '<div class="loading">Loading…</div>';
+            try {
+                const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) throw new Error();
+                const jobs = await r.json();
+                if (!jobs.length) { el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No jobs to analyze</p>'; return; }
+
+                const jobDataPromises = jobs.map(j =>
+                    fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } })
+                        .then(r => r.ok ? r.json() : []).catch(() => [])
+                );
+                const allAppLists = await Promise.all(jobDataPromises);
+
+                const colors = {
+                    ATS_REJECTED: 'rgba(239,68,68,0.6)', PENDING: 'rgba(148,163,184,0.5)', UNDER_REVIEW: 'rgba(37,99,235,0.6)',
+                    SHORTLISTED: 'rgba(0,212,170,0.6)', INTERVIEW: 'rgba(16,185,129,0.6)', OFFERED: 'rgba(245,158,11,0.6)', REJECTED: 'rgba(239,68,68,0.4)'
+                };
+                const statusLabels = { ATS_REJECTED: 'ATS Filtered', PENDING: 'Pending', UNDER_REVIEW: 'Under Review', SHORTLISTED: 'Shortlisted', INTERVIEW: 'Interview', OFFERED: 'Offered', REJECTED: 'Rejected' };
+
+                el.innerHTML = jobs.map((job, ji) => {
+                    const apps = allAppLists[ji];
+                    const total = apps.length; if (!total) return `<div class="card" style="margin-bottom:1rem"><div style="font-weight:600">${job.title}</div><div style="color:var(--muted);font-size:13px">No applications</div></div>`;
+                    const counts = {};
+                    apps.forEach(a => { counts[a.status] = (counts[a.status] || 0) + 1; });
+                    const barsHtml = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([st, cnt]) => {
+                        const pct = Math.round((cnt / total) * 100);
+                        const col = colors[st] || 'rgba(100,100,100,0.5)';
+                        return `<div class="a-bar-row">
+          <div class="a-bar-label">${statusLabels[st] || st}</div>
+          <div class="a-bar-bg"><div class="a-bar" style="width:${pct}%;background:${col}"></div></div>
+          <div class="a-bar-val" style="color:${col.replace(/0\.\d+\)/, '1)')}'">${cnt}</div>
+        </div>`;
+                    }).join('');
+                    return `<div class="card" style="margin-bottom:1.25rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <div><div style="font-weight:600;font-size:15px">${job.title}</div><div style="font-size:12px;color:var(--muted)">${job.company || ''}</div></div>
+          <div style="font-size:24px;font-weight:700;color:var(--accent)">${total}</div>
+        </div>
+        ${barsHtml}
+      </div>`;
+                }).join('');
+            } catch (e) { el.innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load analytics</p>'; }
+        }
 
         loadJobs('overview');
     </script>

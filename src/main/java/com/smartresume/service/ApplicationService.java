@@ -1,18 +1,23 @@
 package com.smartresume.service;
 
-import com.smartresume.model.Application;
-import com.smartresume.model.Job;
-import com.smartresume.model.ResumeMeta;
-import com.smartresume.model.User;
+import com.smartresume.model.*;
 import com.smartresume.repository.ApplicationRepository;
 import com.smartresume.repository.JobRepository;
 import com.smartresume.repository.ResumeRepository;
 import com.smartresume.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,43 +31,52 @@ public class ApplicationService {
     private final EmailService emailService;
 
     private static final double ATS_THRESHOLD = 50.0;
+    private static final int DAILY_APPLICATION_LIMIT = 10;
 
     public Application applyToJob(String jobId, String candidateEmail) {
-        // Check if job exists
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
 
-        // Check if already applied
-        if (applicationRepository.existsByJobIdAndCandidateEmail(jobId, candidateEmail)) {
-            throw new RuntimeException("Already applied to this job");
+        if ("CLOSED".equals(job.getStatus())) {
+            throw new RuntimeException("This job listing is no longer accepting applications");
         }
 
-        // Get user details
+        if (applicationRepository.existsByJobIdAndCandidateEmail(jobId, candidateEmail)) {
+            throw new RuntimeException("You have already applied to this job");
+        }
+
+        // Daily limit check
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1).minusNanos(1);
+        long todayCount = applicationRepository.countByCandidateEmailAndAppliedAtBetween(
+                candidateEmail, startOfDay, endOfDay);
+        if (todayCount >= DAILY_APPLICATION_LIMIT) {
+            throw new RuntimeException("Daily application limit reached (" + DAILY_APPLICATION_LIMIT +
+                    " applications per day). Please try again tomorrow.");
+        }
+
         User user = userRepository.findByEmail(candidateEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Check if user has uploaded resume
         List<ResumeMeta> resumes = resumeRepository.findByOwnerId(user.getId());
         if (resumes.isEmpty()) {
-            throw new RuntimeException("Please upload your resume first");
+            throw new RuntimeException("Please upload your resume before applying");
         }
 
-        // Get the most recent resume
         ResumeMeta resume = resumes.get(resumes.size() - 1);
 
-        // Create application
         Application application = new Application();
         application.setJobId(jobId);
         application.setCandidateEmail(candidateEmail);
         application.setCandidateName(user.getName());
         application.setResumeId(resume.getId());
         application.setAppliedAt(LocalDateTime.now());
+        application.setNotesHistory(new ArrayList<>());
 
         // Run ATS/ML scoring
         try {
             String resumeText = resumeService.extractTextFromResume(resume.getId());
             String jobDescription = job.getDescription() + " " + job.getRequirements();
-
             var mlResult = mlIntegrationService.analyzeMatch(
                     resumeText, jobDescription, job.getTitle(), job.getRequirements());
 
@@ -70,32 +84,28 @@ public class ApplicationService {
                 application.setMatchScore(mlResult.getMatchScore());
                 application.setSkillsGap(mlResult.getSkillsGap());
 
-                // ATS auto-rejection or pass
                 if (mlResult.getMatchScore() < ATS_THRESHOLD) {
                     application.setStatus("ATS_REJECTED");
-                    System.out.println(
-                            "❌ ATS rejected: score=" + mlResult.getMatchScore() + " threshold=" + ATS_THRESHOLD);
-                    // Save first, then email
+                    System.out.println("❌ ATS rejected: score=" + mlResult.getMatchScore());
                     Application saved = applicationRepository.save(application);
-                    emailService.sendStatusUpdateEmail(
-                            candidateEmail, user.getName(), job.getTitle(), "ATS_REJECTED", null);
+                    emailService.sendStatusUpdateEmail(candidateEmail, user.getName(), job.getTitle(), "ATS_REJECTED",
+                            null);
                     return saved;
                 } else {
                     application.setStatus("UNDER_REVIEW");
                     System.out.println("✅ ATS passed: score=" + mlResult.getMatchScore());
                     Application saved = applicationRepository.save(application);
-                    emailService.sendStatusUpdateEmail(
-                            candidateEmail, user.getName(), job.getTitle(), "UNDER_REVIEW", null);
+                    emailService.sendStatusUpdateEmail(candidateEmail, user.getName(), job.getTitle(), "UNDER_REVIEW",
+                            null);
                     return saved;
                 }
             } else {
-                // ML unavailable — save as PENDING (no auto-rejection without a score)
                 application.setStatus("PENDING");
                 application.setMatchScore(null);
                 application.setSkillsGap(null);
             }
         } catch (Exception e) {
-            System.err.println("❌ ML/ATS failed: " + e.getClass().getName() + " - " + e.getMessage());
+            System.err.println("❌ ML/ATS failed: " + e.getMessage());
             application.setStatus("PENDING");
             application.setMatchScore(null);
             application.setSkillsGap(null);
@@ -109,14 +119,11 @@ public class ApplicationService {
     }
 
     public List<Application> getJobApplications(String jobId, String recruiterEmail) {
-        // Verify the job belongs to this recruiter
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
-
         if (!job.getPostedBy().equals(recruiterEmail)) {
             throw new RuntimeException("Not authorized to view these applications");
         }
-
         return applicationRepository.findByJobId(jobId);
     }
 
@@ -124,7 +131,6 @@ public class ApplicationService {
         Application application = applicationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
 
-        // Verify the job belongs to this recruiter
         Job job = jobRepository.findById(application.getJobId())
                 .orElseThrow(() -> new RuntimeException("Job not found"));
 
@@ -134,50 +140,147 @@ public class ApplicationService {
 
         application.setStatus(status);
         application.setReviewedAt(LocalDateTime.now());
-        application.setReviewNotes(notes);
+        // Keep legacy single-note field for compatibility
+        if (notes != null && !notes.isEmpty()) {
+            application.setReviewNotes(notes);
+        }
+        // Append to notes history timeline
+        if (notes != null && !notes.isEmpty()) {
+            List<ApplicationNote> history = application.getNotesHistory();
+            if (history == null)
+                history = new ArrayList<>();
+            history.add(ApplicationNote.builder()
+                    .text(notes)
+                    .recruiterEmail(recruiterEmail)
+                    .timestamp(LocalDateTime.now())
+                    .status(status)
+                    .build());
+            application.setNotesHistory(history);
+        }
 
         return applicationRepository.save(application);
     }
 
-    public org.springframework.http.ResponseEntity<?> getApplicationResume(String applicationId,
-            String recruiterEmail) {
-        // Get the application
+    /**
+     * Re-run ATS ML analysis on an existing application (candidate updated resume,
+     * or recruiter requested).
+     */
+    public Application reAnalyze(String applicationId, String requesterEmail) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
 
-        // Verify the job belongs to this recruiter
+        // Verify authorization: either the candidate themselves or the job's recruiter
         Job job = jobRepository.findById(application.getJobId())
                 .orElseThrow(() -> new RuntimeException("Job not found"));
+        boolean isCandidate = application.getCandidateEmail().equals(requesterEmail);
+        boolean isRecruiter = job.getPostedBy().equals(requesterEmail);
+        if (!isCandidate && !isRecruiter) {
+            throw new RuntimeException("Not authorized to re-analyze this application");
+        }
 
+        try {
+            User user = userRepository.findByEmail(application.getCandidateEmail())
+                    .orElseThrow(() -> new RuntimeException("Candidate not found"));
+            List<ResumeMeta> resumes = resumeRepository.findByOwnerId(user.getId());
+            if (resumes.isEmpty())
+                throw new RuntimeException("No resume found");
+
+            ResumeMeta resume = resumes.get(resumes.size() - 1);
+            String resumeText = resumeService.extractTextFromResume(resume.getId());
+            String jobDescription = job.getDescription() + " " + job.getRequirements();
+
+            var mlResult = mlIntegrationService.analyzeMatch(
+                    resumeText, jobDescription, job.getTitle(), job.getRequirements());
+
+            if (mlResult != null) {
+                application.setMatchScore(mlResult.getMatchScore());
+                application.setSkillsGap(mlResult.getSkillsGap());
+                application.setReAnalyzedAt(LocalDateTime.now());
+
+                // Update ATS status if it was previously pending
+                if ("PENDING".equals(application.getStatus())) {
+                    if (mlResult.getMatchScore() < ATS_THRESHOLD) {
+                        application.setStatus("ATS_REJECTED");
+                    } else {
+                        application.setStatus("UNDER_REVIEW");
+                    }
+                }
+                System.out.println("✅ Re-analyzed: score=" + mlResult.getMatchScore());
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Re-analysis failed: " + e.getMessage());
+            throw new RuntimeException("Re-analysis failed: " + e.getMessage());
+        }
+
+        return applicationRepository.save(application);
+    }
+
+    /**
+     * Export all applications for a job as a CSV byte array.
+     */
+    public ResponseEntity<byte[]> exportCsv(String jobId, String recruiterEmail) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        if (!job.getPostedBy().equals(recruiterEmail)) {
+            throw new RuntimeException("Not authorized");
+        }
+
+        List<Application> apps = applicationRepository.findByJobId(jobId);
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        StringBuilder csv = new StringBuilder();
+        csv.append("Name,Email,Status,ATS Score,Applied At,Last Reviewed,Skills Gap\n");
+        for (Application a : apps) {
+            csv.append(escape(a.getCandidateName())).append(",");
+            csv.append(escape(a.getCandidateEmail())).append(",");
+            csv.append(escape(a.getStatus())).append(",");
+            csv.append(a.getMatchScore() != null ? String.format("%.1f%%", a.getMatchScore()) : "-").append(",");
+            csv.append(a.getAppliedAt() != null ? a.getAppliedAt().format(fmt) : "-").append(",");
+            csv.append(a.getReviewedAt() != null ? a.getReviewedAt().format(fmt) : "-").append(",");
+            String gap = a.getSkillsGap() != null ? String.join("; ", a.getSkillsGap()) : "";
+            csv.append(escape(gap)).append("\n");
+        }
+
+        byte[] bytes = csv.toString().getBytes(StandardCharsets.UTF_8);
+        String filename = "applications-" + job.getTitle().replaceAll("[^a-zA-Z0-9]", "_") + ".csv";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(bytes);
+    }
+
+    private String escape(String value) {
+        if (value == null)
+            return "";
+        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
+    }
+
+    public ResponseEntity<?> getApplicationResume(String applicationId, String recruiterEmail) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+        Job job = jobRepository.findById(application.getJobId())
+                .orElseThrow(() -> new RuntimeException("Job not found"));
         if (!job.getPostedBy().equals(recruiterEmail)) {
             throw new RuntimeException("Not authorized to view this resume");
         }
-
-        // Get the resume
         String resumeId = application.getResumeId();
-        if (resumeId == null) {
+        if (resumeId == null)
             throw new RuntimeException("No resume found for this application");
-        }
-
-        // Redirect to the resume download endpoint
         String resumeUrl = "/api/resumes/" + resumeId + "/download";
-        return org.springframework.http.ResponseEntity
-                .status(org.springframework.http.HttpStatus.FOUND)
-                .header("Location", resumeUrl)
-                .build();
+        return ResponseEntity.status(org.springframework.http.HttpStatus.FOUND)
+                .header("Location", resumeUrl).build();
     }
 
     public void withdrawApplication(String applicationId, String candidateEmail) {
-        // Get the application
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
-
-        // Verify the application belongs to this candidate
         if (!application.getCandidateEmail().equals(candidateEmail)) {
             throw new RuntimeException("Not authorized to withdraw this application");
         }
-
-        // Delete the application
         applicationRepository.deleteById(applicationId);
     }
 }

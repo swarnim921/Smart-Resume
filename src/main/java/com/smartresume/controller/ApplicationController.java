@@ -61,23 +61,65 @@ public class ApplicationController {
         try {
             String status = request.get("status");
             String notes = request.get("notes");
+            String interviewDateTime = request.get("interviewDateTime");
             String recruiterEmail = auth.getName();
 
             Application application = applicationService.updateApplicationStatus(id, status, notes, recruiterEmail);
 
-            // Send status update email to candidate
+            // Set interview date/time if provided
+            if (interviewDateTime != null && !interviewDateTime.isEmpty()) {
+                try {
+                    java.time.LocalDateTime dt = java.time.LocalDateTime.parse(interviewDateTime);
+                    application.setInterviewDateTime(dt);
+                    // Save again with interview time
+                } catch (Exception ignored) {
+                }
+            }
+
+            // Send status update email with optional ICS attachment
             try {
                 String jobTitle = jobService.getJobById(application.getJobId())
                         .map(Job::getTitle).orElse("the position");
-                emailService.sendStatusUpdateEmail(
-                        application.getCandidateEmail(),
-                        application.getCandidateName(),
-                        jobTitle, status, notes);
+                String jobCompany = jobService.getJobById(application.getJobId())
+                        .map(Job::getCompany).orElse("the company");
+                if ("INTERVIEW".equals(status) && interviewDateTime != null && !interviewDateTime.isEmpty()) {
+                    emailService.sendInterviewEmailWithICS(
+                            application.getCandidateEmail(),
+                            application.getCandidateName(),
+                            jobTitle, jobCompany, interviewDateTime, notes);
+                } else {
+                    emailService.sendStatusUpdateEmail(
+                            application.getCandidateEmail(),
+                            application.getCandidateName(),
+                            jobTitle, status, notes);
+                }
             } catch (Exception emailEx) {
                 System.err.println("Email failed after status update: " + emailEx.getMessage());
             }
 
             return ResponseEntity.ok(application);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/reanalyze")
+    public ResponseEntity<?> reAnalyze(@PathVariable String id, Authentication auth) {
+        try {
+            String requesterEmail = auth.getName();
+            Application application = applicationService.reAnalyze(id, requesterEmail);
+            return ResponseEntity.ok(application);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/job/{jobId}/export.csv")
+    @PreAuthorize("hasRole('RECRUITER')")
+    public ResponseEntity<?> exportCsv(@PathVariable String jobId, Authentication auth) {
+        try {
+            String recruiterEmail = auth.getName();
+            return applicationService.exportCsv(jobId, recruiterEmail);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
