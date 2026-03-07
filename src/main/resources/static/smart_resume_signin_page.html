@@ -38,53 +38,20 @@
         }
 
         .shape-1 {
-            width: 400px;
-            height: 400px;
+            width: 500px;
+            height: 500px;
             background: rgba(147, 197, 253, 0.4);
             top: -100px;
             left: -100px;
         }
 
         .shape-2 {
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
             background: rgba(191, 219, 254, 0.5);
             bottom: -50px;
             right: -50px;
             animation-delay: -5s;
-        }
-
-        .star {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle, #fff 0%, transparent 100%);
-            border-radius: 50%;
-            filter: blur(2px);
-            animation: twinkle 4s infinite ease-in-out;
-            z-index: 0;
-        }
-
-        .star-1 {
-            top: 20%;
-            left: 30%;
-            animation-delay: 0s;
-        }
-
-        .star-2 {
-            top: 70%;
-            right: 20%;
-            animation-delay: 1s;
-            width: 30px;
-            height: 30px;
-        }
-
-        .star-3 {
-            top: 40%;
-            right: 40%;
-            animation-delay: 2s;
-            width: 15px;
-            height: 15px;
         }
 
         @keyframes float {
@@ -97,40 +64,28 @@
             }
         }
 
-        @keyframes twinkle {
-
-            0%,
-            100% {
-                opacity: 0.2;
-                transform: scale(0.8);
-            }
-
-            50% {
-                opacity: 0.8;
-                transform: scale(1.2);
-            }
-        }
-
-        /* Card Container */
-        .card {
+        /* Split Container - The $10k Startup UI Trick */
+        .container {
             position: relative;
             z-index: 10;
+            display: flex;
             width: 100%;
-            max-width: 420px;
-            padding: 40px 32px;
+            max-width: 960px;
+            min-height: 560px;
             background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+            animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes fadeIn {
+        @keyframes scaleIn {
             from {
                 opacity: 0;
-                transform: translateY(20px) scale(0.98);
+                transform: translateY(30px) scale(0.95);
             }
 
             to {
@@ -139,38 +94,122 @@
             }
         }
 
-        /* Badge */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(79, 125, 243, 0.1);
-            color: #1E56F0;
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            border: 1px solid rgba(79, 125, 243, 0.2);
-            letter-spacing: 0.02em;
+        /* Left Hero Panel */
+        .hero-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #4F7DF3 0%, #1E56F0 100%);
+            padding: 48px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Typography */
+        .hero-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-features {
+            list-style: none;
+            margin-top: 32px;
+        }
+
+        .hero-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        .feature-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            font-size: 12px;
+        }
+
+        /* Form side */
+        .form-panel {
+            width: 440px;
+            padding: 48px 40px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
         .header-text {
-            text-align: center;
+            text-align: left;
             margin-bottom: 28px;
         }
 
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            background: #eef2ff;
+            color: #4F46E5;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: 0.02em;
+        }
+
         .header-text h1 {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 700;
             color: #0f172a;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             letter-spacing: -0.03em;
         }
 
         .header-text p {
-            font-size: 14px;
+            font-size: 15px;
             color: #64748b;
             font-weight: 400;
         }
@@ -179,11 +218,11 @@
         .toggle-container {
             position: relative;
             display: flex;
-            background: rgba(241, 245, 249, 0.8);
+            background: #f8fafc;
             border-radius: 50px;
             padding: 4px;
             margin-bottom: 24px;
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            border: 1px solid #f1f5f9;
         }
 
         .toggle-slider {
@@ -194,7 +233,7 @@
             width: calc(50% - 4px);
             background: #ffffff;
             border-radius: 50px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
             transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
             z-index: 1;
         }
@@ -252,8 +291,8 @@
             font-size: 14px;
             color: #0f172a;
             outline: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
 
         .input-group label {
@@ -264,14 +303,16 @@
             font-size: 14px;
             color: #94a3b8;
             pointer-events: none;
-            transition: all 0.2s ease-out;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 2;
         }
 
         .input-group input:focus,
         .input-group input:not(:placeholder-shown) {
-            border-color: #4F7DF3;
+            border: 2px solid #4F7DF3;
             box-shadow: 0 0 0 4px rgba(79, 125, 243, 0.1);
+            padding: 21px 15px 9px 43px;
+            /* Adjust padding to offset 2px border */
         }
 
         .input-group input:focus+label,
@@ -302,12 +343,6 @@
             color: #475569;
         }
 
-        /* Validation & Password Strength */
-        .input-error {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
-        }
-
         .validation-msg {
             font-size: 12px;
             color: #ef4444;
@@ -317,7 +352,11 @@
             animation: fadeIn 0.3s ease;
         }
 
-        /* Password Options */
+        .input-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+        }
+
         .password-options {
             display: flex;
             justify-content: flex-end;
@@ -350,18 +389,17 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(79, 125, 243, 0.4);
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 20px rgba(79, 125, 243, 0.35);
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
-            overflow: hidden;
         }
 
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(79, 125, 243, 0.5);
+            box-shadow: 0 12px 24px rgba(79, 125, 243, 0.45);
         }
 
         .btn-primary:active:not(:disabled) {
@@ -375,7 +413,6 @@
             color: #f8fafc;
         }
 
-        /* Spinner */
         .spinner {
             display: none;
             width: 20px;
@@ -400,7 +437,6 @@
             display: block;
         }
 
-        /* Social Login */
         .divider {
             display: flex;
             align-items: center;
@@ -450,7 +486,6 @@
             color: #334155;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
 
         .btn-social:hover {
@@ -465,7 +500,6 @@
             height: 20px;
         }
 
-        /* Register Link */
         .register-prompt {
             text-align: center;
             margin-top: 24px;
@@ -485,7 +519,6 @@
             text-decoration: underline;
         }
 
-        /* Global Error Msg */
         #globalError {
             background: #fef2f2;
             color: #b91c1c;
@@ -500,21 +533,34 @@
         }
 
         /* Responsive */
-        @media (max-width: 480px) {
-            .card {
-                padding: 32px 24px;
-                border-radius: 16px;
-                box-shadow: none;
-                border: none;
-                background: rgba(255, 255, 255, 0.85);
-            }
-
-            body {
-                background: #ffffff;
-            }
-
-            .shape {
+        @media (max-width: 860px) {
+            .hero-panel {
                 display: none;
+            }
+
+            .container {
+                max-width: 440px;
+            }
+
+            .form-panel {
+                padding: 40px 32px;
+                border-radius: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+                min-height: 100vh;
+                border-radius: 0;
+                background: #ffffff;
+                border: none;
+                box-shadow: none;
+            }
+
+            .form-panel {
+                padding: 32px 24px;
+                width: 100%;
             }
         }
     </style>
@@ -523,110 +569,137 @@
 <body>
     <div class="shape shape-1"></div>
     <div class="shape shape-2"></div>
-    <div class="star star-1"></div>
-    <div class="star star-2"></div>
-    <div class="star star-3"></div>
 
-    <div class="card">
-        <div class="header-text">
-            <div class="badge">🚀 AI Resume Screening Platform</div>
-            <h1>Sign in to TalentSync</h1>
-            <p id="dynamicSubtitle">Find your next opportunity faster.</p>
+    <div class="container">
+        <!-- Hero Information Panel -->
+        <div class="hero-panel">
+            <div class="hero-content">
+                <div class="hero-logo">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                            fill="white" fill-opacity="0.2" />
+                        <path d="M15 9L11.838 15.324C11.5176 15.9647 10.6053 15.9647 10.285 15.324L8 10.75"
+                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M14 11V9" stroke="white" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    TalentSync
+                </div>
+                <div class="badge"
+                    style="background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.3); width: max-content; margin-bottom: 12px;">
+                    ⚡ AI-Powered
+                </div>
+                <h2 class="hero-title">Hire the <br>top 1% of talent <br>faster.</h2>
+                <ul class="hero-features">
+                    <li><span class="feature-icon">✓</span> AI Match Scoring for Resumes</li>
+                    <li><span class="feature-icon">✓</span> Automated Skill Gap Analysis</li>
+                    <li><span class="feature-icon">✓</span> 3x Faster Hiring Process</li>
+                </ul>
+            </div>
         </div>
 
-        <!-- Role Toggle -->
-        <div class="toggle-container">
-            <div class="toggle-slider" id="roleSlider"></div>
-            <button class="toggle-btn active" id="btnCandidate" onclick="setRole('candidate')">
-                👨‍💻 Candidate
-            </button>
-            <button class="toggle-btn" id="btnRecruiter" onclick="setRole('recruiter')">
-                🧑‍💼 Recruiter
-            </button>
-        </div>
-
-        <div id="globalError"></div>
-
-        <!-- Form -->
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <!-- Email -->
-            <div class="input-group">
-                <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                    </path>
-                </svg>
-                <input type="text" id="email" placeholder=" " oninput="validateForm()">
-                <label for="email">Email address</label>
-                <div class="validation-msg" id="emailError">Invalid email address</div>
+        <!-- Form Panel -->
+        <div class="form-panel">
+            <div class="header-text">
+                <h1>Sign in</h1>
+                <p id="dynamicSubtitle">Find your next opportunity faster.</p>
             </div>
 
-            <!-- Password -->
-            <div class="input-group">
-                <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                    </path>
-                </svg>
-                <input type="password" id="password" placeholder=" " oninput="validateForm()">
-                <label for="password">Password</label>
-                <button type="button" class="eye-toggle" onclick="togglePassword()">
-                    <svg id="eyeIcon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Role Toggle -->
+            <div class="toggle-container">
+                <div class="toggle-slider" id="roleSlider"></div>
+                <button class="toggle-btn active" id="btnCandidate" onclick="setRole('candidate')">
+                    👨‍💻 Candidate
+                </button>
+                <button class="toggle-btn" id="btnRecruiter" onclick="setRole('recruiter')">
+                    🧑‍💼 Recruiter
+                </button>
+            </div>
+
+            <div id="globalError"></div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <!-- Email -->
+                <div class="input-group">
+                    <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
                         </path>
                     </svg>
+                    <input type="text" id="email" placeholder=" " oninput="validateForm()">
+                    <label for="email">Email address</label>
+                    <div class="validation-msg" id="emailError">Invalid email address</div>
+                </div>
+
+                <!-- Password -->
+                <div class="input-group">
+                    <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                        </path>
+                    </svg>
+                    <input type="password" id="password" placeholder=" " oninput="validateForm()">
+                    <label for="password">Password</label>
+                    <button type="button" class="eye-toggle" onclick="togglePassword()">
+                        <svg id="eyeIcon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            </path>
+                        </svg>
+                    </button>
+                    <div class="validation-msg" id="pwdError">Password is required</div>
+                </div>
+
+                <!-- Options -->
+                <div class="password-options">
+                    <a href="#" class="forgot-link">Forgot Password?</a>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-primary" id="submitBtn" disabled>
+                    <span class="btn-text" id="btnText">Sign In</span>
+                    <div class="spinner"></div>
                 </button>
-                <div class="validation-msg" id="pwdError">Password is required</div>
+            </form>
+
+            <div class="divider">Or continue with</div>
+
+            <!-- Social -->
+            <div class="social-buttons">
+                <button class="btn-social" onclick="loginGoogle()">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                            fill="#4285F4" />
+                        <path
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            fill="#34A853" />
+                        <path
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                            fill="#FBBC05" />
+                        <path
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                            fill="#EA4335" />
+                    </svg>
+                    Continue with Google
+                </button>
+                <button class="btn-social" onclick="alert('LinkedIn SSO coming soon!')">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#0A66C2">
+                        <path
+                            d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    </svg>
+                    Continue with LinkedIn
+                </button>
             </div>
 
-            <!-- Options -->
-            <div class="password-options">
-                <a href="#" class="forgot-link">Forgot Password?</a>
+            <div class="register-prompt">
+                Don't have an account? <a href="#" id="registerLink">Register</a>
             </div>
-
-            <!-- Submit -->
-            <button type="submit" class="btn-primary" id="submitBtn" disabled>
-                <span class="btn-text">Sign In</span>
-                <div class="spinner"></div>
-            </button>
-        </form>
-
-        <div class="divider">Or continue with</div>
-
-        <!-- Social -->
-        <div class="social-buttons">
-            <button class="btn-social" onclick="loginGoogle()">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                        fill="#4285F4" />
-                    <path
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                        fill="#34A853" />
-                    <path
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                        fill="#FBBC05" />
-                    <path
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                        fill="#EA4335" />
-                </svg>
-                Continue with Google
-            </button>
-            <button class="btn-social" onclick="alert('LinkedIn SSO coming soon!')">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#0A66C2">
-                    <path
-                        d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                </svg>
-                Continue with LinkedIn
-            </button>
-        </div>
-
-        <!-- Register -->
-        <div class="register-prompt">
-            Don't have an account? <a href="#" id="registerLink">Register</a>
         </div>
     </div>
 
@@ -634,7 +707,6 @@
         const API = 'https://api.talentsynctech.in';
         let currentRole = 'candidate';
 
-        // --- UI Logic ---
         function setRole(role) {
             currentRole = role;
             const slider = document.getElementById('roleSlider');
@@ -661,7 +733,7 @@
                 icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>';
             } else {
                 pwd.type = 'password';
-                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';
             }
         }
 
@@ -676,8 +748,6 @@
             const btn = document.getElementById('submitBtn');
 
             let isValid = true;
-
-            // Email validation
             if (emailInput.value && !validateEmail(emailInput.value)) {
                 emailInput.classList.add('input-error');
                 emailError.style.display = 'block';
@@ -686,15 +756,10 @@
                 emailInput.classList.remove('input-error');
                 emailError.style.display = 'none';
             }
-            if (!emailInput.value) isValid = false;
-
-            // Password validation
-            if (!pwdInput.value) isValid = false;
-
+            if (!emailInput.value || !pwdInput.value) isValid = false;
             btn.disabled = !isValid;
         }
 
-        // --- Core Authentication Logic ---
         function showError(msg) {
             const el = document.getElementById('globalError');
             el.textContent = msg;
@@ -707,6 +772,7 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.getElementById('submitBtn');
+            const txt = document.getElementById('btnText');
 
             btn.classList.add('loading');
             btn.disabled = true;
@@ -720,7 +786,6 @@
 
                 if (!r.ok) throw new Error('Invalid email or password');
                 const data = await r.json();
-
                 const backendRole = data.role === 'user' ? 'candidate' : data.role;
                 if (currentRole !== backendRole) {
                     throw new Error(`This account is registered as ${backendRole}. Please select the correct role.`);
@@ -729,7 +794,6 @@
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email, role: backendRole }));
                 window.location.href = backendRole === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
-
             } catch (err) {
                 showError(err.message);
                 btn.classList.remove('loading');
@@ -743,7 +807,6 @@
             window.location.href = `${API}/oauth2/authorization/google`;
         }
 
-        // Handle OAuth callback
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('token')) {
             const token = urlParams.get('token');
@@ -755,10 +818,8 @@
             window.location.href = role === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
         }
 
-        // Initialize state
         setRole('candidate');
 
-        // Auto-login check
         window.addEventListener('load', () => {
             if (localStorage.getItem('token')) {
                 const user = JSON.parse(localStorage.getItem('user') || '{}');

@@ -38,53 +38,20 @@
         }
 
         .shape-1 {
-            width: 400px;
-            height: 400px;
+            width: 500px;
+            height: 500px;
             background: rgba(147, 197, 253, 0.4);
             top: -100px;
             left: -100px;
         }
 
         .shape-2 {
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
             background: rgba(191, 219, 254, 0.5);
             bottom: -50px;
             right: -50px;
             animation-delay: -5s;
-        }
-
-        .star {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle, #fff 0%, transparent 100%);
-            border-radius: 50%;
-            filter: blur(2px);
-            animation: twinkle 4s infinite ease-in-out;
-            z-index: 0;
-        }
-
-        .star-1 {
-            top: 20%;
-            left: 30%;
-            animation-delay: 0s;
-        }
-
-        .star-2 {
-            top: 70%;
-            right: 20%;
-            animation-delay: 1s;
-            width: 30px;
-            height: 30px;
-        }
-
-        .star-3 {
-            top: 40%;
-            right: 40%;
-            animation-delay: 2s;
-            width: 15px;
-            height: 15px;
         }
 
         @keyframes float {
@@ -97,40 +64,28 @@
             }
         }
 
-        @keyframes twinkle {
-
-            0%,
-            100% {
-                opacity: 0.2;
-                transform: scale(0.8);
-            }
-
-            50% {
-                opacity: 0.8;
-                transform: scale(1.2);
-            }
-        }
-
-        /* Card Container */
-        .card {
+        /* Split Container - The $10k Startup UI Trick */
+        .container {
             position: relative;
             z-index: 10;
+            display: flex;
             width: 100%;
-            max-width: 420px;
-            padding: 40px 32px;
+            max-width: 960px;
+            min-height: 560px;
             background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+            animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes fadeIn {
+        @keyframes scaleIn {
             from {
                 opacity: 0;
-                transform: translateY(20px) scale(0.98);
+                transform: translateY(30px) scale(0.95);
             }
 
             to {
@@ -139,38 +94,122 @@
             }
         }
 
-        /* Badge */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(79, 125, 243, 0.1);
-            color: #1E56F0;
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            border: 1px solid rgba(79, 125, 243, 0.2);
-            letter-spacing: 0.02em;
+        /* Left Hero Panel */
+        .hero-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #4F7DF3 0%, #1E56F0 100%);
+            padding: 48px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Typography */
+        .hero-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-features {
+            list-style: none;
+            margin-top: 32px;
+        }
+
+        .hero-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        .feature-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            font-size: 12px;
+        }
+
+        /* Form side */
+        .form-panel {
+            width: 440px;
+            padding: 48px 40px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
         .header-text {
-            text-align: center;
+            text-align: left;
             margin-bottom: 28px;
         }
 
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            background: #eef2ff;
+            color: #4F46E5;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: 0.02em;
+        }
+
         .header-text h1 {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 700;
             color: #0f172a;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             letter-spacing: -0.03em;
         }
 
         .header-text p {
-            font-size: 14px;
+            font-size: 15px;
             color: #64748b;
             font-weight: 400;
         }
@@ -179,11 +218,11 @@
         .toggle-container {
             position: relative;
             display: flex;
-            background: rgba(241, 245, 249, 0.8);
+            background: #f8fafc;
             border-radius: 50px;
             padding: 4px;
             margin-bottom: 24px;
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            border: 1px solid #f1f5f9;
         }
 
         .toggle-slider {
@@ -194,7 +233,7 @@
             width: calc(50% - 4px);
             background: #ffffff;
             border-radius: 50px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
             transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
             z-index: 1;
         }
@@ -252,8 +291,8 @@
             font-size: 14px;
             color: #0f172a;
             outline: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
 
         .input-group label {
@@ -264,14 +303,15 @@
             font-size: 14px;
             color: #94a3b8;
             pointer-events: none;
-            transition: all 0.2s ease-out;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 2;
         }
 
         .input-group input:focus,
         .input-group input:not(:placeholder-shown) {
-            border-color: #4F7DF3;
+            border: 2px solid #4F7DF3;
             box-shadow: 0 0 0 4px rgba(79, 125, 243, 0.1);
+            padding: 21px 15px 9px 43px;
         }
 
         .input-group input:focus+label,
@@ -283,20 +323,6 @@
 
         .input-group input:focus~.input-icon {
             color: #4F7DF3;
-        }
-
-        #verificationCode {
-            text-align: center !important;
-            letter-spacing: 6px !important;
-            font-size: 18px !important;
-            font-weight: 700 !important;
-            text-transform: none !important;
-            padding-left: 16px;
-            /* Reset padding for center align */
-        }
-
-        #verificationCode~label {
-            display: none;
         }
 
         .eye-toggle {
@@ -317,12 +343,6 @@
             color: #475569;
         }
 
-        /* Validation */
-        .input-error {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
-        }
-
         .validation-msg {
             font-size: 12px;
             color: #ef4444;
@@ -330,6 +350,11 @@
             margin-left: 4px;
             display: none;
             animation: fadeIn 0.3s ease;
+        }
+
+        .input-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
         }
 
         /* Primary Button */
@@ -344,19 +369,19 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(79, 125, 243, 0.4);
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 20px rgba(79, 125, 243, 0.35);
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
-            overflow: hidden;
             margin-bottom: 12px;
+            margin-top: 4px;
         }
 
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(79, 125, 243, 0.5);
+            box-shadow: 0 12px 24px rgba(79, 125, 243, 0.45);
         }
 
         .btn-primary:active:not(:disabled) {
@@ -371,20 +396,19 @@
         }
 
         .btn-secondary {
-            background: rgba(241, 245, 249, 0.8);
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
             color: #64748b;
             box-shadow: none;
         }
 
         .btn-secondary:hover:not(:disabled) {
-            background: rgba(226, 232, 240, 0.8);
+            background: #f1f5f9;
             color: #334155;
             transform: translateY(-1px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
-        /* Spinner */
         .spinner {
             display: none;
             width: 20px;
@@ -409,16 +433,6 @@
             display: block;
         }
 
-        .btn-secondary.loading .btn-text {
-            display: none;
-        }
-
-        .btn-secondary.loading .spinner {
-            display: block;
-            border-top-color: #64748b;
-        }
-
-        /* Sign In Link */
         .signin-prompt {
             text-align: center;
             margin-top: 24px;
@@ -438,7 +452,6 @@
             text-decoration: underline;
         }
 
-        /* Global Error Msg */
         #globalError {
             background: #fef2f2;
             color: #b91c1c;
@@ -452,16 +465,15 @@
             animation: fadeIn 0.3s ease;
         }
 
-        /* Verify Section */
         #verifySection {
             display: none;
         }
 
         .verify-text {
-            text-align: center;
+            text-align: left;
             font-size: 14px;
             color: #64748b;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             line-height: 1.6;
         }
 
@@ -470,22 +482,48 @@
             font-weight: 600;
         }
 
+        #verificationCode {
+            text-align: center !important;
+            letter-spacing: 8px !important;
+            font-size: 20px !important;
+            font-weight: 700 !important;
+            text-transform: none !important;
+            padding-left: 16px;
+        }
+
+        #verificationCode~label {
+            display: none;
+        }
+
         /* Responsive */
-        @media (max-width: 480px) {
-            .card {
-                padding: 32px 24px;
-                border-radius: 16px;
-                box-shadow: none;
-                border: none;
-                background: rgba(255, 255, 255, 0.85);
-            }
-
-            body {
-                background: #ffffff;
-            }
-
-            .shape {
+        @media (max-width: 860px) {
+            .hero-panel {
                 display: none;
+            }
+
+            .container {
+                max-width: 440px;
+            }
+
+            .form-panel {
+                padding: 40px 32px;
+                border-radius: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+                min-height: 100vh;
+                border-radius: 0;
+                background: #ffffff;
+                border: none;
+                box-shadow: none;
+            }
+
+            .form-panel {
+                padding: 32px 24px;
+                width: 100%;
             }
         }
     </style>
@@ -494,112 +532,139 @@
 <body>
     <div class="shape shape-1"></div>
     <div class="shape shape-2"></div>
-    <div class="star star-1"></div>
-    <div class="star star-2"></div>
-    <div class="star star-3"></div>
 
-    <div class="card">
-        <div class="header-text" id="headerText">
-            <div class="badge">🚀 AI Resume Screening Platform</div>
-            <h1>Create Account</h1>
-            <p id="dynamicSubtitle">Join TalentSync to get started.</p>
+    <div class="container">
+        <!-- Hero Information Panel -->
+        <div class="hero-panel">
+            <div class="hero-content">
+                <div class="hero-logo">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                            fill="white" fill-opacity="0.2" />
+                        <path d="M15 9L11.838 15.324C11.5176 15.9647 10.6053 15.9647 10.285 15.324L8 10.75"
+                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M14 11V9" stroke="white" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    TalentSync
+                </div>
+                <div class="badge"
+                    style="background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.3); width: max-content; margin-bottom: 12px;">
+                    ⚡ AI-Powered
+                </div>
+                <h2 class="hero-title">Hire the <br>top 1% of talent <br>faster.</h2>
+                <ul class="hero-features">
+                    <li><span class="feature-icon">✓</span> AI Match Scoring for Resumes</li>
+                    <li><span class="feature-icon">✓</span> Automated Skill Gap Analysis</li>
+                    <li><span class="feature-icon">✓</span> 3x Faster Hiring Process</li>
+                </ul>
+            </div>
         </div>
 
-        <!-- Role Toggle -->
-        <div class="toggle-container" id="roleToggle">
-            <div class="toggle-slider" id="roleSlider"></div>
-            <button class="toggle-btn active" id="btnCandidate" onclick="setRole('candidate')">
-                👨‍💻 Candidate
-            </button>
-            <button class="toggle-btn" id="btnRecruiter" onclick="setRole('recruiter')">
-                🧑‍💼 Recruiter
-            </button>
-        </div>
+        <!-- Form Panel -->
+        <div class="form-panel">
+            <div class="header-text" id="headerText">
+                <h1>Create Account</h1>
+                <p id="dynamicSubtitle">Join TalentSync to get started.</p>
+            </div>
 
-        <div id="globalError"></div>
+            <!-- Role Toggle -->
+            <div class="toggle-container" id="roleToggle">
+                <div class="toggle-slider" id="roleSlider"></div>
+                <button class="toggle-btn active" id="btnCandidate" onclick="setRole('candidate')">
+                    👨‍💻 Candidate
+                </button>
+                <button class="toggle-btn" id="btnRecruiter" onclick="setRole('recruiter')">
+                    🧑‍💼 Recruiter
+                </button>
+            </div>
 
-        <!-- Signup Form -->
-        <div id="signupSection">
-            <form id="signupForm" onsubmit="handleSignup(event)">
-                <!-- Full Name -->
-                <div class="input-group">
-                    <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                    <input type="text" id="name" placeholder=" " required oninput="validateSignupForm()">
-                    <label for="name">Full Name</label>
-                </div>
+            <div id="globalError"></div>
 
-                <!-- Email -->
-                <div class="input-group">
-                    <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                        </path>
-                    </svg>
-                    <input type="text" id="email" placeholder=" " required oninput="validateSignupForm()">
-                    <label for="email">Email address</label>
-                    <div class="validation-msg" id="emailError">Invalid email address</div>
-                </div>
-
-                <!-- Password -->
-                <div class="input-group">
-                    <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                        </path>
-                    </svg>
-                    <input type="password" id="password" placeholder=" " required oninput="validateSignupForm()">
-                    <label for="password">Password (min 6 chars)</label>
-                    <button type="button" class="eye-toggle" onclick="togglePassword()">
-                        <svg id="eyeIcon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div id="signupSection">
+                <form id="signupForm" onsubmit="handleSignup(event)">
+                    <!-- Full Name -->
+                    <div class="input-group">
+                        <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        <input type="text" id="name" placeholder=" " required oninput="validateSignupForm()">
+                        <label for="name">Full Name</label>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="input-group">
+                        <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
                             </path>
                         </svg>
+                        <input type="text" id="email" placeholder=" " required oninput="validateSignupForm()">
+                        <label for="email">Email address</label>
+                        <div class="validation-msg" id="emailError">Invalid email address</div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="input-group">
+                        <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                            </path>
+                        </svg>
+                        <input type="password" id="password" placeholder=" " required oninput="validateSignupForm()">
+                        <label for="password">Password (min 6 chars)</label>
+                        <button type="button" class="eye-toggle" onclick="togglePassword()">
+                            <svg id="eyeIcon" width="20" height="20" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                </path>
+                            </svg>
+                        </button>
+                        <div class="validation-msg" id="pwdError">Password must be at least 6 characters</div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn-primary" id="createBtn" disabled>
+                        <span class="btn-text">Create Account</span>
+                        <div class="spinner"></div>
                     </button>
-                    <div class="validation-msg" id="pwdError">Password must be at least 6 characters</div>
+                </form>
+
+                <div class="signin-prompt" id="signinLinkRef">
+                    Already have an account? <a href="/smart_resume_signin_page.html">Sign In</a>
                 </div>
-
-                <!-- Submit -->
-                <button type="submit" class="btn-primary" id="createBtn" disabled>
-                    <span class="btn-text">Create Account</span>
-                    <div class="spinner"></div>
-                </button>
-            </form>
-
-            <div class="signin-prompt" id="signinLinkRef">
-                Already have an account? <a href="/smart_resume_signin_page.html">Sign In</a>
             </div>
-        </div>
 
-        <!-- Verify Section -->
-        <div id="verifySection">
-            <div class="verify-text">
-                We've sent a verification code to<br>
-                <b id="verifyEmailDisplay"></b><br>
-                Please enter it below to verify your email.
-            </div>
-            <form id="verifyForm" onsubmit="handleVerify(event)">
-                <div class="input-group">
-                    <input type="text" id="verificationCode" placeholder="000000" required maxlength="6"
-                        oninput="validateVerifyForm()">
+            <!-- Verify Section -->
+            <div id="verifySection">
+                <div class="verify-text">
+                    We've sent a 6-digit code to<br>
+                    <b id="verifyEmailDisplay"></b><br>
+                    Please enter it to verify your account.
                 </div>
-                <button type="submit" class="btn-primary" id="verifyBtn" disabled>
-                    <span class="btn-text">Verify Email</span>
-                    <div class="spinner"></div>
-                </button>
-                <button type="button" class="btn-primary btn-secondary" id="resendBtn" onclick="resendCode()">
-                    <span class="btn-text">Resend Code</span>
-                    <div class="spinner"></div>
-                </button>
-            </form>
+                <form id="verifyForm" onsubmit="handleVerify(event)">
+                    <div class="input-group">
+                        <input type="text" id="verificationCode" placeholder="000000" required maxlength="6"
+                            oninput="validateVerifyForm()">
+                    </div>
+                    <button type="submit" class="btn-primary" id="verifyBtn" disabled>
+                        <span class="btn-text">Verify Email</span>
+                        <div class="spinner"></div>
+                    </button>
+                    <button type="button" class="btn-primary btn-secondary" id="resendBtn" onclick="resendCode()">
+                        <span class="btn-text">Resend Code</span>
+                        <div class="spinner"></div>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -608,7 +673,6 @@
         let currentRole = 'candidate';
         let registeredEmail = '';
 
-        // --- UI Logic ---
         function setRole(role) {
             currentRole = role;
             const slider = document.getElementById('roleSlider');
@@ -626,7 +690,6 @@
             }
         }
 
-        // Pre-select role from URL param
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('role') === 'recruiter') setRole('recruiter');
         else setRole('candidate');
@@ -656,8 +719,6 @@
             const btn = document.getElementById('createBtn');
 
             let isValid = true;
-
-            // Email validation
             if (emailInput.value && !validateEmail(emailInput.value)) {
                 emailInput.classList.add('input-error');
                 emailError.style.display = 'block';
@@ -666,7 +727,6 @@
                 emailInput.classList.remove('input-error');
                 emailError.style.display = 'none';
             }
-            // Password validation (min 6)
             if (pwdInput.value && pwdInput.value.length < 6) {
                 pwdInput.classList.add('input-error');
                 pwdError.style.display = 'block';
@@ -675,7 +735,6 @@
                 pwdInput.classList.remove('input-error');
                 pwdError.style.display = 'none';
             }
-
             if (!nameInput.value || !emailInput.value || !pwdInput.value || pwdInput.value.length < 6) isValid = false;
             btn.disabled = !isValid;
         }
@@ -686,7 +745,6 @@
             btn.disabled = codeInput.value.length < 6;
         }
 
-        // --- Core Authentication Logic ---
         function showError(msg) {
             const el = document.getElementById('globalError');
             el.textContent = msg;
@@ -715,10 +773,8 @@
                 registeredEmail = email;
                 document.getElementById('verifyEmailDisplay').textContent = email;
 
-                // Switch modes smoothly
                 document.getElementById('signupSection').style.display = 'none';
                 document.getElementById('roleToggle').style.display = 'none';
-
                 document.getElementById('headerText').innerHTML = '<h1>Verify Email</h1><p>Check your inbox for the code.</p>';
                 document.getElementById('verifySection').style.display = 'block';
 
