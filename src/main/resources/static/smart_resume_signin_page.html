@@ -284,7 +284,7 @@
         .input-group input {
             width: 100%;
             padding: 22px 16px 10px 44px;
-            background: #ffffff;
+            background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             font-family: inherit;
@@ -292,7 +292,7 @@
             color: #0f172a;
             outline: none;
             transition: all 0.25s ease;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
         }
 
         .input-group label {
@@ -309,6 +309,7 @@
 
         .input-group input:focus,
         .input-group input:not(:placeholder-shown) {
+            background: #ffffff;
             border: 2px solid #4F7DF3;
             box-shadow: 0 0 0 4px rgba(79, 125, 243, 0.1);
             padding: 21px 15px 9px 43px;
@@ -407,10 +408,9 @@
         }
 
         .btn-primary:disabled {
-            background: #cbd5e1;
+            opacity: 0.6;
             box-shadow: none;
             cursor: not-allowed;
-            color: #f8fafc;
         }
 
         .spinner {
