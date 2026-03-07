@@ -44,13 +44,13 @@ public class MLIntegrationService {
                 return convertToMLResult(mlResponse);
             }
         } catch (Exception e) {
-            log.error("Error calling ML service: {}", e.getMessage());
-            // Fall back to mock data if ML service fails
-            return createMockResult(resumeText, jobTitle);
+            log.error("ML service unavailable: {}", e.getMessage());
+            // Return null — ApplicationService will save null score (shows as "-" in UI)
+            return null;
         }
 
         // Fallback if response wasn't OK
-        return createMockResult(resumeText, jobTitle);
+        return null;
     }
 
     /**
@@ -188,14 +188,5 @@ public class MLIntegrationService {
         return result;
     }
 
-    // Mock data generator - Remove when ML service is ready
-    private MLAnalysisResult createMockResult(String resumeText, String jobTitle) {
-        MLAnalysisResult result = new MLAnalysisResult();
-        result.setMatchScore(85.5);
-        result.setSkillsMatched(Arrays.asList("Python", "Java", "React"));
-        result.setSkillsGap(Arrays.asList("AWS", "Docker"));
-        result.setConfidence(0.87);
-        result.setStatus("COMPLETED");
-        return result;
-    }
+    // Mock data generator removed — null is returned when ML service is unavailable
 }
