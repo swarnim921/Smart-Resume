@@ -1,7 +1,10 @@
 package com.smartresume.controller;
 
 import com.smartresume.model.Application;
+import com.smartresume.model.Job;
 import com.smartresume.service.ApplicationService;
+import com.smartresume.service.EmailService;
+import com.smartresume.service.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +19,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ApplicationController {
     private final ApplicationService applicationService;
+    private final EmailService emailService;
+    private final JobService jobService;
 
     @PostMapping
     public ResponseEntity<?> applyToJob(@RequestBody Map<String, String> request, Authentication auth) {
@@ -57,7 +62,21 @@ public class ApplicationController {
             String status = request.get("status");
             String notes = request.get("notes");
             String recruiterEmail = auth.getName();
+
             Application application = applicationService.updateApplicationStatus(id, status, notes, recruiterEmail);
+
+            // Send status update email to candidate
+            try {
+                String jobTitle = jobService.getJobById(application.getJobId())
+                        .map(Job::getTitle).orElse("the position");
+                emailService.sendStatusUpdateEmail(
+                        application.getCandidateEmail(),
+                        application.getCandidateName(),
+                        jobTitle, status, notes);
+            } catch (Exception emailEx) {
+                System.err.println("Email failed after status update: " + emailEx.getMessage());
+            }
+
             return ResponseEntity.ok(application);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -69,7 +88,6 @@ public class ApplicationController {
     public ResponseEntity<?> getApplicationResume(@PathVariable String id, Authentication auth) {
         try {
             String recruiterEmail = auth.getName();
-            // Get resume for this application (validates recruiter owns the job)
             return applicationService.getApplicationResume(id, recruiterEmail);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

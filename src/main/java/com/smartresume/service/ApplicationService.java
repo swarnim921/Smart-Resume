@@ -23,6 +23,9 @@ public class ApplicationService {
     private final ResumeRepository resumeRepository;
     private final MLIntegrationService mlIntegrationService;
     private final ResumeService resumeService;
+    private final EmailService emailService;
+
+    private static final double ATS_THRESHOLD = 50.0;
 
     public Application applyToJob(String jobId, String candidateEmail) {
         // Check if job exists
@@ -53,30 +56,47 @@ public class ApplicationService {
         application.setCandidateEmail(candidateEmail);
         application.setCandidateName(user.getName());
         application.setResumeId(resume.getId());
-        application.setStatus("PENDING");
         application.setAppliedAt(LocalDateTime.now());
 
-        // Calculate ML match score
+        // Run ATS/ML scoring
         try {
-            // Extract text from PDF resume
             String resumeText = resumeService.extractTextFromResume(resume.getId());
             String jobDescription = job.getDescription() + " " + job.getRequirements();
 
             var mlResult = mlIntegrationService.analyzeMatch(
-                    resumeText,
-                    jobDescription,
-                    job.getTitle(),
-                    job.getRequirements());
+                    resumeText, jobDescription, job.getTitle(), job.getRequirements());
 
-            application.setMatchScore(mlResult.getMatchScore());
-            application.setSkillsGap(mlResult.getSkillsGap());
-            System.out.println("✅ ML match score calculated: " + mlResult.getMatchScore());
-            System.out.println("✅ Skills gap identified: " + mlResult.getSkillsGap());
+            if (mlResult != null) {
+                application.setMatchScore(mlResult.getMatchScore());
+                application.setSkillsGap(mlResult.getSkillsGap());
+
+                // ATS auto-rejection or pass
+                if (mlResult.getMatchScore() < ATS_THRESHOLD) {
+                    application.setStatus("ATS_REJECTED");
+                    System.out.println(
+                            "❌ ATS rejected: score=" + mlResult.getMatchScore() + " threshold=" + ATS_THRESHOLD);
+                    // Save first, then email
+                    Application saved = applicationRepository.save(application);
+                    emailService.sendStatusUpdateEmail(
+                            candidateEmail, user.getName(), job.getTitle(), "ATS_REJECTED", null);
+                    return saved;
+                } else {
+                    application.setStatus("UNDER_REVIEW");
+                    System.out.println("✅ ATS passed: score=" + mlResult.getMatchScore());
+                    Application saved = applicationRepository.save(application);
+                    emailService.sendStatusUpdateEmail(
+                            candidateEmail, user.getName(), job.getTitle(), "UNDER_REVIEW", null);
+                    return saved;
+                }
+            } else {
+                // ML unavailable — save as PENDING (no auto-rejection without a score)
+                application.setStatus("PENDING");
+                application.setMatchScore(null);
+                application.setSkillsGap(null);
+            }
         } catch (Exception e) {
-            // If ML service or PDF extraction fails, set null score (will show as "-" in
-            // UI)
-            System.err.println("❌ ML integration failed: " + e.getClass().getName() + " - " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("❌ ML/ATS failed: " + e.getClass().getName() + " - " + e.getMessage());
+            application.setStatus("PENDING");
             application.setMatchScore(null);
             application.setSkillsGap(null);
         }
