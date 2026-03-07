@@ -1,10 +1,14 @@
 package com.smartresume.service;
 
+import com.smartresume.model.HiringStage;
+import com.smartresume.model.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class EmailService {
@@ -127,5 +131,68 @@ public class EmailService {
             // Don't crash the status update if email fails — log and continue
             System.err.println("Failed to send status email to " + toEmail + ": " + e.getMessage());
         }
+    }
+
+    /**
+     * Send status update email using the job's custom pipeline template if
+     * available,
+     * otherwise fall back to the default system template.
+     *
+     * @param toEmail       Candidate email
+     * @param candidateName Candidate full name
+     * @param job           The job (may contain custom hiringPipeline)
+     * @param stageKey      Status key e.g. "STAGE_1", "INTERVIEW", "SHORTLISTED"
+     * @param stageName     Human-readable stage name e.g. "Round 1: Coding Test"
+     * @param notes         Optional recruiter notes appended to the body
+     */
+    public void sendStatusUpdateEmailWithJob(String toEmail, String candidateName,
+            Job job, String stageKey, String stageName, String notes) {
+        try {
+            // Look for a custom template in the job's hiring pipeline
+            if (job != null && job.getHiringPipeline() != null) {
+                List<HiringStage> pipeline = job.getHiringPipeline();
+                for (HiringStage stage : pipeline) {
+                    boolean matchesKey = stageKey.equalsIgnoreCase(stage.getStageKey());
+                    boolean matchesName = stageName != null && stageName.equalsIgnoreCase(stage.getStageName());
+                    if (stage.isCustomTemplate() && (matchesKey || matchesName)) {
+                        // Use the recruiter's custom template with placeholder substitution
+                        String notesText = (notes != null && !notes.isEmpty()) ? notes : "";
+                        String subject = substitute(stage.getEmailSubject(), candidateName, job.getTitle(),
+                                stage.getStageName(), job.getCompany(), notesText);
+                        String body = substitute(stage.getEmailBody(), candidateName, job.getTitle(),
+                                stage.getStageName(), job.getCompany(), notesText);
+
+                        SimpleMailMessage message = new SimpleMailMessage();
+                        String sender = (fromEmail != null && !fromEmail.isEmpty()) ? fromEmail
+                                : "noreply@talentsync.in";
+                        message.setFrom(sender);
+                        message.setTo(toEmail);
+                        message.setSubject(subject);
+                        message.setText(body);
+                        mailSender.send(message);
+                        System.out.println("✅ Custom pipeline email sent for stage: " + stage.getStageName());
+                        return; // Custom template sent — done
+                    }
+                }
+            }
+            // No custom template found — fall back to default
+            sendStatusUpdateEmail(toEmail, candidateName, job != null ? job.getTitle() : "the position", stageKey,
+                    notes);
+        } catch (Exception e) {
+            System.err.println("Failed to send pipeline stage email to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
+    /** Replace template placeholders with actual values */
+    private String substitute(String template, String candidateName, String jobTitle,
+            String stageName, String companyName, String notes) {
+        if (template == null)
+            return "";
+        return template
+                .replace("{{candidateName}}", candidateName != null ? candidateName : "")
+                .replace("{{jobTitle}}", jobTitle != null ? jobTitle : "")
+                .replace("{{stageName}}", stageName != null ? stageName : "")
+                .replace("{{companyName}}", companyName != null ? companyName : "")
+                .replace("{{recruiterNotes}}", notes != null && !notes.isEmpty() ? "Note: " + notes : "");
     }
 }
