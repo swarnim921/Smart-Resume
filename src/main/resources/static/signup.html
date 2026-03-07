@@ -72,12 +72,12 @@
             width: 100%;
             max-width: 960px;
             min-height: 560px;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.9);
             border-radius: 24px;
-            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
             overflow: hidden;
             animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -96,8 +96,11 @@
 
         /* Left Hero Panel */
         .hero-panel {
-            flex: 1;
-            background: linear-gradient(135deg, #4F7DF3 0%, #1E56F0 100%);
+            flex: 0 0 45%;
+            max-width: 45%;
+            background: linear-gradient(135deg, #2563eb, #3b82f6, #6366f1, #4F7DF3);
+            background-size: 200% 200%;
+            animation: gradientMove 8s ease infinite;
             padding: 48px;
             color: white;
             display: flex;
@@ -105,6 +108,20 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
+        }
+
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .hero-panel::before {
@@ -174,7 +191,8 @@
 
         /* Form side */
         .form-panel {
-            width: 440px;
+            flex: 0 0 55%;
+            max-width: 55%;
             padding: 48px 40px;
             background: white;
             display: flex;
@@ -498,6 +516,73 @@
             display: none;
         }
 
+        .shape-3 {
+            width: 300px;
+            height: 300px;
+            background: rgba(167, 139, 250, 0.3);
+            top: 40%;
+            left: 50%;
+            animation-delay: -2s;
+            animation: float 12s ease-in-out infinite alternate-reverse;
+        }
+
+        /* AI Preview Card */
+        .ai-preview-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 32px;
+            width: 90%;
+            transform: rotate(-2deg);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-preview-card:hover {
+            transform: rotate(0deg) translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .ai-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .ai-score {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        .ai-skills p {
+            margin-bottom: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skill-match {
+            color: #a7f3d0;
+        }
+
+        .skill-missing {
+            color: #fcd34d;
+        }
+
         /* Responsive */
         @media (max-width: 860px) {
             .hero-panel {
@@ -509,6 +594,9 @@
             }
 
             .form-panel {
+                flex: none;
+                max-width: 100%;
+                width: 100%;
                 padding: 40px 32px;
                 border-radius: 24px;
             }
@@ -535,6 +623,7 @@
 <body>
     <div class="shape shape-1"></div>
     <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
 
     <div class="container">
         <!-- Hero Information Panel -->
@@ -562,6 +651,22 @@
                     <li><span class="feature-icon">✓</span> Automated Skill Gap Analysis</li>
                     <li><span class="feature-icon">✓</span> 3x Faster Hiring Process</li>
                 </ul>
+                <div class="ai-preview-card">
+                    <div class="ai-preview-header">
+                        <span>AI Resume Score</span>
+                        <span class="ai-score">John Doe - 92%</span>
+                    </div>
+                    <div class="ai-skills">
+                        <p style="font-weight: 600; margin-bottom: 12px; font-size: 14px; opacity: 0.9; color: white;">
+                            Skills Match</p>
+                        <p class="skill-match">✓ Python</p>
+                        <p class="skill-match">✓ Machine Learning</p>
+                        <p class="skill-match">✓ TensorFlow</p>
+                        <p class="skill-missing"
+                            style="margin-top: 12px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 12px;">⚠
+                            Missing: Kubernetes</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -640,6 +745,12 @@
                         <div class="spinner"></div>
                     </button>
                 </form>
+
+                <div
+                    style="text-align: center; font-size: 12px; color: #64748b; margin-top: 16px; margin-bottom: 12px; font-weight: 500;">
+                    <span style="display:inline-flex; align-items:center; gap:4px;">🔒 Secure login powered by
+                        TalentSync AI</span>
+                </div>
 
                 <div class="signin-prompt" id="signinLinkRef">
                     Already have an account? <a href="/smart_resume_signin_page.html">Sign In</a>
