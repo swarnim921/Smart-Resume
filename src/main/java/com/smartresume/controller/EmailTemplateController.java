@@ -153,7 +153,7 @@ Recruitment Team
             body = """
 Dear {{candidateName}},
 
-Congratulations on progressing to the {{stageName}} for the role of {{jobTitle}} at """ + company + """.
+Congratulations on progressing to the {{stageName}} for the role of {{jobTitle}} at """ + company + """
 
 We would like to invite you to complete an online coding challenge as part of our evaluation process.
 
