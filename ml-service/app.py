@@ -140,4 +140,4 @@ if __name__ == '__main__':
     print("  - POST /api/ml/recommend-courses")
     print("  - POST /api/ml/batch-analyze")
     print("✅ Using real ML model (SentenceTransformer)")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)

@@ -115,10 +115,10 @@ public class EmailTemplateController {
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<Map<String, String>> generateTemplate(@RequestBody Map<String, String> request) {
         String stageName = request.getOrDefault("stageName", "").toLowerCase();
-        String jobTitle  = request.getOrDefault("jobTitle", "{{jobTitle}}");
-        String company   = request.getOrDefault("companyName", "our company");
-        String order     = request.getOrDefault("stageOrder", "");
-        String rawName   = request.getOrDefault("stageName", "Round " + order);
+        String jobTitle = request.getOrDefault("jobTitle", "{{jobTitle}}");
+        String company = request.getOrDefault("companyName", "our company");
+        String order = request.getOrDefault("stageOrder", "");
+        String rawName = request.getOrDefault("stageName", "Round " + order);
 
         String subject;
         String body;
@@ -126,184 +126,167 @@ public class EmailTemplateController {
         if (matches(stageName, "apti", "reasoning", "verbal", "english", "cognitive", "psycho")) {
             subject = "📝 Assessment Invitation — " + jobTitle + " | " + company;
             body = """
-Dear {{candidateName}},
+                    Dear {{candidateName}},
 
-Thank you for applying for the position of {{jobTitle}} at {{companyName}}.
+                    Thank you for applying for the position of {{jobTitle}} at {{companyName}}.
 
-We are pleased to invite you to the next step in our hiring process — the Online Assessment for {{stageName}}.
+                    We are pleased to invite you to the next step in our hiring process — the Online Assessment for {{stageName}}.
 
-📋 Assessment Details:
-• Type: Aptitude & Reasoning Test
-• Duration: 45–60 minutes
-• Format: Online (link will be shared separately)
-• Topics: Logical Reasoning, Quantitative Aptitude, Verbal Ability
+                    📋 Assessment Details:
+                    • Type: Aptitude & Reasoning Test
+                    • Duration: 45–60 minutes
+                    • Format: Online (link will be shared separately)
+                    • Topics: Logical Reasoning, Quantitative Aptitude, Verbal Ability
 
-Next Steps:
-Please complete this assessment within the next 48 hours. A separate link will be sent to your email shortly.
+                    Next Steps:
+                    Please complete this assessment within the next 48 hours. A separate link will be sent to your email shortly.
 
-Best of luck!
+                    Best of luck!
 
-Warm regards,
-Recruitment Team
-{{companyName}}""";
+                    Warm regards,
+                    Recruitment Team
+                    {{companyName}}""";
 
         } else if (matches(stageName, "machine", "take-home", "assignment", "project", "task")) {
             subject = "📂 Take-Home Assignment — " + jobTitle + " | " + company;
             body = """
-Hi {{candidateName}},
+                    Hi {{candidateName}},
 
-We're impressed with your profile and would like to see your skills in action!
+                    We're impressed with your profile and would like to see your skills in action!
 
-We have assigned a take-home project for the {{stageName}} stage. This task is designed to simulate the kind of work you'll do at {{companyName}}.
+                    We have assigned a take-home project for the {{stageName}} stage. This task is designed to simulate the kind of work you'll do at {{companyName}}.
 
-📁 Assignment Details:
-• Task: [Brief description of the project]
-• Submission Deadline: [Date/Time]
-• Format: GitHub Repository / Zip File
+                    📁 Assignment Details:
+                    • Task: [Brief description of the project]
+                    • Submission Deadline: [Date/Time]
+                    • Format: GitHub Repository / Zip File
 
-Please review the attached instructions carefully. We look forward to seeing your performance!
+                    Please review the attached instructions carefully. We look forward to seeing your performance!
 
-Warm regards,
-Recruitment Team
-{{companyName}}""";
+                    Warm regards,
+                    Recruitment Team
+                    {{companyName}}""";
 
         } else if (matches(stageName, "cod", "hack", "leet", "algorithm", "dsa", "programming", "technical test")) {
             subject = "💻 Coding Challenge — " + jobTitle + " | " + company;
             body = """
-Dear {{candidateName}},
+                    Dear {{candidateName}},
 
-Congratulations on progressing to the {{stageName}} for the role of {{jobTitle}} at {{companyName}}.
+                    Congratulations on progressing to the {{stageName}} for the role of {{jobTitle}} at {{companyName}}.
 
-We would like to invite you to complete an online coding challenge as part of our evaluation process.
+                    We would like to invite you to complete an online coding challenge as part of our evaluation process.
 
-💻 Challenge Details:
-• Type: Coding / Data Structures & Algorithms
-• Duration: 90 minutes
-• Platform: HackerRank / LeetCode (link will be shared)
-• Languages: Your choice of programming language
+                    💻 Challenge Details:
+                    • Type: Coding / Data Structures & Algorithms
+                    • Duration: 90 minutes
+                    • Platform: HackerRank / LeetCode (link will be shared)
+                    • Languages: Your choice of programming language
 
-Tips:
-- Read all problems before starting
-- Focus on correctness first, then optimise
-- Edge cases matter!
+                    Tips:
+                    - Read all problems before starting
+                    - Focus on correctness first, then optimise
+                    - Edge cases matter!
 
-{{recruiterNotes}}
+                    {{recruiterNotes}}
 
-Best of luck! We look forward to reviewing your solutions.
+                    Best of luck! We look forward to reviewing your solutions.
 
-Warm regards,
-Recruitment Team
-{{companyName}}""";
+                    Warm regards,
+                    Recruitment Team
+                    {{companyName}}""";
 
         } else if (matches(stageName, "technical", "tech interview", "tech round", "design")) {
             subject = "🔧 Technical Interview Scheduled — " + jobTitle + " | " + company;
             body = """
-Dear {{candidateName}},
+                    Dear {{candidateName}},
 
-This is a great opportunity for us to get to know each other better!
+                    We are excited to invite you to the {{stageName}} for the position of {{jobTitle}} at {{companyName}}.
 
-Warm regards,
-Recruitment Team
-""" + company;
+                    This technical round will focus on your core expertise, problem-solving abilities, and relevant experience.
 
-        } else if (matches(stageName, "managerial", "manager", "director", "panel", "leadership")) {
-            subject = "👔 Managerial Round — " + jobTitle + " | " + company;
+                    📅 Interview Details:
+                    • Date: [Date]
+                    • Time: [Time]
+                    • Mode: Video Call (Google Meet/Zoom)
+                    • Duration: 60 minutes
+
+                    We look forward to a great conversation!
+
+                    Best regards,
+                    Technical Hiring Team
+                    {{companyName}}""";
+
+        } else if (matches(stageName, "hr", "culture", "manager", "behavioral", "final", "fit")) {
+            subject = "🤝 Discussion Invitation — " + jobTitle + " | " + company;
             body = """
-Dear {{candidateName}},
+                    Hi {{candidateName}},
 
-We are pleased to invite you to the {{stageName}} for the position of {{jobTitle}} at """ + company + """.
+                    It has been a pleasure getting to know you through the previous rounds. We would like to invite you for a {{stageName}} with our team.
 
-👔 Round Details:
-• Format: Video Call / In-Person
-• Duration: 45–60 minutes
-• Participants: Hiring Manager / Senior Leadership
+                    This conversation will be an opportunity for us to discuss the role in more detail and for you to learn more about the team culture at {{companyName}}.
 
-What to expect:
-- Discussion of strategic thinking and leadership abilities
-- Situational and behavioural questions
-- Your approach to team dynamics and problem-solving at scale
+                    📅 Details:
+                    • Date: [Date]
+                    • Time: [Time]
+                    • Mode: [In-person / Virtual]
 
-{{recruiterNotes}}
+                    {{recruiterNotes}}
 
-We look forward to speaking with you!
+                    See you soon!
 
-Warm regards,
-Recruitment Team
-""" + company;
-
-        } else if (matches(stageName, "final", "last", "cxo", "cto", "ceo", "founder")) {
-            subject = "🏁 Final Round — " + jobTitle + " | " + company;
-            body = """
-Dear {{candidateName}},
-
-Excellent news! You have made it to the Final Round of our selection process for {{jobTitle}} at """ + company + """.
-
-🏁 Final Round Details:
-• Format: In-Person / Video Call
-• Duration: 60 minutes
-• Participants: Senior Leadership / Decision Makers
-
-This is the last step before we make our decision. We are very excited to meet you.
-
-{{recruiterNotes}}
-
-Please confirm your availability at your earliest convenience.
-
-Warm regards,
-Recruitment Team
-""" + company;
+                    Warmly,
+                    Recruitment Team
+                    {{companyName}}""";
 
         } else if (matches(stageName, "group", "gd", "discussion")) {
             subject = "🗣 Group Discussion — " + jobTitle + " | " + company;
             body = """
-Dear {{candidateName}},
+                    Dear {{candidateName}},
 
-We are pleased to invite you to a Group Discussion as part of the selection process for {{jobTitle}} at """ + company + """.
+                    We are pleased to invite you to a Group Discussion as part of the selection process for {{jobTitle}} at {{companyName}}.
 
-🗣 Group Discussion Details:
-• Format: Video Call / In-Person
-• Duration: 30–45 minutes
-• Topics: Current affairs / Industry-related topics (announced on the day)
+                    🗣 Group Discussion Details:
+                    • Format: Video Call / In-Person
+                    • Duration: 30–45 minutes
+                    • Topics: Current affairs / Industry-related topics (announced on the day)
 
-Tips:
-- Listen actively to other participants
-- Support your points with facts
-- Be confident but respectful of others' opinions
+                    Tips:
+                    - Listen actively to other participants
+                    - Support your points with facts
+                    - Be confident but respectful of others' opinions
 
-{{recruiterNotes}}
+                    {{recruiterNotes}}
 
-We look forward to seeing how you engage and collaborate!
+                    We look forward to seeing how you engage and collaborate!
 
-Warm regards,
-Recruitment Team
-""" + company;
+                    Warm regards,
+                    Recruitment Team
+                    {{companyName}}""";
 
         } else {
-            // Generic professional template
-            subject = "📋 " + rawName + " — " + jobTitle + " | " + company;
+            subject = "📌 Update on your application: " + rawName + " — " + company;
             body = """
-Dear {{candidateName}},
+                    Dear {{candidateName}},
 
-Congratulations on progressing to the next stage of our hiring process for {{jobTitle}} at """ + company + """.
+                    We are pleased to inform you that your application for {{jobTitle}} has moved to the next stage: {{stageName}}.
 
-You have been invited to: {{stageName}}
+                    At {{companyName}}, we value talent and are eager to proceed with your evaluation.
 
-📋 Details:
-• Format: To be confirmed
-• Duration: To be confirmed
+                    Next Steps:
+                    Our recruitment team will reach out to you shortly with specific instructions for this round.
 
-We will share further details about the timing and format shortly.
+                    Thank you for your patience and interest in {{companyName}}.
 
-{{recruiterNotes}}
-
-Please reply to this email if you have any questions.
-
-Warm regards,
-Recruitment Team
-""" + company;
+                    Best regards,
+                    Talent Acquisition
+                    {{companyName}}""";
         }
 
-        return ResponseEntity.ok(Map.of("subject", subject, "body", body.trim()));
+        body = body.replace("{{companyName}}", company);
+
+        return ResponseEntity.ok(Map.of(
+                "subject", subject,
+                "body", body));
     }
 
     /** Check if the stage name contains any of the given keywords */
