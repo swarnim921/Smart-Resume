@@ -2,10 +2,8 @@ services:
   # ─── Spring Boot Backend ──────────────────────────────────────────
   - type: web
     name: talentsync-backend
-    runtime: java
+    runtime: docker
     rootDir: .
-    buildCommand: mvn clean package -DskipTests
-    startCommand: java -jar target/smart-resume-backend-0.0.1-SNAPSHOT.jar
     plan: free
     envVars:
       - key: MONGODB_URI
