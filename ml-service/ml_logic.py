@@ -6,9 +6,6 @@ from sentence_transformers import SentenceTransformer, util
 # Limit PyTorch threads to save memory and CPU churn
 torch.set_num_threads(1)
 
-# Limit PyTorch threads to save memory
-torch.set_num_threads(1)
-
 # ==========================================
 # 1. INITIALIZATION & CONFIGURATION
 # ==========================================
