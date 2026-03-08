@@ -128,7 +128,7 @@ public class EmailTemplateController {
             body = """
 Dear {{candidateName}},
 
-Thank you for applying for the position of {{jobTitle}} at """ + company + """.
+Thank you for applying for the position of {{jobTitle}} at {{companyName}}.
 
 We are pleased to invite you to the next step in our hiring process — the Online Assessment for {{stageName}}.
 
@@ -138,22 +138,41 @@ We are pleased to invite you to the next step in our hiring process — the Onli
 • Format: Online (link will be shared separately)
 • Topics: Logical Reasoning, Quantitative Aptitude, Verbal Ability
 
-Please ensure you complete the test in a quiet environment with a stable internet connection.
+Next Steps:
+Please complete this assessment within the next 48 hours. A separate link will be sent to your email shortly.
 
-{{recruiterNotes}}
-
-We look forward to seeing your performance!
+Best of luck!
 
 Warm regards,
 Recruitment Team
-""" + company;
+{{companyName}}""";
+
+        } else if (matches(stageName, "machine", "take-home", "assignment", "project", "task")) {
+            subject = "📂 Take-Home Assignment — " + jobTitle + " | " + company;
+            body = """
+Hi {{candidateName}},
+
+We're impressed with your profile and would like to see your skills in action!
+
+We have assigned a take-home project for the {{stageName}} stage. This task is designed to simulate the kind of work you'll do at {{companyName}}.
+
+📁 Assignment Details:
+• Task: [Brief description of the project]
+• Submission Deadline: [Date/Time]
+• Format: GitHub Repository / Zip File
+
+Please review the attached instructions carefully. We look forward to seeing your performance!
+
+Warm regards,
+Recruitment Team
+{{companyName}}""";
 
         } else if (matches(stageName, "cod", "hack", "leet", "algorithm", "dsa", "programming", "technical test")) {
             subject = "💻 Coding Challenge — " + jobTitle + " | " + company;
             body = """
 Dear {{candidateName}},
 
-Congratulations on progressing to the {{stageName}} for the role of {{jobTitle}} at """ + company + """
+Congratulations on progressing to the {{stageName}} for the role of {{jobTitle}} at {{companyName}}.
 
 We would like to invite you to complete an online coding challenge as part of our evaluation process.
 
@@ -174,55 +193,12 @@ Best of luck! We look forward to reviewing your solutions.
 
 Warm regards,
 Recruitment Team
-""" + company;
+{{companyName}}""";
 
         } else if (matches(stageName, "technical", "tech interview", "tech round", "design")) {
             subject = "🔧 Technical Interview Scheduled — " + jobTitle + " | " + company;
             body = """
 Dear {{candidateName}},
-
-We are excited to invite you to the {{stageName}} for the position of {{jobTitle}} at """ + company + """.
-
-🔧 Interview Details:
-• Format: Video Call / In-Person
-• Duration: 60–90 minutes
-• Topics: Technical concepts, problem-solving, system design
-• Platform: Google Meet / Zoom (details to follow)
-
-What to expect:
-- Core technical questions relevant to the role
-- Live coding or whiteboard exercise
-- Discussion of your past projects and experience
-
-{{recruiterNotes}}
-
-Please reply to this email to confirm your availability or suggest an alternative time.
-
-Warm regards,
-Recruitment Team
-""" + company;
-
-        } else if (matches(stageName, "hr", "culture", "people", "behavioural", "behavioral", "soft")) {
-            subject = "🤝 HR Interview Invitation — " + jobTitle + " | " + company;
-            body = """
-Dear {{candidateName}},
-
-Congratulations on making it to the {{stageName}} for the role of {{jobTitle}} at """ + company + """.
-
-We would like to schedule an HR Discussion to learn more about you and share more about our culture.
-
-🤝 Interview Details:
-• Format: Video Call
-• Duration: 30–45 minutes
-• Focus: Your background, career goals, team fit, and company culture
-
-Topics we may discuss:
-- Your motivation for joining us
-- Work style and collaboration approach
-- Career aspirations and growth areas
-- Compensation expectations (if applicable)
-
-{{recruiterNotes}}
 
 This is a great opportunity for us to get to know each other better!
 
