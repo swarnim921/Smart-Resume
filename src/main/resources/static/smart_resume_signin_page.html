@@ -921,13 +921,15 @@
 
         function loginGoogle() {
             const role = currentRole || 'candidate';
-            document.cookie = `oauth_role=${role};path=/;max-age=600;SameSite=Lax`;
+            const domain = window.location.hostname.includes('talentsynctech.in') ? 'domain=.talentsynctech.in;' : '';
+            document.cookie = `oauth_role=${role};path=/;${domain}max-age=600;SameSite=Lax`;
             window.location.href = `${API}/oauth2/authorization/google`;
         }
 
         function loginLinkedIn() {
             const role = currentRole || 'candidate';
-            document.cookie = `oauth_role=${role};path=/;max-age=600;SameSite=Lax`;
+            const domain = window.location.hostname.includes('talentsynctech.in') ? 'domain=.talentsynctech.in;' : '';
+            document.cookie = `oauth_role=${role};path=/;${domain}max-age=600;SameSite=Lax`;
             window.location.href = `${API}/oauth2/authorization/linkedin`;
         }
 

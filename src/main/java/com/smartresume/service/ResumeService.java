@@ -36,7 +36,7 @@ public class ResumeService {
         meta.setSize(file.getSize());
         meta.setGridFsId(gridId.toHexString());
         meta.setOwnerId(owner.getId());
-        meta.setExtractedText(new String(file.getBytes()));
+        meta.setExtractedText(null); // Text will be extracted by ML service later if needed, saving huge memory
         return resumeRepository.save(meta);
     }
 
@@ -70,12 +70,11 @@ public class ResumeService {
         }
 
         // Extract text from PDF
-        try (InputStream inputStream = resource.getInputStream()) {
-            org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.pdmodel.PDDocument.load(inputStream);
+        try (InputStream inputStream = resource.getInputStream();
+                org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.pdmodel.PDDocument
+                        .load(inputStream)) {
             org.apache.pdfbox.text.PDFTextStripper stripper = new org.apache.pdfbox.text.PDFTextStripper();
-            String text = stripper.getText(document);
-            document.close();
-            return text;
+            return stripper.getText(document);
         } catch (Exception e) {
             throw new IOException("Failed to extract text from PDF: " + e.getMessage(), e);
         }
