@@ -88,10 +88,11 @@ public class ApplicationController {
                             application.getCandidateName(),
                             jobTitle, jobCompany, interviewDateTime, notes);
                 } else {
-                    emailService.sendStatusUpdateEmail(
+                    Job fullJob = jobService.getJobById(application.getJobId()).orElse(null);
+                    emailService.sendStatusUpdateEmailWithJob(
                             application.getCandidateEmail(),
                             application.getCandidateName(),
-                            jobTitle, status, notes);
+                            fullJob, status, status, notes);
                 }
             } catch (Exception emailEx) {
                 System.err.println("Email failed after status update: " + emailEx.getMessage());
@@ -99,6 +100,27 @@ public class ApplicationController {
 
             return ResponseEntity.ok(application);
         } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/bulk-status-update")
+    @PreAuthorize("hasRole('RECRUITER')")
+    public ResponseEntity<?> bulkUpdateStatus(@RequestBody Map<String, Object> request, Authentication auth) {
+        try {
+            List<String> ids = (List<String>) request.get("ids");
+            String status = (String) request.get("status");
+            String notes = (String) request.get("notes");
+            String recruiterEmail = auth.getName();
+
+            if (ids == null || ids.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "No application IDs provided"));
+            }
+
+            List<Application> updated = applicationService.updateBulkStatus(ids, status, notes, recruiterEmail);
+            return ResponseEntity.ok(Map.of("message", "Successfully updated " + updated.size() + " applications",
+                    "updatedCount", updated.size()));
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }

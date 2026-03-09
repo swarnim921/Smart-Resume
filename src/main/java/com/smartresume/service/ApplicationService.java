@@ -88,15 +88,15 @@ public class ApplicationService {
                     application.setStatus("ATS_REJECTED");
                     System.out.println("❌ ATS rejected: score=" + mlResult.getMatchScore());
                     Application saved = applicationRepository.save(application);
-                    emailService.sendStatusUpdateEmail(candidateEmail, user.getName(), job.getTitle(), "ATS_REJECTED",
-                            null);
+                    emailService.sendStatusUpdateEmailWithJob(candidateEmail, user.getName(), job, "ATS_REJECTED",
+                            "ATS screening", null);
                     return saved;
                 } else {
                     application.setStatus("UNDER_REVIEW");
                     System.out.println("✅ ATS passed: score=" + mlResult.getMatchScore());
                     Application saved = applicationRepository.save(application);
-                    emailService.sendStatusUpdateEmail(candidateEmail, user.getName(), job.getTitle(), "UNDER_REVIEW",
-                            null);
+                    emailService.sendStatusUpdateEmailWithJob(candidateEmail, user.getName(), job, "UNDER_REVIEW",
+                            "Under Review", null);
                     return saved;
                 }
             } else {
@@ -159,6 +159,32 @@ public class ApplicationService {
         }
 
         return applicationRepository.save(application);
+    }
+
+    public List<Application> updateBulkStatus(List<String> ids, String status, String notes, String recruiterEmail) {
+        List<Application> updatedApps = new ArrayList<>();
+        for (String id : ids) {
+            try {
+                Application app = updateApplicationStatus(id, status, notes, recruiterEmail);
+                updatedApps.add(app);
+
+                // Send email notification for each updated application
+                try {
+                    Job job = jobRepository.findById(app.getJobId()).orElse(null);
+                    if (job != null) {
+                        emailService.sendStatusUpdateEmailWithJob(
+                                app.getCandidateEmail(),
+                                app.getCandidateName(),
+                                job, status, status, notes);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Bulk email failed for " + app.getCandidateEmail() + ": " + e.getMessage());
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to update app " + id + " in bulk: " + e.getMessage());
+            }
+        }
+        return updatedApps;
     }
 
     /**

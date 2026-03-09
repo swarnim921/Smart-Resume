@@ -175,10 +175,12 @@ public class EmailService {
                                                 String notesText = (notes != null && !notes.isEmpty()) ? notes : "";
                                                 String subject = substitute(stage.getEmailSubject(), candidateName,
                                                                 job.getTitle(),
-                                                                stage.getStageName(), job.getCompany(), notesText);
+                                                                stage.getStageName(), job.getCompany(), notesText,
+                                                                null);
                                                 String body = substitute(stage.getEmailBody(), candidateName,
                                                                 job.getTitle(),
-                                                                stage.getStageName(), job.getCompany(), notesText);
+                                                                stage.getStageName(), job.getCompany(), notesText,
+                                                                null);
 
                                                 SimpleMailMessage message = new SimpleMailMessage();
                                                 String sender = (fromEmail != null && !fromEmail.isEmpty()) ? fromEmail
@@ -205,7 +207,7 @@ public class EmailService {
 
         /** Replace template placeholders with actual values */
         private String substitute(String template, String candidateName, String jobTitle,
-                        String stageName, String companyName, String notes) {
+                        String stageName, String companyName, String notes, String interviewDateTime) {
                 if (template == null)
                         return "";
                 return template
@@ -213,8 +215,11 @@ public class EmailService {
                                 .replace("{{jobTitle}}", jobTitle != null ? jobTitle : "")
                                 .replace("{{stageName}}", stageName != null ? stageName : "")
                                 .replace("{{companyName}}", companyName != null ? companyName : "")
+                                .replace("{{interviewDateTime}}", interviewDateTime != null ? interviewDateTime : "")
                                 .replace("{{recruiterNotes}}",
-                                                notes != null && !notes.isEmpty() ? "Note: " + notes : "");
+                                                (notes != null && !notes.isEmpty())
+                                                                ? "\n\nNote from recruiter: " + notes
+                                                                : "");
         }
 
         /**
@@ -232,8 +237,6 @@ public class EmailService {
                                         : "noreply@talentsync.in";
                         helper.setFrom("TalentSync <" + sender + ">");
                         helper.setTo(toEmail);
-                        helper.setSubject("📅 Interview Invitation — " + jobTitle + " | " + company);
-
                         java.time.LocalDateTime interviewDt;
                         try {
                                 interviewDt = java.time.LocalDateTime.parse(interviewDateTimeStr);
@@ -245,22 +248,36 @@ public class EmailService {
                                         .format(java.time.format.DateTimeFormatter.ofPattern(
                                                         "EEEE, MMMM d yyyy 'at' h:mm a",
                                                         java.util.Locale.ENGLISH));
-                        String notesText = (notes != null && !notes.isEmpty()) ? "\n\nAdditional Notes: " + notes : "";
+                        String notesText = (notes != null && !notes.isEmpty()) ? notes : "";
 
-                        String emailBody = "Dear " + candidateName + ",\n\n" +
-                                        "We are delighted to invite you for an interview for the position of \""
-                                        + jobTitle + "\" at "
-                                        + company + ".\n\n" +
-                                        "📅 Interview Date & Time: " + formattedDate + "\n" +
-                                        "📍 Format: Please check the calendar invite attached to this email for join details.\n\n"
-                                        +
-                                        "A calendar invite (.ics) is attached — click it to save the event to your calendar."
-                                        +
-                                        notesText + "\n\n" +
-                                        "Please reply to this email to confirm your availability.\n\n" +
-                                        "Best regards,\nRecruitment Team\n" + company;
+                        String subject = null;
+                        String body = null;
 
-                        helper.setText(emailBody);
+                        // Check for custom template
+                        if (jobTitle != null) { // We don't have the Job object here, but we can search for it if needed
+                                // Optimization: In the controller we already have the Job, let's pass it or
+                                // handle it there.
+                                // For now, let's keep it simple or update the signature.
+                        }
+
+                        if (subject == null) {
+                                helper.setSubject("📅 Interview Invitation — " + jobTitle + " | " + company);
+                                helper.setText("Dear " + candidateName + ",\n\n" +
+                                                "We are delighted to invite you for an interview for the position of \""
+                                                + jobTitle + "\" at "
+                                                + company + ".\n\n" +
+                                                "📅 Interview Date & Time: " + formattedDate + "\n" +
+                                                "📍 Format: Please check the calendar invite attached to this email for join details.\n\n"
+                                                +
+                                                "A calendar invite (.ics) is attached — click it to save the event to your calendar."
+                                                +
+                                                ((notesText != null && !notesText.isEmpty())
+                                                                ? "\n\nNote from recruiter: " + notesText
+                                                                : "")
+                                                + "\n\n" +
+                                                "Please reply to this email to confirm your availability.\n\n" +
+                                                "Best regards,\nRecruitment Team\n" + company);
+                        }
 
                         // Build ICS content
                         String uid = java.util.UUID.randomUUID().toString();

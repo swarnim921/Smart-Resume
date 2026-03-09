@@ -45,64 +45,93 @@ public class EmailTemplateController {
             String jobTitle = job != null ? job.getTitle() : "the position";
             String company = job != null ? (job.getCompany() != null ? job.getCompany() : "our company")
                     : "our company";
-            String notesText = (notes != null && !notes.isEmpty()) ? "\n\nNote from recruiter: " + notes : "";
+            String notesText = (notes != null && !notes.isEmpty()) ? notes : "";
 
-            String subject;
-            String body;
+            String subject = null;
+            String body = null;
 
-            if ("INTERVIEW".equals(status) && !interviewDateTime.isEmpty()) {
-                subject = "📅 Interview Invitation — " + jobTitle + " | " + company;
-                body = "Dear " + candidateName + ",\n\nWe are delighted to invite you for an interview for \""
-                        + jobTitle + "\" at " + company + ".\n\n📅 Date/Time: " + interviewDateTime
-                        + "\n\nA calendar invite (.ics) will be attached to the email." + notesText
-                        + "\n\nPlease confirm your availability.\n\nBest regards,\nRecruitment Team, " + company;
-            } else {
-                // Get the email content based on status
-                Map<String, String[]> templates = Map.of(
-                        "UNDER_REVIEW",
-                        new String[] { "✅ Application Update — " + jobTitle,
-                                "Dear " + candidateName + ",\n\nYour application for " + jobTitle + " at " + company
-                                        + " has passed our initial screening and is now UNDER REVIEW by our recruiter."
-                                        + notesText
-                                        + "\n\nWe'll be in touch with next steps.\n\nBest regards,\nRecruitment Team" },
-                        "SHORTLISTED",
-                        new String[] { "⭐ You've been Shortlisted — " + jobTitle,
-                                "Dear " + candidateName + ",\n\nCongratulations! You have been SHORTLISTED for "
-                                        + jobTitle + " at " + company + "." + notesText
-                                        + "\n\nWe will share next steps shortly.\n\nBest regards,\nRecruitment Team" },
-                        "OFFERED",
-                        new String[] { "🎉 Job Offer — " + jobTitle, "Dear " + candidateName
-                                + ",\n\nWe are delighted to extend an offer for " + jobTitle + " at " + company + "!"
-                                + notesText
-                                + "\n\nOur HR team will reach out with the offer letter.\n\nBest regards,\nRecruitment Team" },
-                        "REJECTED",
-                        new String[] { "Application Update — " + jobTitle, "Dear " + candidateName
-                                + ",\n\nThank you for your interest in " + jobTitle + " at " + company
-                                + ". After careful consideration, we have decided to move forward with other candidates."
-                                + notesText
-                                + "\n\nWe encourage you to apply to future openings.\n\nBest regards,\nRecruitment Team" },
-                        "ATS_REJECTED",
-                        new String[] { "Application Update — " + jobTitle, "Dear " + candidateName
-                                + ",\n\nThank you for applying for " + jobTitle + " at " + company
-                                + ". Our automated system indicates your current profile does not closely match this role's requirements."
-                                + notesText
-                                + "\n\nWe encourage you to update your resume and apply to future roles.\n\nBest regards,\nRecruitment Team" });
-                String[] tmpl = templates.get(status);
-                if (tmpl != null) {
-                    subject = tmpl[0];
-                    body = tmpl[1];
-                } else {
-                    subject = "📋 Application Update — " + jobTitle;
-                    body = "Dear " + candidateName + ",\n\nYour application status for " + jobTitle + " at " + company
-                            + " has been updated to: " + stageName + "." + notesText
-                            + "\n\nBest regards,\nRecruitment Team";
+            // 1. Check if there's a custom template for this stage in the job pipeline
+            if (job != null && job.getHiringPipeline() != null) {
+                for (HiringStage hs : job.getHiringPipeline()) {
+                    if (status.equalsIgnoreCase(hs.getStageKey()) || stageName.equalsIgnoreCase(hs.getStageName())) {
+                        if (hs.isCustomTemplate() && hs.getEmailSubject() != null && hs.getEmailBody() != null) {
+                            subject = hs.getEmailSubject();
+                            body = hs.getEmailBody();
+                            break;
+                        }
+                    }
                 }
             }
+
+            // 2. If no custom template, use the hardcoded system defaults
+            if (subject == null || body == null) {
+                if ("INTERVIEW".equals(status) && !interviewDateTime.isEmpty()) {
+                    subject = "📅 Interview Invitation — {{jobTitle}} | {{companyName}}";
+                    body = "Dear {{candidateName}},\n\nWe are delighted to invite you for an interview for \"{{jobTitle}}\" at {{companyName}}.\n\n📅 Date/Time: {{interviewDateTime}}\n\nA calendar invite (.ics) will be attached to the email.\n\n{{recruiterNotes}}\n\nPlease confirm your availability.\n\nBest regards,\nRecruitment Team, {{companyName}}";
+                } else {
+                    Map<String, String[]> templates = Map.of(
+                            "UNDER_REVIEW", new String[] {
+                                    "✅ Application Update — {{jobTitle}}",
+                                    "Dear {{candidateName}},\n\nYour application for {{jobTitle}} at {{companyName}} has passed our initial screening and is now UNDER REVIEW by our recruiter.\n\n{{recruiterNotes}}\n\nWe'll be in touch with next steps.\n\nBest regards,\nRecruitment Team"
+                            },
+                            "SHORTLISTED", new String[] {
+                                    "⭐ You've been Shortlisted — {{jobTitle}}",
+                                    "Dear {{candidateName}},\n\nCongratulations! You have been SHORTLISTED for {{jobTitle}} at {{companyName}}.\n\n{{recruiterNotes}}\n\nWe will share next steps shortly.\n\nBest regards,\nRecruitment Team"
+                            },
+                            "OFFERED", new String[] {
+                                    "🎉 Job Offer — {{jobTitle}}",
+                                    "Dear {{candidateName}},\n\nWe are delighted to extend an offer for {{jobTitle}} at {{companyName}}!\n\n{{recruiterNotes}}\n\nOur HR team will reach out with the offer letter.\n\nBest regards,\nRecruitment Team"
+                            },
+                            "REJECTED", new String[] {
+                                    "Application Update — {{jobTitle}}",
+                                    "Dear {{candidateName}},\n\nThank you for your interest in {{jobTitle}} at {{companyName}}. After careful consideration, we have decided to move forward with other candidates.\n\n{{recruiterNotes}}\n\nWe encourage you to apply to future openings.\n\nBest regards,\nRecruitment Team"
+                            },
+                            "ATS_REJECTED", new String[] {
+                                    "Application Update — {{jobTitle}}",
+                                    "Dear {{candidateName}},\n\nThank you for applying for {{jobTitle}} at {{companyName}}. Our automated system indicates your current profile does not closely match this role's requirements.\n\n{{recruiterNotes}}\n\nWe encourage you to update your resume and apply to future roles.\n\nBest regards,\nRecruitment Team"
+                            });
+
+                    String[] tmpl = templates.get(status);
+                    if (tmpl != null) {
+                        subject = tmpl[0];
+                        body = tmpl[1];
+                    } else {
+                        subject = "📋 Application Update — {{jobTitle}}";
+                        body = "Dear {{candidateName}},\n\nYour application status for {{jobTitle}} at {{companyName}} has been updated to: {{stageName}}.\n\n{{recruiterNotes}}\n\nBest regards,\nRecruitment Team";
+                    }
+                }
+            }
+
+            // 3. Perform substitution for both custom and default templates
+            subject = substitute(subject, candidateName, jobTitle, stageName, company, notesText, interviewDateTime);
+            body = substitute(body, candidateName, jobTitle, stageName, company, notesText, interviewDateTime);
+
             return ResponseEntity.ok(Map.of("subject", subject, "body", body));
         } catch (Exception e) {
             return ResponseEntity.ok(Map.of("subject", "Application Update", "body",
                     "Status update email will be sent to the candidate."));
         }
+    }
+
+    private String substitute(String template, String name, String title, String stage, String company, String notes,
+            String dt) {
+        if (template == null)
+            return "";
+        return template
+                .replace("{{candidateName}}", name != null ? name : "")
+                .replace("{{jobTitle}}", title != null ? title : "")
+                .replace("{{stageName}}", stage != null ? stage : "")
+                .replace("{{companyName}}", company != null ? company : "")
+                .replace("{{interviewDateTime}}", dt != null ? dt : "")
+                .replace("{{recruiterNotes}}",
+                        (notes != null && !notes.isEmpty()) ? "\n\nNote from recruiter: " + notes : "");
+    }return ResponseEntity.ok(Map.of("subject",subject,"body",body));}catch(
+
+    Exception e)
+    {
+        return ResponseEntity.ok(Map.of("subject", "Application Update", "body",
+                "Status update email will be sent to the candidate."));
+    }
     }
 
     /**

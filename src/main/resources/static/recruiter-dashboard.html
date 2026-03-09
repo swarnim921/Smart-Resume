@@ -863,6 +863,24 @@
                 <div id="modalApps">
                     <div class="loading">Loading…</div>
                 </div>
+                <!-- Bulk Action Bar -->
+                <div id="bulkBar"
+                    style="display:none;margin-top:1rem;padding:1rem;background:rgba(74,144,217,0.1);border:1px solid rgba(74,144,217,0.2);border-radius:12px;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+                    <div style="display:flex;align-items:center;gap:0.75rem">
+                        <input type="checkbox" id="selectAllApps" onchange="toggleSelectAll(this)"
+                            style="width:18px;height:18px;cursor:pointer">
+                        <span style="font-size:14px;font-weight:600;color:var(--text)" id="selectedCount">0
+                            Selected</span>
+                    </div>
+                    <div
+                        style="display:flex;gap:0.75rem;align-items:center;flex:1;justify-content:flex-end;min-width:300px">
+                        <select id="bulkStageSelect" class="form-input" style="max-width:200px;margin-bottom:0">
+                            <option value="">— Select Stage —</option>
+                        </select>
+                        <button class="btn btn-p" onclick="processBulkUpdate()" id="bulkBtn"
+                            style="padding:0.5rem 1rem;font-size:13px">🚀 Batch Move</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1278,7 +1296,9 @@
                     document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status) || pipeline.some(s => s.stageKey === a.status)).length;
                     document.getElementById('st-ats').textContent = apps.filter(a => a.status === 'ATS_REJECTED').length;
 
-                    if (!apps.length) { document.getElementById('modalApps').innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No applications yet</p>'; return; }
+                    if (!apps.length) { document.getElementById('modalApps').innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No applications yet</p>'; document.getElementById('bulkBar').style.display = 'none'; return; }
+                    document.getElementById('bulkBar').style.display = 'flex';
+                    populateBulkSelect(pipeline);
                     document.getElementById('modalApps').innerHTML = apps.map(a => {
                         const pipeline_stage = pipeline.find(s => s.stageKey === a.status);
                         // Notes history timeline
@@ -1291,28 +1311,33 @@
             <div style="color:var(--muted);font-size:11px">${new Date(n.timestamp).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div></div>
           </div>`).join('')}
         </div>`: '';
-                        return `<div class="app-card ${a.status === 'ATS_REJECTED' ? 'ats-rejected' : ''}">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
-          <div style="flex:1">
-            <div style="font-weight:600;font-size:15px">${a.candidateName || 'Unknown'}</div>
-            <div style="color:var(--muted);font-size:13px;margin-bottom:0.5rem">${a.candidateEmail}</div>
-            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
-              ${statusBadge(a.status)}
-              ${pipeline_stage ? `<span style="font-size:11px;color:var(--muted)">● ${pipeline_stage.stageName}</span>` : ''}
-              <span style="color:var(--muted);font-size:12px">Applied: ${new Date(a.appliedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
-              ${a.reAnalyzedAt ? `<span style="font-size:11px;color:var(--muted)">🔄 Re-analyzed</span>` : ''}
-            </div>
-          </div>
-          ${scoreCircle(a.matchScore)}
+                        return `<div class="app-card ${a.status === 'ATS_REJECTED' ? 'ats-rejected' : ''}" style="display:flex;gap:1.25rem;align-items:flex-start">
+        <div style="margin-top:0.25rem">
+            <input type="checkbox" class="app-checkbox" value="${a.id}" onchange="updateSelection()" style="width:18px;height:18px;cursor:pointer">
         </div>
-        ${a.skillsGap && a.skillsGap.length ? `<div style="margin-top:0.75rem;padding:0.65rem;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:9px">
-          <div style="font-size:12px;font-weight:600;color:#f87171;margin-bottom:0.4rem">🎯 Skills Gap:</div>
-          <div style="display:flex;gap:0.4rem;flex-wrap:wrap">${a.skillsGap.map(s => `<span class="badge bd">${s}</span>`).join('')}</div>
-        </div>`: ''}
-        ${notesHtml}
-        <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
-          <button class="btn btn-o" onclick="viewResume('${a.id}')" style="font-size:12px;padding:0.35rem 0.75rem">📄 Resume</button>
-          ${getPipelineButtons(a.id, a.status, pipeline)}
+        <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
+            <div style="flex:1">
+                <div style="font-weight:600;font-size:15px">${a.candidateName || 'Unknown'}</div>
+                <div style="color:var(--muted);font-size:13px;margin-bottom:0.5rem">${a.candidateEmail}</div>
+                <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+                ${statusBadge(a.status)}
+                ${pipeline_stage ? `<span style="font-size:11px;color:var(--muted)">● ${pipeline_stage.stageName}</span>` : ''}
+                <span style="color:var(--muted);font-size:12px">Applied: ${new Date(a.appliedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+                ${a.reAnalyzedAt ? `<span style="font-size:11px;color:var(--muted)">🔄 Re-analyzed</span>` : ''}
+                </div>
+            </div>
+            ${scoreCircle(a.matchScore)}
+            </div>
+            ${a.skillsGap && a.skillsGap.length ? `<div style="margin-top:0.75rem;padding:0.65rem;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:9px">
+            <div style="font-size:12px;font-weight:600;color:#f87171;margin-bottom:0.4rem">🎯 Skills Gap:</div>
+            <div style="display:flex;gap:0.4rem;flex-wrap:wrap">${a.skillsGap.map(s => `<span class="badge bd">${s}</span>`).join('')}</div>
+            </div>`: ''}
+            ${notesHtml}
+            <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
+            <button class="btn btn-o" onclick="viewResume('${a.id}')" style="font-size:12px;padding:0.35rem 0.75rem">📄 Resume</button>
+            ${getPipelineButtons(a.id, a.status, pipeline)}
+            </div>
         </div>
       </div>`;
                     }).join('');
@@ -1338,6 +1363,74 @@
             function closeModal() { document.getElementById('appsModal').classList.remove('active'); currentJobId = null; }
             document.getElementById('appsModal').addEventListener('click', e => { if (e.target === document.getElementById('appsModal')) closeModal(); });
             document.getElementById('previewModal').addEventListener('click', e => { if (e.target === document.getElementById('previewModal')) closePreview(); });
+
+            // ===================== BULK ACTIONS =====================
+            function populateBulkSelect(pipeline) {
+                const sel = document.getElementById('bulkStageSelect');
+                sel.innerHTML = '<option value="">— Select Stage —</option>';
+                const defaults = [
+                    { k: 'UNDER_REVIEW', l: 'Under Review' },
+                    { k: 'SHORTLISTED', l: 'Shortlisted' },
+                    { k: 'INTERVIEW', l: 'Interview Phase' },
+                    { k: 'OFFERED', l: 'Offered' },
+                    { k: 'REJECTED', l: 'Rejected' }
+                ];
+                if (pipeline && pipeline.length) {
+                    pipeline.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.stageKey; opt.textContent = s.stageName;
+                        sel.appendChild(opt);
+                    });
+                } else {
+                    defaults.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d.k; opt.textContent = d.l;
+                        sel.appendChild(opt);
+                    });
+                }
+            }
+
+            function toggleSelectAll(master) {
+                const boxes = document.querySelectorAll('.app-checkbox');
+                boxes.forEach(b => b.checked = master.checked);
+                updateSelection();
+            }
+
+            function updateSelection() {
+                const checked = document.querySelectorAll('.app-checkbox:checked').length;
+                const total = document.querySelectorAll('.app-checkbox').length;
+                document.getElementById('selectedCount').textContent = `${checked} Selected`;
+                document.getElementById('selectAllApps').checked = checked > 0 && checked === total;
+                document.getElementById('selectedCount').style.color = checked > 0 ? 'var(--primary)' : 'inherit';
+            }
+
+            async function processBulkUpdate() {
+                const selectedIds = Array.from(document.querySelectorAll('.app-checkbox:checked')).map(b => b.value);
+                const status = document.getElementById('bulkStageSelect').value;
+                if (!selectedIds.length) return alert('Please select at least one candidate.');
+                if (!status) return alert('Please select a target stage.');
+
+                const notes = prompt(`Move ${selectedIds.length} candidates to stage: "${status}"? Add a generic note (optional):`);
+                if (notes === null) return;
+
+                const btn = document.getElementById('bulkBtn');
+                btn.disabled = true; btn.textContent = '⏳ Processing…';
+
+                try {
+                    const r = await fetch(`${API}/api/applications/bulk-status-update`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ids: selectedIds, status, notes })
+                    });
+                    const d = await r.json();
+                    if (!r.ok) throw new Error(d.error || 'Bulk update failed');
+                    alert(`✅ ${d.message}`);
+                    viewApps(currentJobId, currentJobTitle); // Refresh the list
+                    document.getElementById('selectAllApps').checked = false;
+                    updateSelection();
+                } catch (e) { alert('Error: ' + e.message); }
+                finally { btn.disabled = false; btn.textContent = '🚀 Batch Move'; }
+            }
 
             // ===================== ANALYTICS =====================
             async function loadAnalytics() {
