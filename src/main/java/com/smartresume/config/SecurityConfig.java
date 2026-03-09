@@ -40,6 +40,7 @@ public class SecurityConfig {
                                                                 "/api/oauth2/**",
                                                                 "/oauth2/**",
                                                                 "/login/oauth2/**",
+                                                                "/",
 
                                                                 // Static files - using valid patterns
                                                                 "/*.html",
