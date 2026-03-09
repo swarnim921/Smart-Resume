@@ -1005,7 +1005,6 @@
                 }
 
                 statusEl.innerHTML = `<span style="color: #10b981;">✅ Uploaded successfully!</span>`;
-                setTimeout(() => statusEl.style.display = 'none', 5000);
             } catch (error) {
                 console.error(error);
                 statusEl.innerHTML = `<span style="color: #ef4444;">❌ Upload failed: ${error.message}</span>`;
