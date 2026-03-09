@@ -54,9 +54,9 @@
                     console.error('OAuth Success - Failed to decode JWT:', e);
                 }
 
-                // Store in localStorage
-                localStorage.setItem('token', token);
-                localStorage.setItem('user', JSON.stringify({
+                // Store in sessionStorage
+                sessionStorage.setItem('token', token);
+                sessionStorage.setItem('user', JSON.stringify({
                     name: name ? decodeURIComponent(name) : 'User',
                     email: email ? decodeURIComponent(email) : '',
                     role: role

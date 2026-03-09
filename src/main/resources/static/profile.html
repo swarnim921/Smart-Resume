@@ -479,11 +479,11 @@
 
     <script>
         const API = 'https://api.talentsynctech.in';
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) { location.href = '/smart_resume_signin_page.html'; }
         let skills = [];
 
-        function logout() { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
+        function logout() { sessionStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
         function showToast(msg, type = 'success') {
             const t = document.getElementById('toast');

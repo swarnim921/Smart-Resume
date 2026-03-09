@@ -53,14 +53,14 @@
                     console.error('❌ OAuth Success - Failed to decode JWT:', e);
                 }
 
-                // Store in localStorage
-                localStorage.setItem('token', token);
-                localStorage.setItem('user', JSON.stringify({
+                // Store in sessionStorage
+                sessionStorage.setItem('token', token);
+                sessionStorage.setItem('user', JSON.stringify({
                     name: name ? decodeURIComponent(name) : 'User',
                     email: email ? decodeURIComponent(email) : '',
                     role: role
                 }));
-                console.log('💾 OAuth Success - Stored in localStorage:', { name, email, role });
+                console.log('💾 OAuth Success - Stored in sessionStorage:', { name, email, role });
 
                 // Determine dashboard URL based on JWT role
                 const dashboardFile = role === 'recruiter' ? 'recruiter-dashboard.html' : 'candidate-dashboard.html';

@@ -920,8 +920,8 @@
                 const data = await r.json();
                 if (!r.ok) throw new Error(data.error || 'Verification failed');
 
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify({ name: data.name, email: registeredEmail, role: data.role }));
+                sessionStorage.setItem('token', data.token);
+                sessionStorage.setItem('user', JSON.stringify({ name: data.name, email: registeredEmail, role: data.role }));
                 window.location.href = data.role === 'candidate' ? '/candidate-dashboard.html' : '/recruiter-dashboard.html';
 
             } catch (err) {

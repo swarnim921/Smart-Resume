@@ -490,8 +490,8 @@
                 }
 
                 // Store credentials
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify({
+                sessionStorage.setItem('token', data.token);
+                sessionStorage.setItem('user', JSON.stringify({
                     name: data.name,
                     email: data.email,
                     role: backendRole
@@ -529,9 +529,9 @@
 
         // Check if already logged in
         window.addEventListener('load', function () {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             if (token) {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const user = JSON.parse(sessionStorage.getItem('user') || '{}');
                 if (confirm(`You are already signed in as ${user.name}. Go to dashboard?`)) {
                     if (user.role === 'recruiter') {
                         window.location.href = '/recruiter-dashboard.html';

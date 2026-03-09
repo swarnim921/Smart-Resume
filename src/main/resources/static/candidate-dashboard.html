@@ -759,12 +759,12 @@
 
     <script>
         const API = 'https://api.talentsynctech.in';
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const token = sessionStorage.getItem('token');
+        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
         if (!token || user.role === 'recruiter') { location.href = '/smart_resume_signin_page.html'; }
         const initial = (user.name || 'U').charAt(0).toUpperCase();
         document.getElementById('avatarInitial').textContent = initial;
-        function logout() { localStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
+        function logout() { sessionStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
         const sections = ['overview', 'apps', 'jobs'];
         function showSection(n) {

@@ -909,8 +909,8 @@
                     throw new Error(`This account is registered as ${backendRole}. Please select the correct role.`);
                 }
 
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email, role: backendRole }));
+                sessionStorage.setItem('token', data.token);
+                sessionStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email, role: backendRole }));
                 window.location.href = backendRole === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
             } catch (err) {
                 showError(err.message);
@@ -939,16 +939,16 @@
             const name = urlParams.get('name');
             const email = urlParams.get('email');
             const role = urlParams.get('role');
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify({ name, email, role }));
+            sessionStorage.setItem('token', token);
+            sessionStorage.setItem('user', JSON.stringify({ name, email, role }));
             window.location.href = role === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
         }
 
         setRole('candidate');
 
         window.addEventListener('load', () => {
-            if (localStorage.getItem('token')) {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (sessionStorage.getItem('token')) {
+                const user = JSON.parse(sessionStorage.getItem('user') || '{}');
                 if (confirm(`Already signed in as ${user.name}. Go to dashboard?`)) {
                     window.location.href = user.role === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
                 }
