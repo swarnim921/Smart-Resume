@@ -31,6 +31,12 @@ public class AuthController {
         if (existingUser != null) {
             if (existingUser.isVerified()) {
                 // Verified user exists - block signup
+                String provider = existingUser.getAuthProvider();
+                if (provider != null && !"LOCAL".equals(provider)) {
+                    String providerName = provider.substring(0, 1).toUpperCase() + provider.substring(1).toLowerCase();
+                    return ResponseEntity.badRequest().body(Map.of("error",
+                            "This email is linked to a " + providerName + " account. Please use Social Sign-In."));
+                }
                 return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
             } else {
                 // Unverified user exists - allow overwrite (user retrying signup)

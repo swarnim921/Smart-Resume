@@ -1406,11 +1406,13 @@
 
             async function processBulkUpdate() {
                 const selectedIds = Array.from(document.querySelectorAll('.app-checkbox:checked')).map(b => b.value);
-                const status = document.getElementById('bulkStageSelect').value;
+                const sel = document.getElementById('bulkStageSelect');
+                const status = sel.value;
+                const stageName = sel.options[sel.selectedIndex].text;
                 if (!selectedIds.length) return alert('Please select at least one candidate.');
                 if (!status) return alert('Please select a target stage.');
 
-                const notes = prompt(`Move ${selectedIds.length} candidates to stage: "${status}"? Add a generic note (optional):`);
+                const notes = prompt(`Move ${selectedIds.length} candidates to stage: "${stageName}"? Add a generic note (optional):`);
                 if (notes === null) return;
 
                 const btn = document.getElementById('bulkBtn');
@@ -1420,7 +1422,7 @@
                     const r = await fetch(`${API}/api/applications/bulk-status-update`, {
                         method: 'POST',
                         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ids: selectedIds, status, notes })
+                        body: JSON.stringify({ ids: selectedIds, status, stageName, notes })
                     });
                     const d = await r.json();
                     if (!r.ok) throw new Error(d.error || 'Bulk update failed');

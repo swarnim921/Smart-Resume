@@ -17,6 +17,7 @@ public class UserService {
         System.out.println("UserService.register: Received user with role=" + user.getRole());
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setAuthProvider("LOCAL");
         if (user.getRole() == null)
             user.setRole("ROLE_USER");
 
@@ -38,12 +39,13 @@ public class UserService {
      * provider.
      * This method MUST be used for OAuth flows to prevent TTL auto-deletion.
      * 
-     * @param email User email from OAuth provider
-     * @param name  User name from OAuth provider
-     * @param role  User role (ROLE_USER or ROLE_RECRUITER)
+     * @param email    User email from OAuth provider
+     * @param name     User name from OAuth provider
+     * @param role     User role (ROLE_USER or ROLE_RECRUITER)
+     * @param provider OAuth provider (GOOGLE, LINKEDIN)
      * @return Saved user entity
      */
-    public User createOrUpdateOAuthUser(String email, String name, String role) {
+    public User createOrUpdateOAuthUser(String email, String name, String role, String provider) {
         User user = findByEmail(email);
         boolean isNewUser = (user == null);
 
@@ -55,6 +57,7 @@ public class UserService {
             user = new User();
             user.setEmail(email);
             user.setPassword(""); // OAuth users don't have passwords
+            user.setAuthProvider(provider);
             user.setRole(role); // Set role ONLY for new users
             System.out.println("✅ Creating NEW OAuth user with role: " + role);
         } else {

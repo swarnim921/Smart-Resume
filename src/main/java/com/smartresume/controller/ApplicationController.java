@@ -118,6 +118,7 @@ public class ApplicationController {
                 }
             }
             String status = (String) request.get("status");
+            String stageName = (String) request.get("stageName");
             String notes = (String) request.get("notes");
             String recruiterEmail = auth.getName();
 
@@ -125,7 +126,8 @@ public class ApplicationController {
                 return ResponseEntity.badRequest().body(Map.of("error", "No application IDs provided"));
             }
 
-            List<Application> updated = applicationService.updateBulkStatus(ids, status, notes, recruiterEmail);
+            List<Application> updated = applicationService.updateBulkStatus(ids, status, stageName, notes,
+                    recruiterEmail);
             return ResponseEntity.ok(Map.of("message", "Successfully updated " + updated.size() + " applications",
                     "updatedCount", updated.size()));
         } catch (Exception e) {

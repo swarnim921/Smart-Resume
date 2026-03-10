@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -161,7 +160,8 @@ public class ApplicationService {
         return applicationRepository.save(application);
     }
 
-    public List<Application> updateBulkStatus(List<String> ids, String status, String notes, String recruiterEmail) {
+    public List<Application> updateBulkStatus(List<String> ids, String status, String stageName, String notes,
+            String recruiterEmail) {
         List<Application> updatedApps = new ArrayList<>();
         for (String id : ids) {
             try {
@@ -172,10 +172,13 @@ public class ApplicationService {
                 try {
                     Job job = jobRepository.findById(app.getJobId()).orElse(null);
                     if (job != null) {
+                        // If stageName is null/empty, use status as fallback
+                        String finalStageName = (stageName != null && !stageName.isEmpty()) ? stageName : status;
+
                         emailService.sendStatusUpdateEmailWithJob(
                                 app.getCandidateEmail(),
                                 app.getCandidateName(),
-                                job, status, status, notes);
+                                job, status, finalStageName, notes);
                     }
                 } catch (Exception e) {
                     System.err.println("Bulk email failed for " + app.getCandidateEmail() + ": " + e.getMessage());

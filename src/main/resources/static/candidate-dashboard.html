@@ -1005,6 +1005,8 @@
                 }
 
                 statusEl.innerHTML = `<span style="color: #10b981;">✅ Uploaded successfully!</span>`;
+                // Save to localStorage on success
+                localStorage.setItem('lastResumeUpload', JSON.stringify({ name: file.name, time: Date.now() }));
             } catch (error) {
                 console.error(error);
                 statusEl.innerHTML = `<span style="color: #ef4444;">❌ Upload failed: ${error.message}</span>`;
@@ -1037,6 +1039,22 @@
 
         // Initial load
         loadOverview();
+
+        // Check for persistent resume upload status
+        const lastUpload = localStorage.getItem('lastResumeUpload');
+        if (lastUpload) {
+            try {
+                const data = JSON.parse(lastUpload);
+                // Hide if more than 24 hours old
+                if (Date.now() - data.time < 86400000) {
+                    const statusEl = document.getElementById('resumeStatusDb');
+                    if (statusEl) {
+                        statusEl.style.display = 'flex';
+                        statusEl.innerHTML = `<span style="color: #10b981;">✅ Last upload: ${data.name} (Successful)</span>`;
+                    }
+                }
+            } catch (e) { localStorage.removeItem('lastResumeUpload'); }
+        }
     </script>
 </body>
 

@@ -22,6 +22,7 @@ public class User {
     private String verificationCode;
     @org.springframework.data.mongodb.core.index.Indexed(expireAfterSeconds = 0)
     private LocalDateTime verificationCodeExpiresAt;
+    private String authProvider; // LOCAL, GOOGLE, LINKEDIN
 
     // Candidate profile fields
     private String bio;

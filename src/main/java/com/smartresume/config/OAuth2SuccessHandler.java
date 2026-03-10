@@ -31,6 +31,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         log.info("OAuth2 Success Handler triggered!");
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String provider = "UNKNOWN";
+        if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+            provider = ((org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) authentication)
+                    .getAuthorizedClientRegistrationId().toUpperCase();
+        }
 
         // Extract user info
         String email = oAuth2User.getAttribute("email");
@@ -110,8 +115,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // CRITICAL FIX: Use dedicated OAuth method instead of register()
         // OAuth users are pre-verified and must NOT have OTP codes or TTL expiry
-        user = userService.createOrUpdateOAuthUser(email, name, roleToSet);
-        log.info("✅ OAuth user created/updated with role: {} (email: {})", user.getRole(), email);
+        user = userService.createOrUpdateOAuthUser(email, name, roleToSet, provider);
+        log.info("✅ OAuth user created/updated with role: {} (email: {}) using provider: {}", user.getRole(), email,
+                provider);
 
         // Generate JWT token with role claim included
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
