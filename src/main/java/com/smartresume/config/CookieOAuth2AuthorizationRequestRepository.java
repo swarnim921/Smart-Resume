@@ -105,29 +105,22 @@ public class CookieOAuth2AuthorizationRequestRepository
                 .maxAge(maxAge)
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("None")
+                .sameSite("Lax") // Lax is safer for top-level redirects and more widely supported
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
-        log.debug("Added cookie '{}' with SameSite=None and Secure (size: {})", name, value.length());
+        log.debug("Added cookie '{}' with SameSite=Lax and Secure (size: {})", name, value.length());
     }
 
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    org.springframework.http.ResponseCookie deleteCookie = org.springframework.http.ResponseCookie
-                            .from(name, "")
-                            .path("/")
-                            .maxAge(0)
-                            .httpOnly(true)
-                            .secure(true)
-                            .sameSite("None")
-                            .build();
-                    response.addHeader("Set-Cookie", deleteCookie.toString());
-                    log.debug("Deleted cookie '{}' by setting Max-Age=0", name);
-                }
-            }
-        }
+        org.springframework.http.ResponseCookie deleteCookie = org.springframework.http.ResponseCookie
+                .from(name, "")
+                .path("/")
+                .maxAge(0)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Lax")
+                .build();
+        response.addHeader("Set-Cookie", deleteCookie.toString());
+        log.debug("Deleted cookie '{}' by setting Max-Age=0 with SameSite=Lax", name);
     }
 }
