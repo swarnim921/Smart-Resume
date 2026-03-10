@@ -31,8 +31,14 @@ public class CookieOAuth2AuthorizationRequestRepository
         log.debug("Loading OAuth2 authorization request from cookies");
         return getCookie(request, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME)
                 .map(cookie -> {
-                    log.debug("Found authorization request cookie");
-                    return deserialize(cookie, OAuth2AuthorizationRequest.class);
+                    log.debug("Found authorization request cookie: {} bytes", cookie.length());
+                    OAuth2AuthorizationRequest authRequest = deserialize(cookie, OAuth2AuthorizationRequest.class);
+                    if (authRequest != null) {
+                        log.debug("Loaded auth request: state={}, redirectUri={}, nonce={}",
+                                authRequest.getState(), authRequest.getRedirectUri(),
+                                authRequest.getAttribute("nonce"));
+                    }
+                    return authRequest;
                 })
                 .orElseGet(() -> {
                     log.debug("No authorization request cookie found");
@@ -54,6 +60,8 @@ public class CookieOAuth2AuthorizationRequestRepository
         String value = Base64.getUrlEncoder().withoutPadding()
                 .encodeToString(SerializationUtils.serialize(authorizationRequest));
         addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, value, COOKIE_EXPIRE_SECONDS);
+        log.debug("Saved auth request: state={}, nonce={}", authorizationRequest.getState(),
+                authorizationRequest.getAttribute("nonce"));
 
         String redirectUriAfterLogin = request.getParameter(REDIRECT_URI_PARAM_COOKIE_NAME);
         if (redirectUriAfterLogin != null && !redirectUriAfterLogin.isBlank()) {
