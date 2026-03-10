@@ -13,7 +13,9 @@ torch.set_num_threads(1)
 
 print("⏳ Loading SentenceTransformer model...")
 model = SentenceTransformer('all-MiniLM-L6-v2')
-print("✅ Model loaded.")
+# Warm-up call to eliminate first-request latency
+model.encode("warmup")
+print("✅ Model loaded and warmed up.")
 
 def load_skill_database():
     """
