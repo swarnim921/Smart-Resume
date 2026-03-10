@@ -949,9 +949,22 @@
         window.addEventListener('load', () => {
             if (sessionStorage.getItem('token')) {
                 const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-                if (confirm(`Already signed in as ${user.name}. Go to dashboard?`)) {
-                    window.location.href = user.role === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
-                }
+                // Auto-redirect after a short delay for smooth UX
+                setTimeout(() => {
+                    if (sessionStorage.getItem('token')) { // Check again in case they clicked logout
+                        window.location.href = user.role === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
+                    }
+                }, 1500);
+
+                // Show a non-intrusive banner instead of alert
+                const banner = document.createElement('div');
+                banner.style = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:white;padding:12px 24px;border-radius:30px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:10000;display:flex;align-items:center;gap:15px;font-size:14px;font-weight:500;';
+                banner.innerHTML = `
+                    <span>Signed in as ${user.name}</span>
+                    <button onclick="location.href='${user.role === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html'}'" style="background:white;color:var(--accent);border:none;padding:5px 15px;border-radius:15px;cursor:pointer;font-weight:bold;">Dashboard</button>
+                    <button onclick="sessionStorage.clear(); location.reload();" style="background:rgba(255,255,255,0.2);color:white;border:none;padding:5px 15px;border-radius:15px;cursor:pointer;">Sign Out</button>
+                `;
+                document.body.appendChild(banner);
             }
         });
 
