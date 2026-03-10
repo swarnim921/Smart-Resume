@@ -8,8 +8,7 @@ import org.springframework.security.oauth2.client.web.DefaultOAuth2Authorization
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.stereotype.Component;
 
 import java.util.Base64;
 import java.util.HashMap;
@@ -22,6 +21,7 @@ import java.util.Map;
  * Since we don't use issuer-uri (to avoid startup crashes on Render),
  * we must manually add the nonce to the request.
  */
+@Component
 public class CustomOAuth2AuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
 
     private final OAuth2AuthorizationRequestResolver defaultResolver;
