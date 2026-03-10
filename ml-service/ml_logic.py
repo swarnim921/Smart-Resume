@@ -64,18 +64,43 @@ IMPLICATION_RULES = get_implications()
 # 2. HELPER FUNCTIONS
 # ==========================================
 
+def tokenize_text(text):
+    """
+    Core DSA Optimization: Tokenizes text into unigrams and bigrams
+    and stores them in a Hash Set for O(1) instantaneous lookups.
+    Time Complexity: O(N) where N is number of words.
+    Space Complexity: O(N)
+    """
+    text_lower = text.lower()
+    # Simple unigram tokenization (words only)
+    words = re.findall(r'\b\w+\b', text_lower)
+    
+    # Generate bi-grams (two-word phrases like 'machine learning')
+    bigrams = []
+    for i in range(len(words) - 1):
+        bigrams.append(f"{words[i]} {words[i+1]}")
+        
+    # Store everything in a Hash Set for O(1) lookups
+    tokens = set(words).union(set(bigrams))
+    
+    # Add the raw string for edge-cases where phrase is > 2 words (e.g. 'natural language processing')
+    return tokens, text_lower
+
 def calculate_keyword_score(resume_text, jd_text):
     """
-    Calculates the percentage of JD keywords present in the Resume.
+    Calculates the percentage of JD keywords present in the Resume using Set Intersections.
     """
-    jd_lower = jd_text.lower()
-    resume_lower = resume_text.lower()
+    jd_tokens, jd_str = tokenize_text(jd_text)
+    resume_tokens, resume_str = tokenize_text(resume_text)
     
-    # 1. Identify skills explicitly required in JD
+    # 1. Identify skills required in JD (O(K) lookup)
     required_skills = set()
     for skill in ALL_SKILLS:
-        pattern = r'\b' + re.escape(skill) + r'\b'
-        if re.search(pattern, jd_lower):
+        # If skill is a simple unigram/bigram, use O(1) Hash Set lookup
+        if skill in jd_tokens:
+            required_skills.add(skill)
+        # Fallback for >2 word skills: simple string check
+        elif len(skill.split()) > 2 and skill in jd_str:
             required_skills.add(skill)
 
     if not required_skills:
@@ -84,14 +109,12 @@ def calculate_keyword_score(resume_text, jd_text):
     # 2. Check if required skills exist in Resume (or are implied)
     matched_skills = 0
     for skill in required_skills:
-        pattern = r'\b' + re.escape(skill) + r'\b'
-        if re.search(pattern, resume_lower):
+        if skill in resume_tokens or (len(skill.split()) > 2 and skill in resume_str):
             matched_skills += 1
         elif skill in IMPLICATION_RULES:
-            # Check implications (e.g., if JD asks for 'OOP' and Resume has 'Java')
+            # Check implications (e.g., if JD asks for 'OOP' and Resume has O(1) 'Java')
             for evidence in IMPLICATION_RULES[skill]:
-                evidence_pattern = r'\b' + re.escape(evidence) + r'\b'
-                if re.search(evidence_pattern, resume_lower):
+                if evidence in resume_tokens or (len(evidence.split()) > 2 and evidence in resume_str):
                     matched_skills += 1
                     break
                     
@@ -99,31 +122,27 @@ def calculate_keyword_score(resume_text, jd_text):
 
 def identify_gaps(resume_text, jd_text):
     """
-    Identifies specific skills found in JD but missing in Resume.
+    Identifies specific skills found in JD but missing in Resume using Set Intersections.
     """
-    resume_lower = resume_text.lower()
-    jd_lower = jd_text.lower()
+    resume_tokens, resume_str = tokenize_text(resume_text)
+    jd_tokens, jd_str = tokenize_text(jd_text)
+    
     missing_tech = []
     missing_soft = []
 
     def check_category(category_set, output_list):
-        # Find what JD needs
         required = set()
         for skill in category_set:
-            pattern = r'\b' + re.escape(skill) + r'\b'
-            if re.search(pattern, jd_lower):
+            if skill in jd_tokens or (len(skill.split()) > 2 and skill in jd_str):
                 required.add(skill)
 
-        # Check if Resume has it
         for skill in required:
-            pattern = r'\b' + re.escape(skill) + r'\b'
-            if not re.search(pattern, resume_lower):
+            if skill not in resume_tokens and not (len(skill.split()) > 2 and skill in resume_str):
                 # Check for implication before declaring it missing
                 found_implied = False
                 if skill in IMPLICATION_RULES:
                     for evidence in IMPLICATION_RULES[skill]:
-                        evidence_pattern = r'\b' + re.escape(evidence) + r'\b'
-                        if re.search(evidence_pattern, resume_lower):
+                        if evidence in resume_tokens or (len(evidence.split()) > 2 and evidence in resume_str):
                             found_implied = True
                             break
                 if not found_implied:
@@ -142,27 +161,26 @@ def identify_gaps(resume_text, jd_text):
 def extract_skills(resume_text):
     """
     Extracts explicit skills and estimates experience from text.
+    Optimized to O(N + K) using Hash Sets.
     """
-    resume_lower = resume_text.lower()
+    resume_tokens, resume_str = tokenize_text(resume_text)
     found_tech = []
     found_soft = []
     
-    # Extract Tech Skills
+    # Extract Tech Skills (O(1) Hash lookups)
     for skill in TECH_SKILLS:
-        pattern = r'\b' + re.escape(skill) + r'\b'
-        if re.search(pattern, resume_lower):
+        if skill in resume_tokens or (len(skill.split()) > 2 and skill in resume_str):
             found_tech.append(skill.title())
             
     # Extract Soft Skills
     for skill in SOFT_SKILLS:
-        pattern = r'\b' + re.escape(skill) + r'\b'
-        if re.search(pattern, resume_lower):
+        if skill in resume_tokens or (len(skill.split()) > 2 and skill in resume_str):
             found_soft.append(skill.title())
             
-    # Extract Experience (Heuristic)
+    # Extract Experience (Regex is still optimal here for arbitrary numeric patterns)
     experience = "Not specified"
     exp_pattern = r'(\d+(\+)?)\s*(years?|yrs?)'
-    matches = re.findall(exp_pattern, resume_lower)
+    matches = re.findall(exp_pattern, resume_str)
     if matches:
         try:
             years = [int(m[0].replace('+', '')) for m in matches]
