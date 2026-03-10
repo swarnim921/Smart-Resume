@@ -1,6 +1,7 @@
 import re
-import pandas as pd
+import json
 import torch
+import os
 from sentence_transformers import SentenceTransformer, util
 
 # Limit PyTorch threads to save memory and CPU churn
@@ -10,37 +11,41 @@ torch.set_num_threads(1)
 # 1. INITIALIZATION & CONFIGURATION
 # ==========================================
 
-# Load the model globally so it's only loaded once when the Flask app starts
 print("⏳ Loading SentenceTransformer model...")
 model = SentenceTransformer('all-MiniLM-L6-v2')
 print("✅ Model loaded.")
 
-def get_skill_taxonomies():
+def load_skill_database():
     """
-    Returns sets of technical and soft skills for matching.
+    Loads tech and soft skills from an external JSON file.
     """
-    tech_skills = {
-        "python", "java", "c++", "c#", "javascript", "typescript", "ruby", "php", "swift", "kotlin",
-        "react", "angular", "vue", "node.js", "django", "flask", "spring boot", "dotnet",
-        "html", "css", "sql", "nosql", "mysql", "postgresql", "mongodb", "oracle",
-        "aws", "azure", "gcp", "docker", "kubernetes", "jenkins", "terraform", "git", "github",
-        "gitlab", "jira", "confluence", "tableau", "powerbi", "excel", "figma",
-        "machine learning", "deep learning", "nlp", "tensorflow", "pytorch", "scikit-learn",
-        "oop", "object oriented", "functional programming", "rest api", "graphql", "ci/cd",
-        "devops", "agile", "scrum", "kanban", "sdlc", "data structures", "algorithms",
-        "linux", "unix", "bash", "shell"
-    }
-    soft_skills = {
-        "communication", "leadership", "teamwork", "problem solving", "critical thinking",
-        "time management", "adaptability", "collaboration", "creativity", "emotional intelligence",
-        "negotiation", "conflict resolution", "decision making", "mentoring", "presentation",
-        "active listening", "flexibility", "work ethic", "detail oriented", "stakeholder management"
-    }
-    return tech_skills, soft_skills
+    db_path = os.path.join(os.path.dirname(__file__), 'skills_database.json')
+    try:
+        with open(db_path, 'r') as f:
+            data = json.load(f)
+        return set(data.get("technical_skills", [])), set(data.get("soft_skills", []))
+    except Exception as e:
+        print(f"❌ Error loading skills database: {e}")
+        # Fallback to minimal set if file missing
+        return {"python", "java"}, {"communication"}
 
-# Initialize taxonomies
-TECH_SKILLS, SOFT_SKILLS = get_skill_taxonomies()
+TECH_SKILLS, SOFT_SKILLS = load_skill_database()
 ALL_SKILLS = TECH_SKILLS.union(SOFT_SKILLS)
+
+def get_skill_aliases():
+    """
+    Mapping of shorthand or alternative names to standardized skill names.
+    """
+    return {
+        "js": "javascript", "ts": "typescript", "gcp": "google cloud",
+        "aws": "amazon web services", "ml": "machine learning",
+        "dl": "deep learning", "nlp": "natural language processing",
+        "ci": "ci/cd", "cd": "ci/cd", "kube": "kubernetes",
+        "k8s": "kubernetes", "postgres": "postgresql", "mongo": "mongodb",
+        "net": ".net", "dotnet": ".net", "ai": "artificial intelligence"
+    }
+
+SKILL_ALIASES = get_skill_aliases()
 
 def get_implications():
     """
@@ -59,32 +64,6 @@ def get_implications():
 
 IMPLICATION_RULES = get_implications()
 
-def get_skill_aliases():
-    """
-    Mapping of shorthand or alternative names to standardized skill names.
-    This boosts recall (e.g. 'JS' -> 'JavaScript').
-    """
-    return {
-        "js": "javascript",
-        "ts": "typescript",
-        "gcp": "google cloud",
-        "aws": "amazon web services",
-        "ml": "machine learning",
-        "dl": "deep learning",
-        "nlp": "natural language processing",
-        "ci": "ci/cd",
-        "cd": "ci/cd",
-        "kube": "kubernetes",
-        "k8s": "kubernetes",
-        "postgres": "postgresql",
-        "mongo": "mongodb",
-        "net": ".net",
-        "dotnet": ".net"
-    }
-
-SKILL_ALIASES = get_skill_aliases()
-
-
 # ==========================================
 # 2. HELPER FUNCTIONS
 # ==========================================
@@ -92,91 +71,79 @@ SKILL_ALIASES = get_skill_aliases()
 def tokenize_text(text):
     """
     Industry-Grade Optimization: 
-    1. Special Regex for C++, C#, .NET
-    2. Unigram, Bigram, and Trigram generation.
-    3. Alias expansion into the Hash Set.
+    1. Lowercase & Sanitize
+    2. Special Regex for C++, C#, .NET
+    3. Unigram, Bigram, and Trigram generation.
+    4. Alias expansion into the Hash Set.
     """
-    text_lower = text.lower()
+    text_lower = text.lower().replace("-", " ")
     
     # Advanced tokenization: capture words and common technical symbols (+, #, .)
-    # This ensures 'c++', 'c#', and '.net' are treated as single tokens.
     words = re.findall(r'(?:\.\w+)|(?:\w+[+#]{1,2})|(?:\w+)', text_lower)
     
     tokens = set(words)
     
-    # Generate bi-grams (two-word phrases)
+    # Generate bi-grams
     for i in range(len(words) - 1):
         tokens.add(f"{words[i]} {words[i+1]}")
         
-    # Generate tri-grams (three-word phrases like 'natural language processing')
+    # Generate tri-grams
     for i in range(len(words) - 2):
         tokens.add(f"{words[i]} {words[i+1]} {words[i+2]}")
         
-    # Alias Expansion: If 'JS' is found, add 'JavaScript' to tokens for matching
-    alias_tokens = set()
+    # Alias Expansion
+    added_via_alias = set()
     for token in tokens:
         if token in SKILL_ALIASES:
-            alias_tokens.add(SKILL_ALIASES[token])
+            added_via_alias.add(SKILL_ALIASES[token])
             
-    return tokens.union(alias_tokens), text_lower
+    return tokens.union(added_via_alias), text_lower
 
 def calculate_keyword_score(resume_text, jd_text):
     """
     Calculates the percentage of JD keywords present in the Resume using Set Intersections.
     """
+    resume_tokens, _ = tokenize_text(resume_text)
     jd_tokens, jd_str = tokenize_text(jd_text)
-    resume_tokens, resume_str = tokenize_text(resume_text)
     
-    # 1. Identify skills required in JD (O(K) lookup)
-    required_skills = set()
-    for skill in ALL_SKILLS:
-        # Now 1, 2, and 3-word skills all use O(1) Hash Set lookup
-        if skill in jd_tokens:
-            required_skills.add(skill)
-        # Fallback only for extremely long rare titles
-        elif len(skill.split()) > 3 and skill in jd_str:
-            required_skills.add(skill)
+    # Identify skills required in JD
+    required_skills = {s for s in ALL_SKILLS if s in jd_tokens or (len(s.split()) > 3 and s in jd_str)}
 
     if not required_skills:
         return 0.0
 
-    # 2. Check if required skills exist in Resume (or are implied)
-    matched_skills = 0
+    matched_count = 0
     for skill in required_skills:
-        if skill in resume_tokens or (len(skill.split()) > 2 and skill in resume_str):
-            matched_skills += 1
+        if skill in resume_tokens:
+            matched_count += 1
         elif skill in IMPLICATION_RULES:
-            # Check implications (e.g., if JD asks for 'OOP' and Resume has O(1) 'Java')
             for evidence in IMPLICATION_RULES[skill]:
-                if evidence in resume_tokens or (len(evidence.split()) > 2 and evidence in resume_str):
-                    matched_skills += 1
+                if evidence in resume_tokens:
+                    matched_count += 1
                     break
                     
-    return (matched_skills / len(required_skills)) * 100
+    return (matched_count / len(required_skills)) * 100
 
 def identify_gaps(resume_text, jd_text):
     """
-    Identifies specific skills found in JD but missing in Resume using Set Intersections.
+    Identifies specific skills found in JD but missing in Resume.
     """
-    resume_tokens, resume_str = tokenize_text(resume_text)
+    resume_tokens, _ = tokenize_text(resume_text)
     jd_tokens, jd_str = tokenize_text(jd_text)
     
     missing_tech = []
     missing_soft = []
 
     def check_category(category_set, output_list):
-        required = set()
-        for skill in category_set:
-            if skill in jd_tokens or (len(skill.split()) > 3 and skill in jd_str):
-                required.add(skill)
+        required = {s for s in category_set if s in jd_tokens or (len(s.split()) > 3 and s in jd_str)}
 
         for skill in required:
-            if skill not in resume_tokens and not (len(skill.split()) > 3 and skill in resume_str):
-                # Check for implication before declaring it missing
+            if skill not in resume_tokens:
+                # Check for implication
                 found_implied = False
                 if skill in IMPLICATION_RULES:
                     for evidence in IMPLICATION_RULES[skill]:
-                        if evidence in resume_tokens or (len(evidence.split()) > 3 and evidence in resume_str):
+                        if evidence in resume_tokens:
                             found_implied = True
                             break
                 if not found_implied:
@@ -187,7 +154,6 @@ def identify_gaps(resume_text, jd_text):
     
     return missing_tech, missing_soft
 
-
 # ==========================================
 # 3. MAIN API FUNCTIONS
 # ==========================================
@@ -195,23 +161,12 @@ def identify_gaps(resume_text, jd_text):
 def extract_skills(resume_text):
     """
     Extracts explicit skills and estimates experience from text.
-    Optimized to O(N + K) using Hash Sets.
     """
     resume_tokens, resume_str = tokenize_text(resume_text)
-    found_tech = []
-    found_soft = []
-    
-    # Extract Tech Skills (O(1) Hash lookups)
-    for skill in TECH_SKILLS:
-        if skill in resume_tokens or (len(skill.split()) > 3 and skill in resume_str):
-            found_tech.append(skill.title())
+    found_tech = [s.title() for s in TECH_SKILLS if s in resume_tokens]
+    found_soft = [s.title() for s in SOFT_SKILLS if s in resume_tokens]
             
-    # Extract Soft Skills
-    for skill in SOFT_SKILLS:
-        if skill in resume_tokens or (len(skill.split()) > 3 and skill in resume_str):
-            found_soft.append(skill.title())
-            
-    # Extract Experience (Regex is still optimal here for arbitrary numeric patterns)
+    # Experience Detection (Regex remains optimal)
     experience = "Not specified"
     exp_pattern = r'(\d+(\+)?)\s*(years?|yrs?)'
     matches = re.findall(exp_pattern, resume_str)
@@ -219,8 +174,7 @@ def extract_skills(resume_text):
         try:
             years = [int(m[0].replace('+', '')) for m in matches]
             experience = f"{max(years)} years detected"
-        except:
-            pass
+        except: pass
             
     return {
         "technical_skills": found_tech,
@@ -230,37 +184,41 @@ def extract_skills(resume_text):
 
 def analyze_resume_job_match(resume_text, job_description):
     """
-    Computes a hybrid match score (Semantic + Keyword) and identifies gaps.
+    Industry-grade hybrid match score: 50% Semantic, 30% Keyword, 20% Skill Overlap.
     """
-    # 1. Semantic Score (Cosine Similarity)
+    # 1. Semantic (Cosine Similarity)
     resume_embedding = model.encode(resume_text, convert_to_tensor=True)
     jd_embedding = model.encode(job_description, convert_to_tensor=True)
     semantic_score = util.cos_sim(resume_embedding, jd_embedding).item() * 100
 
-    # 2. Keyword Score (Exact Matching with Implications)
+    # 2. Keyword Score (Exact + Implied)
     keyword_score = calculate_keyword_score(resume_text, job_description)
 
-    # 3. Final Weighted Score (70% Semantic, 30% Keyword)
-    final_score = (semantic_score * 0.70) + (keyword_score * 0.30)
+    # 3. Skill Overlap (Direct intersection percentage)
+    resume_tokens, _ = tokenize_text(resume_text)
+    jd_tokens, jd_str = tokenize_text(job_description)
+    jd_skills = {s for s in ALL_SKILLS if s in jd_tokens or (len(s.split()) > 3 and s in jd_str)}
     
-    # 4. Identify Skill Gaps
+    overlap_score = 0.0
+    if jd_skills:
+        matched_skills = {s for s in jd_skills if s in resume_tokens}
+        overlap_score = (len(matched_skills) / len(jd_skills)) * 100
+
+    # Weighted Calculation
+    final_score = (semantic_score * 0.50) + (keyword_score * 0.30) + (overlap_score * 0.20)
+    
     missing_tech, missing_soft = identify_gaps(resume_text, job_description)
-    
-    # 5. Extract matched skills for display
     extracted = extract_skills(resume_text)
-    all_resume_skills = set([s.lower() for s in extracted['technical_skills'] + extracted['soft_skills']])
     
-    matched_skills = []
-    jd_lower = job_description.lower()
-    for skill in all_resume_skills:
-        if skill in jd_lower:
-            matched_skills.append(skill.title())
+    # Matched skills for display
+    display_matched = [s.title() for s in jd_skills if s in resume_tokens]
 
     return {
         "match_percentage": round(final_score, 1),
         "semantic_score": round(semantic_score, 1),
         "keyword_score": round(keyword_score, 1),
-        "matched_skills": matched_skills,
+        "skill_overlap": round(overlap_score, 1),
+        "matched_skills": display_matched,
         "missing_technical_skills": missing_tech,
         "missing_soft_skills": missing_soft
     }
@@ -270,15 +228,12 @@ def recommend_courses(current_skills, target_skills):
     Generates course recommendations based on missing skills.
     """
     recommendations = []
-    
     for skill in target_skills:
         skill_clean = skill.strip().title()
-        rec = {
+        recommendations.append({
             "skill": skill_clean,
             "course_name": f"Mastering {skill_clean}: From Zero to Hero",
             "platform": "Coursera / Udemy / EdX",
             "query_link": f"https://www.coursera.org/search?query={skill_clean}"
-        }
-        recommendations.append(rec)
-        
+        })
     return recommendations
