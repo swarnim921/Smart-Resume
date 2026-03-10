@@ -24,7 +24,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenDecoderFactory;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
@@ -48,13 +47,38 @@ public class SecurityConfig {
 
                 // Create a custom JwtDecoderFactory that explicitly skips the
                 // OidcIdTokenValidator (which enforces the nonce)
-                // We only use the standard Timestamp and Issuer validators.
                 OidcIdTokenDecoderFactory idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
-                idTokenDecoderFactory.setJwtValidatorFactory(clientRegistration -> new DelegatingOAuth2TokenValidator<>(
-                                new JwtTimestampValidator(),
-                                new JwtIssuerValidator(clientRegistration.getProviderDetails().getIssuerUri() != null
-                                                ? clientRegistration.getProviderDetails().getIssuerUri()
-                                                : "")));
+                idTokenDecoderFactory.setJwtValidatorFactory(clientRegistration -> {
+                        return new DelegatingOAuth2TokenValidator<>(
+                                        new JwtTimestampValidator(),
+                                        // Custom Issuer Validator to handle LinkedIn's known mismatch
+                                        (jwt) -> {
+                                                String issuer = jwt.getIssuer() != null ? jwt.getIssuer().toString()
+                                                                : "";
+                                                if (issuer.equals("https://www.linkedin.com")
+                                                                || issuer.equals("https://www.linkedin.com/oauth")) {
+                                                        return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
+                                                                        .success();
+                                                }
+                                                // Default fallback for other providers
+                                                String expectedIssuer = clientRegistration.getProviderDetails()
+                                                                .getIssuerUri() != null
+                                                                                ? clientRegistration
+                                                                                                .getProviderDetails()
+                                                                                                .getIssuerUri()
+                                                                                : "";
+                                                if (expectedIssuer.isEmpty() || issuer.equals(expectedIssuer)) {
+                                                        return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
+                                                                        .success();
+                                                }
+                                                return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
+                                                                .failure(
+                                                                                new org.springframework.security.oauth2.core.OAuth2Error(
+                                                                                                "invalid_issuer",
+                                                                                                "The iss claim is not valid",
+                                                                                                null));
+                                        });
+                });
 
                 // Wire up the custom auth provider that uses our specialized decoder factory
                 OidcAuthorizationCodeAuthenticationProvider oidcAuthProvider = new OidcAuthorizationCodeAuthenticationProvider(
