@@ -45,48 +45,7 @@ public class SecurityConfig {
         public SecurityFilterChain filterChain(HttpSecurity http,
                         ClientRegistrationRepository clientRegistrationRepository) throws Exception {
 
-                // Create a custom JwtDecoderFactory that explicitly skips the
-                // OidcIdTokenValidator (which enforces the nonce)
-                OidcIdTokenDecoderFactory idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
-                idTokenDecoderFactory.setJwtValidatorFactory(clientRegistration -> {
-                        return new DelegatingOAuth2TokenValidator<>(
-                                        new JwtTimestampValidator(),
-                                        // Custom Issuer Validator to handle LinkedIn's known mismatch
-                                        (jwt) -> {
-                                                String issuer = jwt.getIssuer() != null ? jwt.getIssuer().toString()
-                                                                : "";
-                                                if (issuer.equals("https://www.linkedin.com")
-                                                                || issuer.equals("https://www.linkedin.com/oauth")) {
-                                                        return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
-                                                                        .success();
-                                                }
-                                                // Default fallback for other providers
-                                                String expectedIssuer = clientRegistration.getProviderDetails()
-                                                                .getIssuerUri() != null
-                                                                                ? clientRegistration
-                                                                                                .getProviderDetails()
-                                                                                                .getIssuerUri()
-                                                                                : "";
-                                                if (expectedIssuer.isEmpty() || issuer.equals(expectedIssuer)) {
-                                                        return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
-                                                                        .success();
-                                                }
-                                                return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
-                                                                .failure(
-                                                                                new org.springframework.security.oauth2.core.OAuth2Error(
-                                                                                                "invalid_issuer",
-                                                                                                "The iss claim is not valid",
-                                                                                                null));
-                                        });
-                });
-
-                // Wire up the custom auth provider that uses our specialized decoder factory
-                OidcAuthorizationCodeAuthenticationProvider oidcAuthProvider = new OidcAuthorizationCodeAuthenticationProvider(
-                                accessTokenResponseClient(), new OidcUserService());
-                oidcAuthProvider.setJwtDecoderFactory(idTokenDecoderFactory);
-
-                http.authenticationProvider(oidcAuthProvider);
-
+                // Custom resolver to handle LinkedIn nonces and PKCE stripping
                 OAuth2AuthorizationRequestResolver customResolver = new CustomOAuth2AuthorizationRequestResolver(
                                 clientRegistrationRepository);
 
@@ -209,14 +168,45 @@ public class SecurityConfig {
         }
 
         @Bean
+        public OidcIdTokenDecoderFactory idTokenDecoderFactory() {
+                OidcIdTokenDecoderFactory idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
+                idTokenDecoderFactory.setJwtValidatorFactory(clientRegistration -> {
+                        return new DelegatingOAuth2TokenValidator<>(
+                                        new JwtTimestampValidator(),
+                                        // Custom Issuer Validator to handle LinkedIn's known mismatch
+                                        (jwt) -> {
+                                                String issuer = jwt.getIssuer() != null ? jwt.getIssuer().toString()
+                                                                : "";
+                                                if (issuer.equals("https://www.linkedin.com")
+                                                                || issuer.equals("https://www.linkedin.com/oauth")) {
+                                                        return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
+                                                                        .success();
+                                                }
+                                                // Default fallback for other providers
+                                                String expectedIssuer = clientRegistration.getProviderDetails()
+                                                                .getIssuerUri() != null
+                                                                                ? clientRegistration
+                                                                                                .getProviderDetails()
+                                                                                                .getIssuerUri()
+                                                                                : "";
+                                                if (expectedIssuer.isEmpty() || issuer.equals(expectedIssuer)) {
+                                                        return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
+                                                                        .success();
+                                                }
+                                                return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
+                                                                .failure(
+                                                                                new org.springframework.security.oauth2.core.OAuth2Error(
+                                                                                                "invalid_issuer",
+                                                                                                "The iss claim is not valid",
+                                                                                                null));
+                                        });
+                });
+                return idTokenDecoderFactory;
+        }
+
+        @Bean
         public PasswordEncoder passwordEncoder() {
                 return new BCryptPasswordEncoder();
         }
-
-        // @Bean
-        // public AuthenticationManager
-        // authenticationManager(AuthenticationConfiguration config) throws Exception {
-        // return config.getAuthenticationManager();
-        // }
 
 }
