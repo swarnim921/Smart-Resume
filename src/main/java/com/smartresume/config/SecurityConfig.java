@@ -36,7 +36,8 @@ public class SecurityConfig {
         private final CookieOAuth2AuthorizationRequestRepository cookieOAuth2Repository;
 
         @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        public SecurityFilterChain filterChain(HttpSecurity http,
+                        OAuth2AuthorizationRequestResolver authorizationRequestResolver) throws Exception {
 
                 http.csrf(csrf -> csrf.disable())
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -77,11 +78,7 @@ public class SecurityConfig {
                                                 .authorizationEndpoint(a -> a
                                                                 .authorizationRequestRepository(cookieOAuth2Repository)
                                                                 .authorizationRequestResolver(
-                                                                                authorizationRequestResolver(null))) // Will
-                                                                                                                     // be
-                                                                                                                     // injected
-                                                                                                                     // by
-                                                                                                                     // Spring
+                                                                                authorizationRequestResolver))
                                                 .tokenEndpoint(t -> t
                                                                 .accessTokenResponseClient(accessTokenResponseClient()))
                                                 .successHandler(oAuth2SuccessHandler)
