@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.client.web.DefaultOAuth2Authorization
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,10 +67,10 @@ public class CustomOAuth2AuthorizationRequestResolver implements OAuth2Authoriza
 
         // Remove PKCE parameters as LinkedIn's confidential app flow doesn't support
         // them fully
-        attributes.remove(OAuth2ParameterNames.CODE_CHALLENGE);
-        attributes.remove(OAuth2ParameterNames.CODE_CHALLENGE_METHOD);
-        additionalParameters.remove(OAuth2ParameterNames.CODE_CHALLENGE);
-        additionalParameters.remove(OAuth2ParameterNames.CODE_CHALLENGE_METHOD);
+        attributes.remove(PkceParameterNames.CODE_CHALLENGE);
+        attributes.remove(PkceParameterNames.CODE_CHALLENGE_METHOD);
+        additionalParameters.remove(PkceParameterNames.CODE_CHALLENGE);
+        additionalParameters.remove(PkceParameterNames.CODE_CHALLENGE_METHOD);
 
         // Add nonce to the URL parameters sent to LinkedIn
         additionalParameters.put("nonce", nonce);
