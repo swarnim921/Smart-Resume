@@ -2,6 +2,8 @@ package com.smartresume.service;
 
 import com.smartresume.model.HiringStage;
 import com.smartresume.model.Job;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -13,6 +15,8 @@ import java.util.List;
 @Service
 public class EmailService {
 
+        private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+
         @Autowired
         private JavaMailSender mailSender;
 
@@ -20,16 +24,29 @@ public class EmailService {
         private String fromEmail;
 
         public void sendVerificationEmail(String toEmail, String code) {
-                SimpleMailMessage message = new SimpleMailMessage();
-                String sender = (fromEmail != null && !fromEmail.isEmpty()) ? fromEmail : "noreply@talentsync.in";
-                message.setFrom("TalentSync <" + sender + ">");
-                message.setTo(toEmail);
-                message.setSubject("Your TalentSync Verification Code");
-                message.setText("Welcome to TalentSync!\n\n" +
-                                "Your verification code is: " + code + "\n\n" +
-                                "This code will expire in 15 minutes.\n\n" +
-                                "If you didn't request this code, please ignore this email.");
-                mailSender.send(message);
+                try {
+                        logger.info("📧 Attempting to send verification email to: {}", toEmail);
+                        SimpleMailMessage message = new SimpleMailMessage();
+
+                        // Trim and fallback to ensure we have a valid sender
+                        String sender = (fromEmail != null && !fromEmail.trim().isEmpty()) ? fromEmail.trim()
+                                        : "noreply@talentsync.in";
+
+                        // Use a simpler "From" format if needed, but keeping the name for now
+                        message.setFrom("TalentSync <" + sender + ">");
+                        message.setTo(toEmail);
+                        message.setSubject("Your TalentSync Verification Code");
+                        message.setText("Welcome to TalentSync!\n\n" +
+                                        "Your verification code is: " + code + "\n\n" +
+                                        "This code will expire in 15 minutes.\n\n" +
+                                        "If you didn't request this code, please ignore this email.");
+
+                        mailSender.send(message);
+                        logger.info("✅ Verification email sent successfully to: {}", toEmail);
+                } catch (Exception e) {
+                        logger.error("❌ Failed to send verification email to {}: {}", toEmail, e.getMessage(), e);
+                        throw e; // Rethrow so AuthController can handle rollback
+                }
         }
 
         public void sendStatusUpdateEmail(String toEmail, String candidateName, String jobTitle, String status,
