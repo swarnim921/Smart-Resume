@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -108,7 +109,14 @@ public class ApplicationController {
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<?> bulkUpdateStatus(@RequestBody Map<String, Object> request, Authentication auth) {
         try {
-            List<String> ids = (List<String>) request.get("ids");
+            Object idsObj = request.get("ids");
+            List<String> ids = new ArrayList<>();
+            if (idsObj instanceof List<?>) {
+                for (Object o : (List<?>) idsObj) {
+                    if (o instanceof String)
+                        ids.add((String) o);
+                }
+            }
             String status = (String) request.get("status");
             String notes = (String) request.get("notes");
             String recruiterEmail = auth.getName();

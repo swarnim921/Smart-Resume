@@ -125,13 +125,6 @@ public class EmailTemplateController {
                 .replace("{{interviewDateTime}}", dt != null ? dt : "")
                 .replace("{{recruiterNotes}}",
                         (notes != null && !notes.isEmpty()) ? "\n\nNote from recruiter: " + notes : "");
-    }return ResponseEntity.ok(Map.of("subject",subject,"body",body));}catch(
-
-    Exception e)
-    {
-        return ResponseEntity.ok(Map.of("subject", "Application Update", "body",
-                "Status update email will be sent to the candidate."));
-    }
     }
 
     /**
