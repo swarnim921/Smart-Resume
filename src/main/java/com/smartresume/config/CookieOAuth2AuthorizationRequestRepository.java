@@ -110,6 +110,7 @@ public class CookieOAuth2AuthorizationRequestRepository
     private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from(name, value)
                 .path("/")
+                .domain(".talentsynctech.in") // Explicit domain for cross-subdomain sharing
                 .maxAge(maxAge)
                 .httpOnly(true)
                 .secure(true)
@@ -123,6 +124,7 @@ public class CookieOAuth2AuthorizationRequestRepository
         org.springframework.http.ResponseCookie deleteCookie = org.springframework.http.ResponseCookie
                 .from(name, "")
                 .path("/")
+                .domain(".talentsynctech.in")
                 .maxAge(0)
                 .httpOnly(true)
                 .secure(true)
