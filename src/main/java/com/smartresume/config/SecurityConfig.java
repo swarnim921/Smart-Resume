@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +35,10 @@ public class SecurityConfig {
         private OAuth2SuccessHandler oAuth2SuccessHandler;
         @Autowired
         private CookieOAuth2AuthorizationRequestRepository cookieOAuth2Repository;
-        @Autowired
-        @Lazy
-        private ClientRegistrationRepository clientRegistrationRepository;
 
         @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        public SecurityFilterChain filterChain(HttpSecurity http,
+                        ClientRegistrationRepository clientRegistrationRepository) throws Exception {
 
                 OAuth2AuthorizationRequestResolver customResolver = new CustomOAuth2AuthorizationRequestResolver(
                                 clientRegistrationRepository);
