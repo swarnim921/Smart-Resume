@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
@@ -31,6 +33,7 @@ public class SecurityConfig {
         private final JwtFilter jwtFilter;
         private final OAuth2SuccessHandler oAuth2SuccessHandler;
         private final CookieOAuth2AuthorizationRequestRepository cookieOAuth2Repository;
+        private final ClientRegistrationRepository clientRegistrationRepository;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -72,7 +75,9 @@ public class SecurityConfig {
                                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .oauth2Login(oauth2 -> oauth2
                                                 .authorizationEndpoint(a -> a
-                                                                .authorizationRequestRepository(cookieOAuth2Repository))
+                                                                .authorizationRequestRepository(cookieOAuth2Repository)
+                                                                .authorizationRequestResolver(
+                                                                                authorizationRequestResolver()))
                                                 .tokenEndpoint(t -> t
                                                                 .accessTokenResponseClient(accessTokenResponseClient()))
                                                 .successHandler(oAuth2SuccessHandler)
@@ -149,6 +154,11 @@ public class SecurityConfig {
 
                 accessTokenResponseClient.setRestOperations(restTemplate);
                 return accessTokenResponseClient;
+        }
+
+        @Bean
+        public OAuth2AuthorizationRequestResolver authorizationRequestResolver() {
+                return new CustomOAuth2AuthorizationRequestResolver(clientRegistrationRepository);
         }
 
         @Bean
