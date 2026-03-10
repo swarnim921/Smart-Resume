@@ -82,17 +82,20 @@ public class ApplicationService {
             if (mlResult != null) {
                 application.setMatchScore(mlResult.getMatchScore());
                 application.setSkillsGap(mlResult.getSkillsGap());
+                application.setPredictedRole(mlResult.getPredictedRole());
 
                 if (mlResult.getMatchScore() < ATS_THRESHOLD) {
                     application.setStatus("ATS_REJECTED");
-                    System.out.println("❌ ATS rejected: score=" + mlResult.getMatchScore());
+                    System.out.println("❌ ATS rejected: score=" + mlResult.getMatchScore() + ", role="
+                            + mlResult.getPredictedRole());
                     Application saved = applicationRepository.save(application);
                     emailService.sendStatusUpdateEmailWithJob(candidateEmail, user.getName(), job, "ATS_REJECTED",
                             "ATS screening", null);
                     return saved;
                 } else {
                     application.setStatus("UNDER_REVIEW");
-                    System.out.println("✅ ATS passed: score=" + mlResult.getMatchScore());
+                    System.out.println("✅ ATS passed: score=" + mlResult.getMatchScore() + ", role="
+                            + mlResult.getPredictedRole());
                     Application saved = applicationRepository.save(application);
                     emailService.sendStatusUpdateEmailWithJob(candidateEmail, user.getName(), job, "UNDER_REVIEW",
                             "Under Review", null);
@@ -102,12 +105,14 @@ public class ApplicationService {
                 application.setStatus("PENDING");
                 application.setMatchScore(null);
                 application.setSkillsGap(null);
+                application.setPredictedRole(null);
             }
         } catch (Exception e) {
             System.err.println("❌ ML/ATS failed: " + e.getMessage());
             application.setStatus("PENDING");
             application.setMatchScore(null);
             application.setSkillsGap(null);
+            application.setPredictedRole(null);
         }
 
         return applicationRepository.save(application);
@@ -224,6 +229,7 @@ public class ApplicationService {
             if (mlResult != null) {
                 application.setMatchScore(mlResult.getMatchScore());
                 application.setSkillsGap(mlResult.getSkillsGap());
+                application.setPredictedRole(mlResult.getPredictedRole());
                 application.setReAnalyzedAt(LocalDateTime.now());
 
                 // Update ATS status if it was previously pending
@@ -234,7 +240,8 @@ public class ApplicationService {
                         application.setStatus("UNDER_REVIEW");
                     }
                 }
-                System.out.println("✅ Re-analyzed: score=" + mlResult.getMatchScore());
+                System.out.println(
+                        "✅ Re-analyzed: score=" + mlResult.getMatchScore() + ", role=" + mlResult.getPredictedRole());
             }
         } catch (Exception e) {
             System.err.println("❌ Re-analysis failed: " + e.getMessage());

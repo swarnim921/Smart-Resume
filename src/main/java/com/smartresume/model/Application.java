@@ -33,4 +33,6 @@ public class Application {
     private LocalDateTime reAnalyzedAt;
     /** Interview date/time set by recruiter for ICS invite */
     private LocalDateTime interviewDateTime;
+    /** Predicted job role based on ML skill clustering */
+    private String predictedRole;
 }

@@ -23,6 +23,7 @@ public class MLAnalysisResult {
     private List<String> skillsGap;
     private String experienceMatch;
     private Double confidence;
+    private String predictedRole;
 
     private List<CourseRecommendation> recommendations;
 
