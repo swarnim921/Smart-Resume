@@ -51,7 +51,8 @@ public class CookieOAuth2AuthorizationRequestRepository
         }
 
         log.debug("Saving OAuth2 authorization request to cookies. State: {}", authorizationRequest.getState());
-        String value = Base64.getUrlEncoder().encodeToString(SerializationUtils.serialize(authorizationRequest));
+        String value = Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(SerializationUtils.serialize(authorizationRequest));
         addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, value, COOKIE_EXPIRE_SECONDS);
 
         String redirectUriAfterLogin = request.getParameter(REDIRECT_URI_PARAM_COOKIE_NAME);
@@ -103,10 +104,10 @@ public class CookieOAuth2AuthorizationRequestRepository
         sb.append("Max-Age=").append(maxAge).append("; ");
         sb.append("HttpOnly; ");
         sb.append("Secure; ");
-        sb.append("SameSite=None");
+        sb.append("SameSite=Lax"); // Lax is safer for top-level OAuth redirects
 
         response.addHeader("Set-Cookie", sb.toString());
-        log.debug("Added cookie '{}' with SameSite=None and Secure", name);
+        log.debug("Added cookie '{}' with SameSite=Lax and Secure (size: {})", name, value.length());
     }
 
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
@@ -120,7 +121,7 @@ public class CookieOAuth2AuthorizationRequestRepository
                     sb.append("Max-Age=0; ");
                     sb.append("HttpOnly; ");
                     sb.append("Secure; ");
-                    sb.append("SameSite=None");
+                    sb.append("SameSite=Lax");
 
                     response.addHeader("Set-Cookie", sb.toString());
                     log.debug("Deleted cookie '{}' by setting Max-Age=0", name);
