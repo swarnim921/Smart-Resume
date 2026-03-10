@@ -265,12 +265,13 @@ public class ApplicationService {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         StringBuilder csv = new StringBuilder();
-        csv.append("Name,Email,Status,ATS Score,Applied At,Last Reviewed,Skills Gap\n");
+        csv.append("Name,Email,Status,ATS Score,Predicted Role,Applied At,Last Reviewed,Skills Gap\n");
         for (Application a : apps) {
             csv.append(escape(a.getCandidateName())).append(",");
             csv.append(escape(a.getCandidateEmail())).append(",");
             csv.append(escape(a.getStatus())).append(",");
             csv.append(a.getMatchScore() != null ? String.format("%.1f%%", a.getMatchScore()) : "-").append(",");
+            csv.append(escape(a.getPredictedRole() != null ? a.getPredictedRole() : "-")).append(",");
             csv.append(a.getAppliedAt() != null ? a.getAppliedAt().format(fmt) : "-").append(",");
             csv.append(a.getReviewedAt() != null ? a.getReviewedAt().format(fmt) : "-").append(",");
             String gap = a.getSkillsGap() != null ? String.join("; ", a.getSkillsGap()) : "";
