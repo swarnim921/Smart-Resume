@@ -41,6 +41,7 @@ def analyze():
         
         # Use real ML logic
         result = ml_logic.analyze_resume_job_match(resume_text, job_description)
+        predicted_role = ml_logic.predict_job_role(resume_text)
         
         # Transform to match backend expected format
         response = {
@@ -49,7 +50,8 @@ def analyze():
             "skillsGap": result["missing_technical_skills"] + result["missing_soft_skills"],
             "experienceMatch": "Good" if result["match_percentage"] >= 70 else "Fair" if result["match_percentage"] >= 50 else "Poor",
             "recommendations": ml_logic.recommend_courses([], result["missing_technical_skills"][:3]),  # Top 3 gaps
-            "confidence": result["semantic_score"] / 100
+            "confidence": result["semantic_score"] / 100,
+            "predictedRole": predicted_role
         }
         
         return jsonify(response), 200
@@ -68,6 +70,7 @@ def extract_skills():
         
         # Use real ML logic
         result = ml_logic.extract_skills(resume_text)
+        predicted_role = ml_logic.predict_job_role(resume_text)
         
         # Transform to match backend expected format
         response = {
@@ -75,7 +78,8 @@ def extract_skills():
             "softSkills": result["soft_skills"],
             "experience": result["experience_detected"],
             "education": "Not extracted",  # ML model doesn't extract education
-            "certifications": []  # ML model doesn't extract certifications
+            "certifications": [],  # ML model doesn't extract certifications
+            "predictedRole": predicted_role
         }
         
         return jsonify(response), 200

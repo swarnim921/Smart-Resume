@@ -1,6 +1,7 @@
 import re
 import json
 import torch
+import os
 from functools import lru_cache
 from sentence_transformers import SentenceTransformer, util
 
@@ -193,6 +194,50 @@ def get_embedding(text):
     with torch.no_grad():
         return model.encode(text, convert_to_tensor=True)
 
+def recommend_courses(current_skills, target_skills):
+    """
+    Generates course recommendations based on missing skills.
+    """
+    recommendations = []
+    for skill in target_skills:
+        skill_clean = skill.strip().title()
+        recommendations.append({
+            "skill": skill_clean,
+            "course_name": f"Mastering {skill_clean}: From Zero to Hero",
+            "platform": "Coursera / Udemy / EdX",
+            "query_link": f"https://www.coursera.org/search?query={skill_clean}"
+        })
+    return recommendations
+
+def predict_job_role(resume_text):
+    """
+    Advanced Industry Feature: Predicts the most likely job role based on detected skills.
+    Uses categorical skill density to classify the candidate.
+    """
+    tokens, _ = tokenize_text(resume_text)
+    
+    # Role definitions based on skill clusters
+    role_weights = {
+        "Backend Developer": ["java", "spring boot", "node.js", "express.js", "nestjs", "django", "flask", "postgresql", "mysql", "microservices", "api gateway"],
+        "Frontend Developer": ["react", "angular", "vue", "javascript", "typescript", "html5", "css3", "tailwind css", "redux", "next.js", "bootstrap"],
+        "Full Stack Developer": ["react", "node.js", "javascript", "java", "spring boot", "databases", "rest api", "html", "css"],
+        "Data Scientist": ["python", "pandas", "numpy", "scikit-learn", "machine learning", "tensorflow", "pytorch", "nlp", "deep learning", "r"],
+        "DevOps Engineer": ["docker", "kubernetes", "jenkins", "terraform", "ansible", "aws", "azure", "gcp", "ci/cd", "yaml", "github actions"],
+        "Mobile Developer": ["flutter", "react native", "android", "ios", "swift", "kotlin", "dart", "xcode", "android studio"],
+        "QA Engineer": ["selenium", "cypress", "jest", "unit testing", "playwright", "test automation", "mocha", "junit", "testing tools"]
+    }
+    
+    role_scores = {}
+    for role, cluster in role_weights.items():
+        score = sum(1 for skill in cluster if skill in tokens)
+        role_scores[role] = score
+        
+    # Get the top role with at least some matches
+    predicted_role = max(role_scores, key=role_scores.get) if any(role_scores.values()) else "Software Engineer"
+    
+    # If it's a tie or low confidence, default to Software Engineer or return top 1
+    return predicted_role
+
 def analyze_resume_job_match(resume_text, job_description):
     """
     Industry-grade hybrid match score: 50% Semantic, 30% Keyword, 20% Skill Overlap.
@@ -234,18 +279,3 @@ def analyze_resume_job_match(resume_text, job_description):
         "missing_technical_skills": missing_tech,
         "missing_soft_skills": missing_soft
     }
-
-def recommend_courses(current_skills, target_skills):
-    """
-    Generates course recommendations based on missing skills.
-    """
-    recommendations = []
-    for skill in target_skills:
-        skill_clean = skill.strip().title()
-        recommendations.append({
-            "skill": skill_clean,
-            "course_name": f"Mastering {skill_clean}: From Zero to Hero",
-            "platform": "Coursera / Udemy / EdX",
-            "query_link": f"https://www.coursera.org/search?query={skill_clean}"
-        })
-    return recommendations
