@@ -1,7 +1,6 @@
 package com.smartresume.config;
 
 import com.smartresume.security.JwtFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -12,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
@@ -28,16 +28,23 @@ import java.util.Map;
 
 @Configuration
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-        private final JwtFilter jwtFilter;
-        private final OAuth2SuccessHandler oAuth2SuccessHandler;
-        private final CookieOAuth2AuthorizationRequestRepository cookieOAuth2Repository;
+        @Autowired
+        private JwtFilter jwtFilter;
+        @Autowired
+        private OAuth2SuccessHandler oAuth2SuccessHandler;
+        @Autowired
+        private CookieOAuth2AuthorizationRequestRepository cookieOAuth2Repository;
+        @Autowired
+        @Lazy
+        private ClientRegistrationRepository clientRegistrationRepository;
 
         @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http,
-                        OAuth2AuthorizationRequestResolver authorizationRequestResolver) throws Exception {
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+                OAuth2AuthorizationRequestResolver customResolver = new CustomOAuth2AuthorizationRequestResolver(
+                                clientRegistrationRepository);
 
                 http.csrf(csrf -> csrf.disable())
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -78,7 +85,7 @@ public class SecurityConfig {
                                                 .authorizationEndpoint(a -> a
                                                                 .authorizationRequestRepository(cookieOAuth2Repository)
                                                                 .authorizationRequestResolver(
-                                                                                authorizationRequestResolver))
+                                                                                customResolver))
                                                 .tokenEndpoint(t -> t
                                                                 .accessTokenResponseClient(accessTokenResponseClient()))
                                                 .successHandler(oAuth2SuccessHandler)
@@ -155,12 +162,6 @@ public class SecurityConfig {
 
                 accessTokenResponseClient.setRestOperations(restTemplate);
                 return accessTokenResponseClient;
-        }
-
-        @Bean
-        public OAuth2AuthorizationRequestResolver authorizationRequestResolver(
-                        @Lazy ClientRegistrationRepository repo) {
-                return new CustomOAuth2AuthorizationRequestResolver(repo);
         }
 
         @Bean
