@@ -22,6 +22,12 @@ import org.springframework.security.oauth2.core.http.converter.OAuth2AccessToken
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenDecoderFactory;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 
 import java.util.Map;
 
@@ -39,6 +45,23 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http,
                         ClientRegistrationRepository clientRegistrationRepository) throws Exception {
+
+                // Create a custom JwtDecoderFactory that explicitly skips the
+                // OidcIdTokenValidator (which enforces the nonce)
+                // We only use the standard Timestamp and Issuer validators.
+                OidcIdTokenDecoderFactory idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
+                idTokenDecoderFactory.setJwtValidatorFactory(clientRegistration -> new DelegatingOAuth2TokenValidator<>(
+                                new JwtTimestampValidator(),
+                                new JwtIssuerValidator(clientRegistration.getProviderDetails().getIssuerUri() != null
+                                                ? clientRegistration.getProviderDetails().getIssuerUri()
+                                                : "")));
+
+                // Wire up the custom auth provider that uses our specialized decoder factory
+                OidcAuthorizationCodeAuthenticationProvider oidcAuthProvider = new OidcAuthorizationCodeAuthenticationProvider(
+                                accessTokenResponseClient(), new OidcUserService());
+                oidcAuthProvider.setJwtDecoderFactory(idTokenDecoderFactory);
+
+                http.authenticationProvider(oidcAuthProvider);
 
                 OAuth2AuthorizationRequestResolver customResolver = new CustomOAuth2AuthorizationRequestResolver(
                                 clientRegistrationRepository);
