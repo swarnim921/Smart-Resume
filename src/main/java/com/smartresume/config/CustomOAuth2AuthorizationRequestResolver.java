@@ -66,14 +66,21 @@ public class CustomOAuth2AuthorizationRequestResolver implements OAuth2Authoriza
         attributes.put("nonce", nonce);
 
         // Remove PKCE parameters as LinkedIn's confidential app flow doesn't support
-        // them fully
-        attributes.remove(PkceParameterNames.CODE_CHALLENGE);
-        attributes.remove(PkceParameterNames.CODE_CHALLENGE_METHOD);
-        additionalParameters.remove(PkceParameterNames.CODE_CHALLENGE);
-        additionalParameters.remove(PkceParameterNames.CODE_CHALLENGE_METHOD);
+        // them fully.
+        // We remove them from BOTH attributes (used locally for token exchange)
+        // and additionalParameters (sent to LinkedIn in the authorize URL).
+        attributes.remove("code_challenge");
+        attributes.remove("code_challenge_method");
+        attributes.remove("code_verifier");
+
+        additionalParameters.remove("code_challenge");
+        additionalParameters.remove("code_challenge_method");
+        additionalParameters.remove("code_verifier");
 
         // Add nonce to the URL parameters sent to LinkedIn
         additionalParameters.put("nonce", nonce);
+
+        System.out.println("🛡️ CustomResolver: Stripped PKCE and added nonce for LinkedIn");
 
         return OAuth2AuthorizationRequest.from(authRequest)
                 .attributes(attributes)
