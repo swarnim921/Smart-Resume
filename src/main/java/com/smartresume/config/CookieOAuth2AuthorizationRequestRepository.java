@@ -113,10 +113,10 @@ public class CookieOAuth2AuthorizationRequestRepository
                 .maxAge(maxAge)
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("Lax") // Lax is safer for top-level redirects and more widely supported
+                .sameSite("None") // "None" is required for cross-site OAuth redirects
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
-        log.debug("Added cookie '{}' with SameSite=Lax and Secure (size: {})", name, value.length());
+        log.debug("Added cookie '{}' with SameSite=None and Secure (size: {})", name, value.length());
     }
 
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
@@ -126,9 +126,9 @@ public class CookieOAuth2AuthorizationRequestRepository
                 .maxAge(0)
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
         response.addHeader("Set-Cookie", deleteCookie.toString());
-        log.debug("Deleted cookie '{}' by setting Max-Age=0 with SameSite=Lax", name);
+        log.debug("Deleted cookie '{}' by setting Max-Age=0 with SameSite=None", name);
     }
 }
