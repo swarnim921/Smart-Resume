@@ -23,7 +23,7 @@ public class CustomOAuth2AuthorizationRequestResolver implements OAuth2Authoriza
 
     private final OAuth2AuthorizationRequestResolver defaultResolver;
     private final StringKeyGenerator nonceGenerator = new Base64StringKeyGenerator(
-            Base64.getUrlEncoder().withoutPadding(), 16);
+            Base64.getUrlEncoder().withoutPadding(), 32);
 
     public CustomOAuth2AuthorizationRequestResolver(ClientRegistrationRepository repo) {
         this.defaultResolver = new DefaultOAuth2AuthorizationRequestResolver(repo, "/oauth2/authorization");
