@@ -59,6 +59,31 @@ def get_implications():
 
 IMPLICATION_RULES = get_implications()
 
+def get_skill_aliases():
+    """
+    Mapping of shorthand or alternative names to standardized skill names.
+    This boosts recall (e.g. 'JS' -> 'JavaScript').
+    """
+    return {
+        "js": "javascript",
+        "ts": "typescript",
+        "gcp": "google cloud",
+        "aws": "amazon web services",
+        "ml": "machine learning",
+        "dl": "deep learning",
+        "nlp": "natural language processing",
+        "ci": "ci/cd",
+        "cd": "ci/cd",
+        "kube": "kubernetes",
+        "k8s": "kubernetes",
+        "postgres": "postgresql",
+        "mongo": "mongodb",
+        "net": ".net",
+        "dotnet": ".net"
+    }
+
+SKILL_ALIASES = get_skill_aliases()
+
 
 # ==========================================
 # 2. HELPER FUNCTIONS
@@ -66,25 +91,34 @@ IMPLICATION_RULES = get_implications()
 
 def tokenize_text(text):
     """
-    Core DSA Optimization: Tokenizes text into unigrams and bigrams
-    and stores them in a Hash Set for O(1) instantaneous lookups.
-    Time Complexity: O(N) where N is number of words.
-    Space Complexity: O(N)
+    Industry-Grade Optimization: 
+    1. Special Regex for C++, C#, .NET
+    2. Unigram, Bigram, and Trigram generation.
+    3. Alias expansion into the Hash Set.
     """
     text_lower = text.lower()
-    # Simple unigram tokenization (words only)
-    words = re.findall(r'\b\w+\b', text_lower)
     
-    # Generate bi-grams (two-word phrases like 'machine learning')
-    bigrams = []
+    # Advanced tokenization: capture words and common technical symbols (+, #, .)
+    # This ensures 'c++', 'c#', and '.net' are treated as single tokens.
+    words = re.findall(r'(?:\.\w+)|(?:\w+[+#]{1,2})|(?:\w+)', text_lower)
+    
+    tokens = set(words)
+    
+    # Generate bi-grams (two-word phrases)
     for i in range(len(words) - 1):
-        bigrams.append(f"{words[i]} {words[i+1]}")
+        tokens.add(f"{words[i]} {words[i+1]}")
         
-    # Store everything in a Hash Set for O(1) lookups
-    tokens = set(words).union(set(bigrams))
-    
-    # Add the raw string for edge-cases where phrase is > 2 words (e.g. 'natural language processing')
-    return tokens, text_lower
+    # Generate tri-grams (three-word phrases like 'natural language processing')
+    for i in range(len(words) - 2):
+        tokens.add(f"{words[i]} {words[i+1]} {words[i+2]}")
+        
+    # Alias Expansion: If 'JS' is found, add 'JavaScript' to tokens for matching
+    alias_tokens = set()
+    for token in tokens:
+        if token in SKILL_ALIASES:
+            alias_tokens.add(SKILL_ALIASES[token])
+            
+    return tokens.union(alias_tokens), text_lower
 
 def calculate_keyword_score(resume_text, jd_text):
     """
@@ -96,11 +130,11 @@ def calculate_keyword_score(resume_text, jd_text):
     # 1. Identify skills required in JD (O(K) lookup)
     required_skills = set()
     for skill in ALL_SKILLS:
-        # If skill is a simple unigram/bigram, use O(1) Hash Set lookup
+        # Now 1, 2, and 3-word skills all use O(1) Hash Set lookup
         if skill in jd_tokens:
             required_skills.add(skill)
-        # Fallback for >2 word skills: simple string check
-        elif len(skill.split()) > 2 and skill in jd_str:
+        # Fallback only for extremely long rare titles
+        elif len(skill.split()) > 3 and skill in jd_str:
             required_skills.add(skill)
 
     if not required_skills:
@@ -133,16 +167,16 @@ def identify_gaps(resume_text, jd_text):
     def check_category(category_set, output_list):
         required = set()
         for skill in category_set:
-            if skill in jd_tokens or (len(skill.split()) > 2 and skill in jd_str):
+            if skill in jd_tokens or (len(skill.split()) > 3 and skill in jd_str):
                 required.add(skill)
 
         for skill in required:
-            if skill not in resume_tokens and not (len(skill.split()) > 2 and skill in resume_str):
+            if skill not in resume_tokens and not (len(skill.split()) > 3 and skill in resume_str):
                 # Check for implication before declaring it missing
                 found_implied = False
                 if skill in IMPLICATION_RULES:
                     for evidence in IMPLICATION_RULES[skill]:
-                        if evidence in resume_tokens or (len(evidence.split()) > 2 and evidence in resume_str):
+                        if evidence in resume_tokens or (len(evidence.split()) > 3 and evidence in resume_str):
                             found_implied = True
                             break
                 if not found_implied:
@@ -169,12 +203,12 @@ def extract_skills(resume_text):
     
     # Extract Tech Skills (O(1) Hash lookups)
     for skill in TECH_SKILLS:
-        if skill in resume_tokens or (len(skill.split()) > 2 and skill in resume_str):
+        if skill in resume_tokens or (len(skill.split()) > 3 and skill in resume_str):
             found_tech.append(skill.title())
             
     # Extract Soft Skills
     for skill in SOFT_SKILLS:
-        if skill in resume_tokens or (len(skill.split()) > 2 and skill in resume_str):
+        if skill in resume_tokens or (len(skill.split()) > 3 and skill in resume_str):
             found_soft.append(skill.title())
             
     # Extract Experience (Regex is still optimal here for arbitrary numeric patterns)
