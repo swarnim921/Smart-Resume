@@ -64,6 +64,13 @@ public class CustomOAuth2AuthorizationRequestResolver implements OAuth2Authoriza
         // Standard OIDC nonce attribute (used for validation later)
         attributes.put("nonce", nonce);
 
+        // Remove PKCE parameters as LinkedIn's confidential app flow doesn't support
+        // them fully
+        attributes.remove(OAuth2ParameterNames.CODE_CHALLENGE);
+        attributes.remove(OAuth2ParameterNames.CODE_CHALLENGE_METHOD);
+        additionalParameters.remove(OAuth2ParameterNames.CODE_CHALLENGE);
+        additionalParameters.remove(OAuth2ParameterNames.CODE_CHALLENGE_METHOD);
+
         // Add nonce to the URL parameters sent to LinkedIn
         additionalParameters.put("nonce", nonce);
 
