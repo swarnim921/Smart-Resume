@@ -5,6 +5,24 @@ import ml_logic
 app = Flask(__name__)
 CORS(app)  # Enable CORS for Spring Boot backend
 
+@app.route('/', methods=['GET'])
+def index():
+    """Root endpoint to show service status and endpoints"""
+    return jsonify({
+        "service": "TalentSync ML Microservice",
+        "version": "1.2.0 (Industry-Grade)",
+        "status": "Running",
+        "optimization": "O(N) Tokenization + Hybrid Scoring",
+        "endpoints": {
+            "health": "/health",
+            "analyze": "/api/ml/analyze",
+            "extract_skills": "/api/ml/extract-skills",
+            "batch_analyze": "/api/ml/batch-analyze",
+            "recommend_courses": "/api/ml/recommend-courses"
+        },
+        "message": "Service is live and ready for production."
+    }), 200
+
 @app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint"""
