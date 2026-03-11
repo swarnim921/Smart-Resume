@@ -46,8 +46,8 @@
         /* Sidebar */
         .sidebar {
             width: 260px;
-            background: var(--sidebar);
-            border-right: 1px solid var(--border);
+            background: linear-gradient(180deg, #4F7DF3, #6C63FF);
+            border-right: none;
             display: flex;
             flex-direction: column;
             padding: 24px 16px;
@@ -57,7 +57,7 @@
         .sidebar-brand {
             font-size: 20px;
             font-weight: 800;
-            color: var(--accent);
+            color: var(--white);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -77,7 +77,7 @@
             gap: 12px;
             padding: 12px 16px;
             border-radius: 12px;
-            color: var(--muted);
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             font-size: 14px;
             font-weight: 600;
@@ -95,18 +95,18 @@
         }
 
         .nav-item:hover {
-            background: var(--accent-light);
-            color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
         }
 
         .nav-item.active {
-            background: var(--accent);
-            color: white;
+            background: var(--white);
+            color: var(--accent);
         }
 
         .nav-item.active:hover {
-            background: var(--accent);
-            color: white;
+            background: var(--white);
+            color: var(--accent);
         }
 
         /* Page Layout */
@@ -263,12 +263,13 @@
             border-radius: 20px;
             padding: 24px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            border-color: rgba(79, 125, 243, 0.2);
         }
 
         .card-header {
@@ -610,404 +611,414 @@
 </head>
 
 <body>
-
-    <body>
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-brand">
-                <i data-lucide="layers" style="color: var(--accent);"></i>
-                <span>TalentSync</span>
-            </div>
-
-            <div class="nav-group">
-                <button class="nav-item active" id="nav-overview" onclick="showSection('overview')">
-                    <i data-lucide="layout-dashboard"></i> <span>Dashboard</span>
-                </button>
-                <button class="nav-item" id="nav-post" onclick="showSection('post')">
-                    <i data-lucide="plus-circle"></i> <span>Post New Job</span>
-                </button>
-                <button class="nav-item" id="nav-jobs" onclick="showSection('jobs')">
-                    <i data-lucide="briefcase"></i> <span>My Jobs</span>
-                </button>
-                <button class="nav-item" id="nav-panels" onclick="showSection('panels')">
-                    <i data-lucide="calendar"></i> <span>Interview Panels</span>
-                </button>
-                <button class="nav-item" id="nav-analytics" onclick="showSection('analytics')">
-                    <i data-lucide="bar-chart-3"></i> <span>Analytics</span>
-                </button>
-            </div>
-
-            <div style="margin-top:auto">
-                <button class="nav-item" onclick="logout()" style="color: var(--danger);">
-                    <i data-lucide="log-out"></i> <span>Sign Out</span>
-                </button>
-            </div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <i data-lucide="layers" style="color: var(--accent);"></i>
+            <span>TalentSync</span>
         </div>
 
-        <!-- Main Content -->
-        <div class="page-container">
-            <!-- Topbar -->
-            <div class="topbar">
-                <div class="search-box">
-                    <i data-lucide="search" style="width: 18px; color: var(--muted);"></i>
-                    <input type="text" placeholder="Search candidates, jobs...">
-                </div>
+        <div class="nav-group">
+            <button class="nav-item active" id="nav-overview" onclick="showSection('overview')">
+                <i data-lucide="layout-dashboard"></i> <span>Dashboard</span>
+            </button>
+            <button class="nav-item" id="nav-post" onclick="showSection('post')">
+                <i data-lucide="plus-circle"></i> <span>Post New Job</span>
+            </button>
+            <button class="nav-item" id="nav-jobs" onclick="showSection('jobs')">
+                <i data-lucide="briefcase"></i> <span>My Jobs</span>
+            </button>
+            <button class="nav-item" id="nav-panels" onclick="showSection('panels')">
+                <i data-lucide="calendar"></i> <span>Interview Panels</span>
+            </button>
+            <button class="nav-item" id="nav-analytics" onclick="showSection('analytics')">
+                <i data-lucide="bar-chart-3"></i> <span>Analytics</span>
+            </button>
+        </div>
 
-                <div class="topbar-right">
-                    <button class="notif-btn">
-                        <i data-lucide="bell"></i>
-                        <div class="notif-badge"></div>
-                    </button>
-                    <div class="user-profile">
-                        <div class="avatar" id="avatarInitial">R</div>
-                        <div class="user-info">
-                            <div class="user-name" id="userNameDisplay">Recruiter</div>
-                            <div class="user-role">Hiring Manager</div>
-                        </div>
-                    </div>
-                </div>
+        <div style="margin-top:auto">
+            <button class="nav-item" onclick="logout()" style="color: var(--danger);">
+                <i data-lucide="log-out"></i> <span>Sign Out</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-container">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="search-box">
+                <i data-lucide="search" style="width: 18px; color: var(--muted);"></i>
+                <input type="text" placeholder="Search candidates, jobs...">
             </div>
 
-            <!-- Content -->
-            <div class="content">
-                <!-- Overview Section -->
-                <div id="sec-overview">
-                    <div class="welcome-section">
-                        <h1 class="welcome-title">Recruiter Dashboard</h1>
-                        <p class="welcome-subtitle">Overview of your active hiring pipelines and team performance.</p>
-                    </div>
-
-                    <div class="dashboard-grid">
-                        <!-- Stats Grid -->
-                        <div class="col-3 metric-card card">
-                            <div class="metric-icon blue"><i data-lucide="briefcase"></i></div>
-                            <div class="metric-info">
-                                <span class="metric-value" id="st-jobs">0</span>
-                                <span class="metric-label">Active Jobs</span>
-                            </div>
-                        </div>
-                        <div class="col-3 metric-card card">
-                            <div class="metric-icon green"><i data-lucide="users"></i></div>
-                            <div class="metric-info">
-                                <span class="metric-value" id="st-apps">0</span>
-                                <span class="metric-label">Applications</span>
-                            </div>
-                        </div>
-                        <div class="col-3 metric-card card">
-                            <div class="metric-icon amber"><i data-lucide="clock"></i></div>
-                            <div class="metric-info">
-                                <span class="metric-value" id="st-review">0</span>
-                                <span class="metric-label">Under Review</span>
-                            </div>
-                        </div>
-                        <div class="col-3 metric-card card">
-                            <div class="metric-icon purple"><i data-lucide="shield-check"></i></div>
-                            <div class="metric-info">
-                                <span class="metric-value" id="st-ats">0</span>
-                                <span class="metric-label">ATS Filtered</span>
-                            </div>
-                        </div>
-
-                        <!-- Job Postings List -->
-                        <div class="col-12" style="margin-top: 16px;">
-                            <div class="card-header">
-                                <div class="card-title"><i data-lucide="list-checks"></i> Recent Job Postings</div>
-                                <button class="nav-item" style="width:auto; color:var(--accent)"
-                                    onclick="showSection('jobs')">View all →</button>
-                            </div>
-                            <div id="ov-jobs" class="dashboard-grid">
-                                <div class="loading col-12">Loading job postings...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Post Job Section -->
-                <div id="sec-post" style="display:none">
-                    <div class="welcome-section">
-                        <h1 class="welcome-title">Post New Job</h1>
-                        <p class="welcome-subtitle">Create a job posting and define your custom hiring pipeline.</p>
-                    </div>
-                    <div class="card">
-                        <form onsubmit="postJob(event)">
-                            <div class="dashboard-grid">
-                                <div class="form-group col-6">
-                                    <label class="form-label">Job Title *</label>
-                                    <input type="text" id="jTitle" class="form-input" required
-                                        placeholder="e.g. Senior Backend Engineer">
-                                </div>
-                                <div class="form-group col-6">
-                                    <label class="form-label">Company *</label>
-                                    <input type="text" id="jCompany" class="form-input" required
-                                        placeholder="TalentSync Partner">
-                                </div>
-                                <div class="form-group col-4">
-                                    <label class="form-label">Location</label>
-                                    <input type="text" id="jLocation" class="form-input" placeholder="Mumbai / Remote">
-                                </div>
-                                <div class="form-group col-4">
-                                    <label class="form-label">Job Type</label>
-                                    <input type="text" id="jType" class="form-input" placeholder="Full-time">
-                                </div>
-                                <div class="form-group col-4">
-                                    <label class="form-label">Salary Range</label>
-                                    <input type="text" id="jSalary" class="form-input" placeholder="₹12L - ₹18L">
-                                </div>
-                                <div class="form-group col-12">
-                                    <label class="form-label">Job Description *</label>
-                                    <textarea id="jDescription" class="form-input" required rows="4"
-                                        placeholder="Describe the role..."></textarea>
-                                </div>
-                                <div class="form-group col-12">
-                                    <label class="form-label">Requirements *</label>
-                                    <textarea id="jRequirements" class="form-input" required rows="4"
-                                        placeholder="Skills and experience required..."></textarea>
-                                </div>
-                            </div>
-
-                            <div style="margin: 24px 0; border-top: 1px solid var(--border); padding-top: 24px;">
-                                <div class="card-title" style="margin-bottom: 8px;"><i data-lucide="git-branch"></i>
-                                    Custom Hiring Pipeline</div>
-                                <p style="font-size: 13px; color: var(--muted); margin-bottom: 20px;">Add stages like
-                                    "Technical Round" or "Culture Fit" with custom email templates.</p>
-                                <div id="stages-container"></div>
-                                <button type="button" class="nav-item"
-                                    style="border: 2px dashed var(--border); justify-content: center;"
-                                    onclick="addStage()">+ Add Stage</button>
-                            </div>
-
-                            <button type="submit" class="apply-btn"
-                                style="width: 100%; height: 48px; font-size: 16px;">Post Job Vacancy</button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- My Jobs Section -->
-                <div id="sec-jobs" style="display:none">
-                    <div class="welcome-section">
-                        <h1 class="welcome-title">Job Management</h1>
-                        <p class="welcome-subtitle">Monitor applications and update hiring statuses across all your
-                            postings.</p>
-                    </div>
-                    <div id="jobs-list" class="dashboard-grid">
-                        <div class="loading col-12">Loading jobs...</div>
-                    </div>
-                </div>
-
-                <!-- Analytics Section -->
-                <div id="sec-analytics" style="display:none">
-                    <div class="welcome-section">
-                        <h1 class="welcome-title">Hiring Analytics</h1>
-                        <p class="welcome-subtitle">Insights into your recruitment funnel and candidate conversion
-                            rates.</p>
-                    </div>
-                    <div id="analytics-content" class="dashboard-grid">
-                        <div class="loading col-12">Loading analytics...</div>
-                    </div>
-                </div>
-
-                <!-- Panels Section -->
-                <div id="sec-panels" style="display:none">
-                    <div class="welcome-section">
-                        <h1 class="welcome-title">Interview Scheduling</h1>
-                        <p class="welcome-subtitle">Manage interview panels and automate candidate scheduling.</p>
-                    </div>
-                    <div class="card">
-                        <div class="form-group">
-                            <label class="form-label">Select Job to Configure</label>
-                            <select id="panelJobSelect" class="form-input" style="max-width: 400px;"
-                                onchange="loadPanelJob()">
-                                <option value="">— Choose a job —</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div id="panel-builder" style="display:none; margin-top: 24px;">
-                        <div id="panels-list" class="dashboard-grid"></div>
+            <div class="topbar-right">
+                <button class="notif-btn">
+                    <i data-lucide="bell"></i>
+                    <div class="notif-badge"></div>
+                </button>
+                <div class="user-profile">
+                    <div class="avatar" id="avatarInitial">R</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userNameDisplay">Recruiter</div>
+                        <div class="user-role">Hiring Manager</div>
                     </div>
                 </div>
             </div>
         </div>
-        </div>
 
-        <!-- Interview Panels -->
-        <div id="sec-panels" style="display:none">
-            <div class="page-title">🗓️ Interview Panels</div>
-            <div class="page-sub">Configure multi-panel interview schedules and auto-assign shortlisted
-                candidates
-            </div>
-            <div class="card" style="margin-bottom:1.25rem">
-                <div class="form-group" style="margin-bottom:0">
-                    <label class="form-label">Select Job to Configure</label>
-                    <select id="panelJobSelect" class="form-input" style="max-width:420px" onchange="loadPanelJob()">
-                        <option value="">— Choose a job —</option>
-                    </select>
+        <!-- Content -->
+        <div class="content">
+            <!-- Overview Section -->
+            <div id="sec-overview">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Recruiter Dashboard</h1>
+                    <p class="welcome-subtitle">Overview of your active hiring pipelines and team performance.</p>
                 </div>
-            </div>
-            <div id="panel-builder" style="display:none">
-                <div
-                    style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem">
-                    <div style="font-size:16px;font-weight:700">🎯 Interview Panels</div>
-                    <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
-                        <button class="btn btn-o" onclick="addPanel()">+ Add Panel</button>
-                        <button class="btn btn-p" onclick="savePanels()">💾 Save Panels</button>
-                    </div>
-                </div>
-                <div id="panels-list">
-                    <p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel".</p>
-                </div>
-                <div
-                    style="margin-top:1.5rem;padding:1.25rem;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:14px">
-                    <div style="font-size:14px;font-weight:700;margin-bottom:0.4rem">🚀 Auto-Schedule All
-                        Shortlisted Candidates</div>
-                    <div style="font-size:13px;color:var(--muted);margin-bottom:1rem">One click assigns all
-                        SHORTLISTED/UNDER_REVIEW candidates round-robin across panels and sends ICS calendar
-                        invites
-                        to candidates AND all panel interviewers simultaneously.</div>
-                    <button class="btn btn-p" style="font-size:14px;padding:0.65rem 1.5rem"
-                        onclick="autoSchedule(event)">🚀 Auto-Schedule Interviews</button>
-                </div>
-                <div class="section-divider"></div>
-                <div style="font-size:16px;font-weight:700;margin-bottom:1rem">📋 Current Schedule</div>
-                <div id="schedule-table">
-                    <div class="loading">Save panels and run auto-schedule to see assignments here</div>
-                </div>
-            </div>
-        </div>
-        </div>
-        </div>
 
-        <!-- Applications Modal -->
-        <div id="appsModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="modal-title" id="modalTitle">Applications</div>
-                    <div style="display:flex;gap:0.5rem">
-                        <button class="btn btn-o" style="font-size:12px;padding:0.35rem 0.75rem"
-                            onclick="exportCsv()">📥
-                            Export CSV</button>
-                        <button class="close-btn" onclick="closeModal()">✕</button>
+                <div class="dashboard-grid">
+                    <!-- Stats Grid -->
+                    <div class="col-3 metric-card card">
+                        <div class="metric-icon blue"><i data-lucide="briefcase"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="st-jobs">0</span>
+                            <span class="metric-label">Active Jobs</span>
+                        </div>
+                    </div>
+                    <div class="col-3 metric-card card">
+                        <div class="metric-icon green"><i data-lucide="users"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="st-apps">0</span>
+                            <span class="metric-label">Applications</span>
+                        </div>
+                    </div>
+                    <div class="col-3 metric-card card">
+                        <div class="metric-icon amber"><i data-lucide="clock"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="st-review">0</span>
+                            <span class="metric-label">Under Review</span>
+                        </div>
+                    </div>
+                    <div class="col-3 metric-card card">
+                        <div class="metric-icon purple"><i data-lucide="shield-check"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="st-ats">0</span>
+                            <span class="metric-label">ATS Filtered</span>
+                        </div>
+                    </div>
+
+                    <!-- Job Postings List -->
+                    <div class="col-12" style="margin-top: 16px;">
+                        <div class="card-header">
+                            <div class="card-title"><i data-lucide="list-checks"></i> Recent Job Postings</div>
+                            <button class="nav-item" style="width:auto; color:var(--accent)"
+                                onclick="showSection('jobs')">View all →</button>
+                        </div>
+                        <div id="ov-jobs" class="dashboard-grid">
+                            <div class="loading col-12">Loading job postings...</div>
+                        </div>
                     </div>
                 </div>
-                <div id="modalApps">
-                    <div class="loading">Loading…</div>
+            </div>
+
+            <!-- Post Job Section -->
+            <div id="sec-post" style="display:none">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Post New Job</h1>
+                    <p class="welcome-subtitle">Create a job posting and define your custom hiring pipeline.</p>
                 </div>
-                <!-- Bulk Action Bar -->
-                <div id="bulkBar"
-                    style="display:none;margin-top:1rem;padding:1rem;background:rgba(74,144,217,0.1);border:1px solid rgba(74,144,217,0.2);border-radius:12px;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
-                    <div style="display:flex;align-items:center;gap:0.75rem">
-                        <input type="checkbox" id="selectAllApps" onchange="toggleSelectAll(this)"
-                            style="width:18px;height:18px;cursor:pointer">
-                        <span style="font-size:14px;font-weight:600;color:var(--text)" id="selectedCount">0
-                            Selected</span>
-                    </div>
-                    <div
-                        style="display:flex;gap:0.75rem;align-items:center;flex:1;justify-content:flex-end;min-width:300px">
-                        <select id="bulkStageSelect" class="form-input" style="max-width:200px;margin-bottom:0">
-                            <option value="">— Select Stage —</option>
+                <div class="card">
+                    <form onsubmit="postJob(event)">
+                        <div class="dashboard-grid">
+                            <div class="form-group col-6">
+                                <label class="form-label">Job Title *</label>
+                                <input type="text" id="jTitle" class="form-input" required
+                                    placeholder="e.g. Senior Backend Engineer">
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="form-label">Company *</label>
+                                <input type="text" id="jCompany" class="form-input" required
+                                    placeholder="TalentSync Partner">
+                            </div>
+                            <div class="form-group col-4">
+                                <label class="form-label">Location</label>
+                                <input type="text" id="jLocation" class="form-input" placeholder="Mumbai / Remote">
+                            </div>
+                            <div class="form-group col-4">
+                                <label class="form-label">Job Type</label>
+                                <input type="text" id="jType" class="form-input" placeholder="Full-time">
+                            </div>
+                            <div class="form-group col-4">
+                                <label class="form-label">Salary Range</label>
+                                <input type="text" id="jSalary" class="form-input" placeholder="₹12L - ₹18L">
+                            </div>
+                            <div class="form-group col-12">
+                                <label class="form-label">Job Description *</label>
+                                <textarea id="jDescription" class="form-input" required rows="4"
+                                    placeholder="Describe the role..."></textarea>
+                            </div>
+                            <div class="form-group col-12">
+                                <label class="form-label">Requirements *</label>
+                                <textarea id="jRequirements" class="form-input" required rows="4"
+                                    placeholder="Skills and experience required..."></textarea>
+                            </div>
+                        </div>
+
+                        <div style="margin: 24px 0; border-top: 1px solid var(--border); padding-top: 24px;">
+                            <div class="card-title" style="margin-bottom: 8px;"><i data-lucide="git-branch"></i>
+                                Custom Hiring Pipeline</div>
+                            <p style="font-size: 13px; color: var(--muted); margin-bottom: 20px;">Add stages like
+                                "Technical Round" or "Culture Fit" with custom email templates.</p>
+                            <div id="stages-container"></div>
+                            <button type="button" class="nav-item"
+                                style="border: 2px dashed var(--border); justify-content: center;"
+                                onclick="addStage()">+ Add Stage</button>
+                        </div>
+
+                        <button type="submit" class="apply-btn" style="width: 100%; height: 48px; font-size: 16px;">Post
+                            Job Vacancy</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- My Jobs Section -->
+            <div id="sec-jobs" style="display:none">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Job Management</h1>
+                    <p class="welcome-subtitle">Monitor applications and update hiring statuses across all your
+                        postings.</p>
+                </div>
+                <div id="jobs-list" class="dashboard-grid">
+                    <div class="loading col-12">Loading jobs...</div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="sec-analytics" style="display:none">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Hiring Analytics</h1>
+                    <p class="welcome-subtitle">Insights into your recruitment funnel and candidate conversion
+                        rates.</p>
+                </div>
+                <div id="analytics-content" class="dashboard-grid">
+                    <div class="loading col-12">Loading analytics...</div>
+                </div>
+            </div>
+
+            <!-- Panels Section -->
+            <div id="sec-panels" style="display:none">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Interview Scheduling</h1>
+                    <p class="welcome-subtitle">Manage interview panels and automate candidate scheduling.</p>
+                </div>
+                <div class="card">
+                    <div class="form-group">
+                        <label class="form-label">Select Job to Configure</label>
+                        <select id="panelJobSelect" class="form-input" style="max-width: 400px;"
+                            onchange="loadPanelJob()">
+                            <option value="">— Choose a job —</option>
                         </select>
-                        <button class="btn btn-p" onclick="processBulkUpdate()" id="bulkBtn"
-                            style="padding:0.5rem 1rem;font-size:13px">🚀 Batch Move</button>
                     </div>
+                </div>
+                <div id="panel-builder" style="display:none; margin-top: 24px;">
+                    <div id="panels-list" class="dashboard-grid"></div>
                 </div>
             </div>
         </div>
+    </div>
+    </div>
 
-        <!-- Email Preview Modal -->
-        <div id="previewModal" class="modal">
-            <div class="modal-content" style="max-width:620px">
-                <div class="modal-header">
-                    <div class="modal-title">📧 Email Preview</div>
-                    <button class="close-btn" onclick="closePreview()">✕</button>
+    <!-- Interview Panels -->
+    <div id="sec-panels" style="display:none">
+        <div class="page-title">🗓️ Interview Panels</div>
+        <div class="page-sub">Configure multi-panel interview schedules and auto-assign shortlisted
+            candidates
+        </div>
+        <div class="card" style="margin-bottom:1.25rem">
+            <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Select Job to Configure</label>
+                <select id="panelJobSelect" class="form-input" style="max-width:420px" onchange="loadPanelJob()">
+                    <option value="">— Choose a job —</option>
+                </select>
+            </div>
+        </div>
+        <div id="panel-builder" style="display:none">
+            <div
+                style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem">
+                <div style="font-size:16px;font-weight:700">🎯 Interview Panels</div>
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+                    <button class="btn btn-o" onclick="addPanel()">+ Add Panel</button>
+                    <button class="btn btn-p" onclick="savePanels()">💾 Save Panels</button>
                 </div>
-                <div style="font-size:13px;color:var(--muted);margin-bottom:0.75rem">This email will be sent to the
-                    candidate. Confirm to proceed.</div>
-                <div><span class="form-label">Subject:</span>
-                    <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:0.25rem" id="previewSubj">—
-                    </div>
+            </div>
+            <div id="panels-list">
+                <p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel".</p>
+            </div>
+            <div
+                style="margin-top:1.5rem;padding:1.25rem;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:14px">
+                <div style="font-size:14px;font-weight:700;margin-bottom:0.4rem">🚀 Auto-Schedule All
+                    Shortlisted Candidates</div>
+                <div style="font-size:13px;color:var(--muted);margin-bottom:1rem">One click assigns all
+                    SHORTLISTED/UNDER_REVIEW candidates round-robin across panels and sends ICS calendar
+                    invites
+                    to candidates AND all panel interviewers simultaneously.</div>
+                <button class="btn btn-p" style="font-size:14px;padding:0.65rem 1.5rem" onclick="autoSchedule(event)">🚀
+                    Auto-Schedule Interviews</button>
+            </div>
+            <div class="section-divider"></div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:1rem">📋 Current Schedule</div>
+            <div id="schedule-table">
+                <div class="loading">Save panels and run auto-schedule to see assignments here</div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Applications Modal -->
+    <div id="appsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Applications</div>
+                <div style="display:flex;gap:0.5rem">
+                    <button class="btn btn-o" style="font-size:12px;padding:0.35rem 0.75rem" onclick="exportCsv()">📥
+                        Export CSV</button>
+                    <button class="close-btn" onclick="closeModal()">✕</button>
                 </div>
-                <div class="preview-box" id="previewBody">—</div>
-                <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
-                    <button class="btn btn-p" style="flex:1" onclick="confirmStatusUpdate()">✅ Send & Update
-                        Status</button>
-                    <button class="btn btn-o" style="flex:1" onclick="closePreview()">Cancel</button>
+            </div>
+            <div id="modalApps">
+                <div class="loading">Loading…</div>
+            </div>
+            <!-- Bulk Action Bar -->
+            <div id="bulkBar"
+                style="display:none;margin-top:1rem;padding:1rem;background:rgba(74,144,217,0.1);border:1px solid rgba(74,144,217,0.2);border-radius:12px;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:0.75rem">
+                    <input type="checkbox" id="selectAllApps" onchange="toggleSelectAll(this)"
+                        style="width:18px;height:18px;cursor:pointer">
+                    <span style="font-size:14px;font-weight:600;color:var(--text)" id="selectedCount">0
+                        Selected</span>
+                </div>
+                <div
+                    style="display:flex;gap:0.75rem;align-items:center;flex:1;justify-content:flex-end;min-width:300px">
+                    <select id="bulkStageSelect" class="form-input" style="max-width:200px;margin-bottom:0">
+                        <option value="">— Select Stage —</option>
+                    </select>
+                    <button class="btn btn-p" onclick="processBulkUpdate()" id="bulkBtn"
+                        style="padding:0.5rem 1rem;font-size:13px">🚀 Batch Move</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script>
-            const API = 'https://api.talentsynctech.in';
-            const token = sessionStorage.getItem('token');
-            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-            let currentJobId = null, currentJobTitle = '', pendingStatusUpdate = null, stageCount = 0;
-            let allJobsCache = [], panelJobId = null, panels = [], panelCount = 0;
+    <!-- Email Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content" style="max-width:620px">
+            <div class="modal-header">
+                <div class="modal-title">📧 Email Preview</div>
+                <button class="close-btn" onclick="closePreview()">✕</button>
+            </div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:0.75rem">This email will be sent to the
+                candidate. Confirm to proceed.</div>
+            <div><span class="form-label">Subject:</span>
+                <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:0.25rem" id="previewSubj">—
+                </div>
+            </div>
+            <div class="preview-box" id="previewBody">—</div>
+            <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
+                <button class="btn btn-p" style="flex:1" onclick="confirmStatusUpdate()">✅ Send & Update
+                    Status</button>
+                <button class="btn btn-o" style="flex:1" onclick="closePreview()">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-            if (!token || user.role !== 'recruiter') { location.href = '/smart_resume_signin_page.html'; }
+    <script>
+        const API = 'https://api.talentsynctech.in';
+        const token = sessionStorage.getItem('token');
+        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        let currentJobId = null, currentJobTitle = '', pendingStatusUpdate = null, stageCount = 0;
+        let allJobsCache = [], panelJobId = null, panels = [], panelCount = 0;
 
-            // UI Initialization
-            const initial = (user.name || 'R').charAt(0).toUpperCase();
-            document.getElementById('avatarInitial').textContent = initial;
-            document.getElementById('userNameDisplay').textContent = user.name || 'Recruiter';
+        if (!token || user.role !== 'recruiter') { location.href = '/smart_resume_signin_page.html'; }
 
-            function logout() { sessionStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
+        // UI Initialization
+        const initial = (user.name || 'R').charAt(0).toUpperCase();
+        document.getElementById('avatarInitial').textContent = initial;
+        document.getElementById('userNameDisplay').textContent = user.name || 'Recruiter';
 
-            // ===================== NAVIGATION =====================
-            const sections = ['overview', 'post', 'jobs', 'panels', 'analytics'];
-            function showSection(n) {
-                sections.forEach(s => {
-                    const el = document.getElementById('sec-' + s);
-                    if (el) el.style.display = s === n ? 'block' : 'none';
+        function logout() { sessionStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
-                    const nav = document.getElementById('nav-' + s);
-                    if (nav) nav.classList.toggle('active', s === n);
-                });
+        // ===================== NAVIGATION =====================
+        const sections = ['overview', 'post', 'jobs', 'panels', 'analytics'];
+        function showSection(n) {
+            sections.forEach(s => {
+                const el = document.getElementById('sec-' + s);
+                if (el) el.style.display = s === n ? 'block' : 'none';
 
-                if (n === 'jobs' || n === 'overview') loadJobs(n);
-                if (n === 'analytics') loadAnalytics();
-                if (n === 'panels') populatePanelJobSelect();
+                const nav = document.getElementById('nav-' + s);
+                if (nav) nav.classList.toggle('active', s === n);
+            });
 
-                // Re-init icons for new section
-                lucide.createIcons();
-            }
+            if (n === 'jobs' || n === 'overview') loadJobs(n);
+            if (n === 'analytics') loadAnalytics();
+            if (n === 'panels') populatePanelJobSelect();
 
-            // ===================== JOBS =====================
-            async function loadJobs(section) {
-                const cid = section === 'overview' ? 'ov-jobs' : 'jobs-list';
-                const el = document.getElementById(cid);
-                if (el) el.innerHTML = '<div class="loading col-12"><i data-lucide="loader" class="spin"></i> Loading jobs...</div>';
-                lucide.createIcons();
+            // Re-init icons for new section
+            lucide.createIcons();
+        }
 
-                try {
-                    const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    if (!r.ok) throw new Error();
-                    const jobs = await r.json();
-                    allJobsCache = jobs;
+        // ===================== JOBS =====================
+        async function loadJobs(section) {
+            const cid = section === 'overview' ? 'ov-jobs' : 'jobs-list';
+            const el = document.getElementById(cid);
+            if (el) el.innerHTML = '<div class="loading col-12"><i data-lucide="loader" class="spin"></i> Loading jobs...</div>';
+            lucide.createIcons();
 
-                    document.getElementById('st-jobs').textContent = jobs.filter(j => j.status === 'ACTIVE').length;
+            try {
+                const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) throw new Error();
+                const jobs = await r.json();
+                allJobsCache = jobs;
 
-                    // Aggregate stats for overview
-                    if (section === 'overview') {
-                        let totalApps = 0, totalReview = 0, totalAts = 0;
-                        await Promise.all(jobs.map(async j => {
-                            try {
-                                const ar = await fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                                const apps = await ar.json();
-                                totalApps += apps.length;
-                                totalReview += apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
-                                totalAts += apps.filter(a => a.status === 'ATS_REJECTED').length;
-                            } catch (e) { }
-                        }));
-                        document.getElementById('st-apps').textContent = totalApps;
-                        document.getElementById('st-review').textContent = totalReview;
-                        document.getElementById('st-ats').textContent = totalAts;
-                    }
+                document.getElementById('st-jobs').textContent = jobs.filter(j => j.status === 'ACTIVE').length;
 
-                    if (!jobs.length) {
-                        if (el) el.innerHTML = '<div class="col-12" style="text-align:center;padding:48px;color:var(--muted)">No jobs yet. Post your first job!</div>';
-                        return;
-                    }
+                // Aggregate stats for overview
+                if (section === 'overview') {
+                    let totalApps = 0, totalReview = 0, totalAts = 0;
+                    await Promise.all(jobs.map(async j => {
+                        try {
+                            const ar = await fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                            const apps = await ar.json();
+                            totalApps += apps.length;
+                            totalReview += apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
+                            totalAts += apps.filter(a => a.status === 'ATS_REJECTED').length;
+                        } catch (e) { }
+                    }));
+                    document.getElementById('st-apps').textContent = totalApps;
+                    document.getElementById('st-review').textContent = totalReview;
+                    document.getElementById('st-ats').textContent = totalAts;
+                }
 
-                    if (el) {
-                        el.innerHTML = jobs.map(j => `
+                if (!jobs.length) {
+                    if (el) el.innerHTML = `
+                            <div class="col-12">
+                                <div class="card" style="text-align:center; padding:64px 32px; background:rgba(79, 125, 243, 0.05); border: 2px dashed rgba(79, 125, 243, 0.2);">
+                                    <div class="metric-icon blue" style="margin: 0 auto 24px; width:64px; height:64px">
+                                        <i data-lucide="plus-circle" style="width:32px; height:32px"></i>
+                                    </div>
+                                    <h2 style="font-size:20px; font-weight:800; margin-bottom:8px">Create Your First Job</h2>
+                                    <p style="color:var(--muted); margin-bottom:24px; max-width:400px; margin-left:auto; margin-right:auto">
+                                        Start hiring by posting your first job vacancy. Define your custom pipeline and let AI filter the best talent.
+                                    </p>
+                                    <button class="apply-btn" style="height:44px; padding:0 32px" onclick="showSection('post')">Post Job Now</button>
+                                </div>
+                            </div>`;
+                    lucide.createIcons();
+                    return;
+                }
+
+                if (el) {
+                    el.innerHTML = jobs.map(j => `
                             <div class="col-4">
                                 <div class="card job-card">
                                     <div class="job-card-header">
@@ -1036,43 +1047,43 @@
                                 </div>
                             </div>
                         `).join('');
-                        lucide.createIcons();
-                    }
-                } catch (e) {
-                    if (el) el.innerHTML = '<div class="col-12" style="color:var(--danger);text-align:center">Failed to load jobs</div>';
+                    lucide.createIcons();
                 }
+            } catch (e) {
+                if (el) el.innerHTML = '<div class="col-12" style="color:var(--danger);text-align:center">Failed to load jobs</div>';
             }
+        }
 
-            // ===================== APPLICATIONS =====================
-            async function viewApps(jobId, jobTitle) {
-                currentJobId = jobId; currentJobTitle = jobTitle;
-                document.getElementById('modalTitle').textContent = jobTitle;
-                document.getElementById('appsModal').classList.add('active');
-                document.getElementById('modalApps').innerHTML = '<div class="loading"><i data-lucide="loader" class="spin"></i> Loading...</div>';
-                lucide.createIcons();
+        // ===================== APPLICATIONS =====================
+        async function viewApps(jobId, jobTitle) {
+            currentJobId = jobId; currentJobTitle = jobTitle;
+            document.getElementById('modalTitle').textContent = jobTitle;
+            document.getElementById('appsModal').classList.add('active');
+            document.getElementById('modalApps').innerHTML = '<div class="loading"><i data-lucide="loader" class="spin"></i> Loading...</div>';
+            lucide.createIcons();
 
-                try {
-                    const [appsRes, jobRes] = await Promise.all([
-                        fetch(`${API}/api/applications/job/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                        fetch(`${API}/api/jobs/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } })
-                    ]);
+            try {
+                const [appsRes, jobRes] = await Promise.all([
+                    fetch(`${API}/api/applications/job/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(`${API}/api/jobs/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
 
-                    if (!appsRes.ok) throw new Error();
-                    const apps = await appsRes.json();
-                    const job = jobRes.ok ? await jobRes.json() : null;
-                    const pipeline = job?.hiringPipeline || [];
+                if (!appsRes.ok) throw new Error();
+                const apps = await appsRes.json();
+                const job = jobRes.ok ? await jobRes.json() : null;
+                const pipeline = job?.hiringPipeline || [];
 
-                    // Update stats
-                    document.getElementById('st-apps').textContent = apps.length;
-                    document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
-                    document.getElementById('st-ats').textContent = apps.filter(a => a.status === 'ATS_REJECTED').length;
+                // Update stats
+                document.getElementById('st-apps').textContent = apps.length;
+                document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
+                document.getElementById('st-ats').textContent = apps.filter(a => a.status === 'ATS_REJECTED').length;
 
-                    if (!apps.length) {
-                        document.getElementById('modalApps').innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px">No applications yet.</p>';
-                        return;
-                    }
+                if (!apps.length) {
+                    document.getElementById('modalApps').innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px">No applications yet.</p>';
+                    return;
+                }
 
-                    document.getElementById('modalApps').innerHTML = apps.map(a => `
+                document.getElementById('modalApps').innerHTML = apps.map(a => `
                         <div class="app-card ${a.status === 'ATS_REJECTED' ? 'ats-rejected' : ''}">
                             <div class="match-score">
                                 <span class="val">${a.matchScore || 0}%</span>
@@ -1097,90 +1108,104 @@
                                     ${getPipelineButtons(a.id, a.status, pipeline)}
                                 </div>
                                 
-                                ${a.skillsGap && a.skillsGap.length ? `
-                                    <div style="background:var(--accent-light); padding:12px; border-radius:12px">
-                                        <p style="font-size:11px; font-weight:700; color:var(--accent); margin-bottom:4px">SKILLS GAP</p>
-                                        <div style="display:flex; gap:4px; flex-wrap:wrap">
-                                            ${a.skillsGap.map(s => `<span class="badge bd" style="font-size:10px">${s}</span>`).join('')}
+                                <div style="background:var(--bg); padding:16px; border-radius:16px; border:1px solid var(--border)">
+                                    <p style="font-size:11px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:12px">AI Match Breakdown</p>
+                                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px">
+                                        <div>
+                                            <p style="font-size:10px; font-weight:700; color:var(--success); margin-bottom:8px">MATCHED SKILLS</p>
+                                            <div style="display:flex; gap:6px; flex-wrap:wrap">
+                                                <span class="badge bc" style="font-size:10px">Java</span>
+                                                <span class="badge bc" style="font-size:10px">Spring Boot</span>
+                                                <span class="badge bc" style="font-size:10px">SQL</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p style="font-size:10px; font-weight:700; color:var(--danger); margin-bottom:8px">MISSING SKILLS</p>
+                                            <div style="display:flex; gap:6px; flex-wrap:wrap">
+                                                ${a.skillsGap && a.skillsGap.length ?
+                        a.skillsGap.map(s => `<span class="badge bd" style="font-size:10px">${s}</span>`).join('') :
+                        '<span style="font-size:10px; color:var(--muted)">None</span>'
+                    }
+                                            </div>
                                         </div>
                                     </div>
-                                ` : ''}
+                                </div>
                             </div>
                         </div>
                     `).join('');
-                    lucide.createIcons();
-                } catch (e) {
-                    document.getElementById('modalApps').innerHTML = '<p style="color:var(--danger);text-align:center">Error loading applications</p>';
+                lucide.createIcons();
+            } catch (e) {
+                document.getElementById('modalApps').innerHTML = '<p style="color:var(--danger);text-align:center">Error loading applications</p>';
+            }
+        }
+
+        // Helper for status badge
+        function statusBadge(s) {
+            const maps = {
+                PENDING: ['bg', 'Pending'],
+                UNDER_REVIEW: ['bb', 'Reviewing'],
+                SHORTLISTED: ['bc', 'Shortlisted'],
+                INTERVIEW: ['bs', 'Interview'],
+                OFFERED: ['bw', 'Offered'],
+                REJECTED: ['bd', 'Rejected'],
+                ATS_REJECTED: ['bd', 'ATS Rejected']
+            };
+            const [cls, label] = maps[s] || ['bg', s];
+            return `<span class="badge ${cls}">${label}</span>`;
+        }
+
+        // Pipeline Buttons
+        function getPipelineButtons(appId, status, pipeline) {
+            if (pipeline && pipeline.length) {
+                const keys = pipeline.map(s => s.stageKey);
+                const curIdx = keys.indexOf(status);
+
+                if (curIdx < keys.length - 1) {
+                    const next = pipeline[curIdx + 1];
+                    return `<button class="apply-btn" onclick="doStatusUpdate('${appId}','${next.stageKey}')">Move to ${next.stageName}</button>`;
                 }
             }
 
-            // Helper for status badge
-            function statusBadge(s) {
-                const maps = {
-                    PENDING: ['bg', 'Pending'],
-                    UNDER_REVIEW: ['bb', 'Reviewing'],
-                    SHORTLISTED: ['bc', 'Shortlisted'],
-                    INTERVIEW: ['bs', 'Interview'],
-                    OFFERED: ['bw', 'Offered'],
-                    REJECTED: ['bd', 'Rejected'],
-                    ATS_REJECTED: ['bd', 'ATS Rejected']
-                };
-                const [cls, label] = maps[s] || ['bg', s];
-                return `<span class="badge ${cls}">${label}</span>`;
-            }
+            const flows = {
+                PENDING: [{ s: 'UNDER_REVIEW', l: 'Review' }],
+                UNDER_REVIEW: [{ s: 'SHORTLISTED', l: 'Shortlist' }],
+                SHORTLISTED: [{ s: 'INTERVIEW', l: 'Interview' }]
+            };
 
-            // Pipeline Buttons
-            function getPipelineButtons(appId, status, pipeline) {
-                if (pipeline && pipeline.length) {
-                    const keys = pipeline.map(s => s.stageKey);
-                    const curIdx = keys.indexOf(status);
-
-                    if (curIdx < keys.length - 1) {
-                        const next = pipeline[curIdx + 1];
-                        return `<button class="apply-btn" onclick="doStatusUpdate('${appId}','${next.stageKey}')">Move to ${next.stageName}</button>`;
-                    }
-                }
-
-                const flows = {
-                    PENDING: [{ s: 'UNDER_REVIEW', l: 'Review' }],
-                    UNDER_REVIEW: [{ s: 'SHORTLISTED', l: 'Shortlist' }],
-                    SHORTLISTED: [{ s: 'INTERVIEW', l: 'Interview' }]
-                };
-
-                const actions = flows[status] || [];
-                return actions.map(b => `
+            const actions = flows[status] || [];
+            return actions.map(b => `
                     <button class="apply-btn" onclick="doStatusUpdate('${appId}','${b.s}')">
                         ${b.l}
                     </button>
                 `).join('');
-            }
+        }
 
-            async function doStatusUpdate(appId, status) {
-                try {
-                    const r = await fetch(`${API}/api/applications/${appId}/status`, {
-                        method: 'PUT',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status })
-                    });
-                    if (r.ok) viewApps(currentJobId, currentJobTitle);
-                } catch (e) { alert('Failed to update status'); }
-            }
+        async function doStatusUpdate(appId, status) {
+            try {
+                const r = await fetch(`${API}/api/applications/${appId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                if (r.ok) viewApps(currentJobId, currentJobTitle);
+            } catch (e) { alert('Failed to update status'); }
+        }
 
-            async function viewResume(appId) {
-                try {
-                    const r = await fetch(`${API}/api/applications/${appId}/resume`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    const blob = await r.blob();
-                    window.open(URL.createObjectURL(blob), '_blank');
-                } catch (e) { alert('Failed to load resume'); }
-            }
+        async function viewResume(appId) {
+            try {
+                const r = await fetch(`${API}/api/applications/${appId}/resume`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const blob = await r.blob();
+                window.open(URL.createObjectURL(blob), '_blank');
+            } catch (e) { alert('Failed to load resume'); }
+        }
 
-            // ===================== JOB POSTING & PIPELINE =====================
-            function addStage() {
-                stageCount++;
-                const div = document.createElement('div');
-                div.className = 'stage-card';
-                div.id = `stage-${stageCount}`;
-                div.innerHTML = `
+        // ===================== JOB POSTING & PIPELINE =====================
+        function addStage() {
+            stageCount++;
+            const div = document.createElement('div');
+            div.className = 'stage-card';
+            div.id = `stage-${stageCount}`;
+            div.innerHTML = `
                     <div class="stage-header">
                         <span class="stage-num">Stage ${stageCount}</span>
                         <button type="button" class="stage-del" onclick="removeStage(${stageCount})">
@@ -1196,91 +1221,91 @@
                         <textarea id="body-${stageCount}" class="form-input" placeholder="Email sent when moved to this stage..." style="min-height:100px"></textarea>
                     </div>
                 `;
-                document.getElementById('stages-container').appendChild(div);
-                lucide.createIcons();
-            }
+            document.getElementById('stages-container').appendChild(div);
+            lucide.createIcons();
+        }
 
-            function removeStage(id) { document.getElementById(`stage-${id}`).remove(); }
+        function removeStage(id) { document.getElementById(`stage-${id}`).remove(); }
 
-            async function postJob(e) {
-                e.preventDefault();
-                const btn = e.target.querySelector('button[type="submit"]');
-                const orig = btn.innerHTML;
-                btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Posting...';
-                lucide.createIcons();
+        async function postJob(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Posting...';
+            lucide.createIcons();
 
-                try {
-                    const stages = [];
-                    document.querySelectorAll('.stage-card').forEach((card, i) => {
-                        const id = card.id.split('-')[1];
-                        stages.push({
-                            stageName: document.getElementById(`sname-${id}`).value,
-                            stageOrder: i + 1,
-                            stageKey: `STAGE_${i + 1}`,
-                            emailBody: document.getElementById(`body-${id}`).value
-                        });
+            try {
+                const stages = [];
+                document.querySelectorAll('.stage-card').forEach((card, i) => {
+                    const id = card.id.split('-')[1];
+                    stages.push({
+                        stageName: document.getElementById(`sname-${id}`).value,
+                        stageOrder: i + 1,
+                        stageKey: `STAGE_${i + 1}`,
+                        emailBody: document.getElementById(`body-${id}`).value
                     });
+                });
 
-                    const body = {
-                        title: document.getElementById('jTitle').value,
-                        company: document.getElementById('jCompany').value,
-                        location: document.getElementById('jLocation').value,
-                        type: document.getElementById('jType').value,
-                        salary: document.getElementById('jSalary').value,
-                        description: document.getElementById('jDescription').value,
-                        requirements: document.getElementById('jRequirements').value,
-                        hiringPipeline: stages
-                    };
+                const body = {
+                    title: document.getElementById('jTitle').value,
+                    company: document.getElementById('jCompany').value,
+                    location: document.getElementById('jLocation').value,
+                    type: document.getElementById('jType').value,
+                    salary: document.getElementById('jSalary').value,
+                    description: document.getElementById('jDescription').value,
+                    requirements: document.getElementById('jRequirements').value,
+                    hiringPipeline: stages
+                };
 
-                    const r = await fetch(`${API}/api/jobs`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify(body)
-                    });
+                const r = await fetch(`${API}/api/jobs`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
 
-                    if (r.ok) {
-                        alert('Job posted successfully!');
-                        e.target.reset();
-                        document.getElementById('stages-container').innerHTML = '';
-                        showSection('jobs');
-                    }
-                } catch (e) { alert('Failed to post job'); }
-                btn.innerHTML = orig;
-                lucide.createIcons();
-            }
+                if (r.ok) {
+                    alert('Job posted successfully!');
+                    e.target.reset();
+                    document.getElementById('stages-container').innerHTML = '';
+                    showSection('jobs');
+                }
+            } catch (e) { alert('Failed to post job'); }
+            btn.innerHTML = orig;
+            lucide.createIcons();
+        }
 
-            // ===================== INTERVIEW PANELS =====================
-            async function populatePanelJobSelect() {
-                const sel = document.getElementById('panelJobSelect');
-                try {
-                    const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    const jobs = await r.json();
-                    sel.innerHTML = '<option value="">Select a job position...</option>' +
-                        jobs.map(j => `<option value="${j.id}">${j.title}</option>`).join('');
-                } catch (e) { }
-            }
+        // ===================== INTERVIEW PANELS =====================
+        async function populatePanelJobSelect() {
+            const sel = document.getElementById('panelJobSelect');
+            try {
+                const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const jobs = await r.json();
+                sel.innerHTML = '<option value="">Select a job position...</option>' +
+                    jobs.map(j => `<option value="${j.id}">${j.title}</option>`).join('');
+            } catch (e) { }
+        }
 
-            async function loadPanelJob() {
-                panelJobId = document.getElementById('panelJobSelect').value;
-                if (!panelJobId) { document.getElementById('panel-builder').style.display = 'none'; return; }
-                document.getElementById('panel-builder').style.display = 'block';
+        async function loadPanelJob() {
+            panelJobId = document.getElementById('panelJobSelect').value;
+            if (!panelJobId) { document.getElementById('panel-builder').style.display = 'none'; return; }
+            document.getElementById('panel-builder').style.display = 'block';
 
-                try {
-                    const r = await fetch(`${API}/api/interviews/schedule/${panelJobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    const data = await r.json();
-                    panels = data.panels || [];
-                    renderPanels();
-                } catch (e) { panels = []; renderPanels(); }
-            }
-
-            function addPanel() {
-                panels.push({ panelName: `Panel ${panels.length + 1}`, interviewerEmails: [], slots: [] });
+            try {
+                const r = await fetch(`${API}/api/interviews/schedule/${panelJobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await r.json();
+                panels = data.panels || [];
                 renderPanels();
-            }
+            } catch (e) { panels = []; renderPanels(); }
+        }
 
-            function renderPanels() {
-                const container = document.getElementById('panels-list');
-                container.innerHTML = panels.map((p, pi) => `
+        function addPanel() {
+            panels.push({ panelName: `Panel ${panels.length + 1}`, interviewerEmails: [], slots: [] });
+            renderPanels();
+        }
+
+        function renderPanels() {
+            const container = document.getElementById('panels-list');
+            container.innerHTML = panels.map((p, pi) => `
                     <div class="card" style="margin-bottom:20px; border:1px solid var(--gb)">
                         <div style="display:flex; justify-content:space-between; margin-bottom:16px">
                             <h4 style="font-weight:700">Panel ${pi + 1}</h4>
@@ -1308,37 +1333,37 @@
                         </button>
                     </div>
                 `).join('');
-                lucide.createIcons();
-            }
+            lucide.createIcons();
+        }
 
-            async function savePanels() {
-                const container = document.getElementById('panels-list');
-                const updated = panels.map((p, i) => {
-                    const emails = container.querySelectorAll('.p-emails')[i].value.split(',').map(s => s.trim());
-                    return { ...p, interviewerEmails: emails };
+        async function savePanels() {
+            const container = document.getElementById('panels-list');
+            const updated = panels.map((p, i) => {
+                const emails = container.querySelectorAll('.p-emails')[i].value.split(',').map(s => s.trim());
+                return { ...p, interviewerEmails: emails };
+            });
+
+            try {
+                const r = await fetch(`${API}/api/interviews/panels/${panelJobId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updated)
                 });
+                if (r.ok) alert('Interview panels saved successfully!');
+            } catch (e) { alert('Failed to save panels'); }
+        }
 
-                try {
-                    const r = await fetch(`${API}/api/interviews/panels/${panelJobId}`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify(updated)
-                    });
-                    if (r.ok) alert('Interview panels saved successfully!');
-                } catch (e) { alert('Failed to save panels'); }
-            }
+        // ===================== ANALYTICS =====================
+        async function loadAnalytics() {
+            const el = document.getElementById('analytics-content');
+            el.innerHTML = '<div class="loading col-12"><i data-lucide="loader" class="spin"></i> Building reports...</div>';
+            lucide.createIcons();
 
-            // ===================== ANALYTICS =====================
-            async function loadAnalytics() {
-                const el = document.getElementById('analytics-content');
-                el.innerHTML = '<div class="loading col-12"><i data-lucide="loader" class="spin"></i> Building reports...</div>';
-                lucide.createIcons();
+            try {
+                const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const jobs = await r.json();
 
-                try {
-                    const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    const jobs = await r.json();
-
-                    el.innerHTML = jobs.map((j, i) => `
+                el.innerHTML = jobs.map((j, i) => `
                         <div class="col-6">
                             <div class="card">
                                 <div class="card-header">
@@ -1351,40 +1376,40 @@
                         </div>
                     `).join('');
 
-                    jobs.forEach(async (j, i) => {
-                        const appsRes = await fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                        const apps = await appsRes.json();
+                jobs.forEach(async (j, i) => {
+                    const appsRes = await fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const apps = await appsRes.json();
 
-                        const counts = { 'Applied': 0, 'Interview': 0, 'Offered': 0, 'Rejected': 0 };
-                        apps.forEach(a => {
-                            if (a.status === 'OFFERED') counts['Offered']++;
-                            else if (a.status === 'INTERVIEW') counts['Interview']++;
-                            else if (a.status === 'REJECTED') counts['Rejected']++;
-                            else counts['Applied']++;
-                        });
-
-                        new Chart(document.getElementById(`chart-${i}`), {
-                            type: 'doughnut',
-                            data: {
-                                labels: Object.keys(counts),
-                                datasets: [{
-                                    data: Object.values(counts),
-                                    backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ef4444']
-                                }]
-                            },
-                            options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-                        });
+                    const counts = { 'Applied': 0, 'Interview': 0, 'Offered': 0, 'Rejected': 0 };
+                    apps.forEach(a => {
+                        if (a.status === 'OFFERED') counts['Offered']++;
+                        else if (a.status === 'INTERVIEW') counts['Interview']++;
+                        else if (a.status === 'REJECTED') counts['Rejected']++;
+                        else counts['Applied']++;
                     });
-                } catch (e) { el.innerHTML = 'Error loading analytics'; }
-            }
 
-            // Initial call
-            lucide.createIcons();
-            loadJobs('overview');
-        </script>
-        </div>
-        </div>
-    </body>
+                    new Chart(document.getElementById(`chart-${i}`), {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(counts),
+                            datasets: [{
+                                data: Object.values(counts),
+                                backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ef4444']
+                            }]
+                        },
+                        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                    });
+                });
+            } catch (e) { el.innerHTML = 'Error loading analytics'; }
+        }
+
+        // Initial call
+        lucide.createIcons();
+        loadJobs('overview');
+    </script>
+    </div>
+    </div>
+</body>
 
 </html>
 
