@@ -1009,15 +1009,9 @@
                                 <div class="card-title"><i data-lucide="sparkles"></i> AI Suggestions</div>
                             </div>
                             <div class="suggestions-list" id="ai-suggestions">
-                                <div class="suggestion-item">
-                                    <i data-lucide="plus-circle"></i>
-                                    <span>Add "Kubernetes" to skills</span>
-                                    <span class="score-impact">+12%</span>
-                                </div>
-                                <div class="suggestion-item">
-                                    <i data-lucide="plus-circle"></i>
-                                    <span>Define quantitative results</span>
-                                    <span class="score-impact">+8%</span>
+                                <div class="loading" style="padding:20px; font-size:12px; color:var(--muted)">
+                                    <i data-lucide="info" style="width:14px; vertical-align:middle; margin-right:4px"></i>
+                                    Complete your profile to get personalized suggestions.
                                 </div>
                             </div>
                         </div>
@@ -1031,17 +1025,14 @@
                                     <p style="font-size:11px; font-weight:700; color:var(--success); margin-bottom:8px">
                                         TOP STRENGTHS</p>
                                     <div style="display:flex; gap:6px; flex-wrap:wrap" id="ai-strengths">
-                                        <span class="skill-tag" style="background:#f0fdf4; color:#166534">Java</span>
-                                        <span class="skill-tag" style="background:#f0fdf4; color:#166534">Spring
-                                            Boot</span>
+                                        <span style="font-size:12px; color:var(--muted); font-style:italic">Updating as you build your profile...</span>
                                     </div>
                                 </div>
                                 <div>
                                     <p style="font-size:11px; font-weight:700; color:var(--warning); margin-bottom:8px">
                                         IMPROVEMENT AREAS</p>
                                     <div style="display:flex; gap:6px; flex-wrap:wrap" id="ai-weaknesses">
-                                        <span class="skill-tag" style="background:#fffbeb; color:#92400e">Docker</span>
-                                        <span class="skill-tag" style="background:#fffbeb; color:#92400e">AWS</span>
+                                        <span style="font-size:12px; color:var(--muted); font-style:italic">Analyzing your skills...</span>
                                     </div>
                                 </div>
                             </div>
@@ -1319,17 +1310,22 @@
                         `).join('');
                         lucide.createIcons();
                     }
-                } else if (user.skills && user.skills.length > 0) {
-                    // Fallback insights based on profile skills
-                    document.getElementById('ai-strengths').innerHTML = user.skills.slice(0, 3).map(s =>
-                        `<span class="skill-tag" style="background:#f0fdf4; color:#166534">${s}</span>`
-                    ).join('');
-                    
-                    // Show common missing skills as improvement areas
-                    const commonGap = ['Docker', 'AWS', 'Kubernetes', 'GraphQL'].filter(s => !user.skills.includes(s));
-                    document.getElementById('ai-weaknesses').innerHTML = commonGap.slice(0, 2).map(s =>
-                        `<span class="skill-tag" style="background:#fffbeb; color:#92400e">${s}</span>`
-                    ).join('');
+                } else {
+                    // Total fallback when neither apps nor skills exist
+                    document.getElementById('ai-strengths').innerHTML = '<span style="font-size:12px; color:var(--muted)">Add skills to see strengths</span>';
+                    document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--muted)">Upload a resume for gap analysis</span>';
+                    document.getElementById('ai-suggestions').innerHTML = `
+                        <div class="suggestion-item" style="opacity:0.7">
+                            <i data-lucide="plus-circle"></i>
+                            <span>Add professional skills</span>
+                            <span class="score-impact">+20%</span>
+                        </div>
+                        <div class="suggestion-item" style="opacity:0.7">
+                            <i data-lucide="plus-circle"></i>
+                            <span>Write a compelling bio</span>
+                            <span class="score-impact">+15%</span>
+                        </div>`;
+                    lucide.createIcons();
                 }
 
                 drawAnalyticsChart();
