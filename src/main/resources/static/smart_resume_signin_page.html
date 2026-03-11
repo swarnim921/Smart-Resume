@@ -15,6 +15,12 @@
             box-sizing: border-box;
         }
 
+        html,
+        body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
@@ -22,7 +28,6 @@
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, #eef2ff 0%, #dbeafe 100%);
-            overflow: hidden;
             position: relative;
             color: #0f172a;
         }
@@ -632,12 +637,24 @@
 
         /* Responsive */
         @media (max-width: 860px) {
-            .hero-panel {
-                display: none;
+            body {
+                overflow-y: auto;
+                padding: 20px 0;
             }
 
             .container {
-                max-width: 440px;
+                flex-direction: column;
+                max-width: 500px;
+                min-height: auto;
+                margin: 20px;
+            }
+
+            .hero-panel {
+                flex: none;
+                max-width: 100%;
+                padding: 40px 32px;
+                display: none;
+                /* Keep hidden for cleaner mobile look as per instructions */
             }
 
             .form-panel {
@@ -645,23 +662,25 @@
                 max-width: 100%;
                 width: 100%;
                 padding: 40px 32px;
-                border-radius: 24px;
             }
         }
 
         @media (max-width: 480px) {
+            body {
+                padding: 0;
+                background: #ffffff;
+            }
+
             .container {
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
                 max-width: 100%;
                 min-height: 100vh;
-                border-radius: 0;
-                background: #ffffff;
-                border: none;
-                box-shadow: none;
             }
 
             .form-panel {
                 padding: 32px 24px;
-                width: 100%;
             }
         }
     </style>
