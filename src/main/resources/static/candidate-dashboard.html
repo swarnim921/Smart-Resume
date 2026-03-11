@@ -1100,22 +1100,34 @@
                         <div class="section-sub">Track your application pipeline and ATS scores</div>
                     </div>
                 </div>
-                <div class="stats-row">
-                    <div class="stat-card">
-                        <div class="stat-val" id="st-total">0</div>
-                        <div class="stat-label">Total Applied</div>
+                <div class="col-12 dashboard-grid" style="gap: 16px; margin-bottom: 24px;">
+                    <div class="col-3 metric-card">
+                        <div class="metric-icon blue"><i data-lucide="send"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="st-total">0</span>
+                            <span class="metric-label">Total Applied</span>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-val" id="st-review">0</div>
-                        <div class="stat-label">Under Review</div>
+                    <div class="col-3 metric-card">
+                        <div class="metric-icon green"><i data-lucide="check-circle-2"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="st-short">0</span>
+                            <span class="metric-label">Shortlisted</span>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-val" id="st-short">0</div>
-                        <div class="stat-label">Shortlisted</div>
+                    <div class="col-3 metric-card">
+                        <div class="metric-icon amber"><i data-lucide="clock"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="st-review">0</span>
+                            <span class="metric-label">In Review</span>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-val" id="st-offer">0</div>
-                        <div class="stat-label">Offers</div>
+                    <div class="col-3 metric-card">
+                        <div class="metric-icon purple"><i data-lucide="award"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="st-offer">0</span>
+                            <span class="metric-label">Offers Received</span>
+                        </div>
                     </div>
                 </div>
                 <div id="apps-list">
@@ -1413,14 +1425,21 @@
                     return;
                 }
 
+                // Update tab stats
+                document.getElementById('st-total').textContent = apps.length;
+                document.getElementById('st-short').textContent = apps.filter(a => a.status === 'SHORTLISTED').length;
+                document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
+                document.getElementById('st-offer').textContent = apps.filter(a => a.status === 'OFFERED').length;
+                lucide.createIcons();
+
                 el.innerHTML = `
                     <div class="dashboard-grid">
                         ${apps.map(a => `
                             <div class="col-6 card" style="margin-bottom:0">
                                 <div style="display:flex; justify-content:space-between; align-items:flex-start">
                                     <div>
-                                        <h3 style="font-size:18px; margin-bottom:4px">${a.jobTitle}</h3>
-                                        <p style="font-size:13px; color:var(--muted); margin-bottom:12px">${a.jobCompany}</p>
+                                        <h3 style="font-size:18px; margin-bottom:4px">${a.jobTitle || 'Legacy Application'}</h3>
+                                        <p style="font-size:13px; color:var(--muted); margin-bottom:12px">${a.jobCompany || 'System Record'}</p>
                                         ${statusBadge(a.status)}
                                     </div>
                                     <div style="text-align:right">
