@@ -629,6 +629,23 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+                height: auto;
+                display: block;
+            }
+
+            .page-container {
+                overflow-y: visible;
+                height: auto;
+                display: block;
+                min-height: 100vh;
+            }
+
+            .topbar {
+                background: white;
+            }
+
             .menu-btn {
                 display: block;
             }
@@ -637,6 +654,7 @@
                 position: fixed;
                 left: -280px;
                 width: 280px;
+                height: 100vh;
                 z-index: 999;
                 transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
@@ -685,7 +703,7 @@
 
             .content {
                 padding: 20px;
-                padding-bottom: 100px; /* Extra space for mobile buttons */
+                padding-bottom: 60px;
             }
         }
     </style>
@@ -760,9 +778,11 @@
         <div class="content">
             <!-- Overview Section -->
             <div id="sec-overview">
-                <div class="welcome-section">
-                    <h1 class="welcome-title">Recruiter Dashboard</h1>
-                    <p class="welcome-subtitle">Overview of your active hiring pipelines and team performance.</p>
+                <div class="welcome-section" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                        <h1 class="welcome-title">Recruiter Dashboard <span style="font-size:12px; color:var(--muted); font-weight:400; opacity:0.6;">v2.1</span></h1>
+                        <p class="welcome-subtitle">Overview of your active hiring pipelines and team performance.</p>
+                    </div>
                 </div>
 
                 <div class="dashboard-grid">
@@ -812,9 +832,14 @@
 
             <!-- Post Job Section -->
             <div id="sec-post" style="display:none">
-                <div class="welcome-section">
-                    <h1 class="welcome-title">Post New Job</h1>
-                    <p class="welcome-subtitle">Create a job posting and define your custom hiring pipeline.</p>
+                <div class="welcome-section" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                        <h1 class="welcome-title">Post New Job</h1>
+                        <p class="welcome-subtitle">Create a job posting and define your custom hiring pipeline.</p>
+                    </div>
+                    <button type="button" class="apply-btn" style="padding:10px 24px;" onclick="document.querySelector('#post-form-submit').click()">
+                        <i data-lucide="send" style="width:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Post Job
+                    </button>
                 </div>
                 <div class="card">
                     <form onsubmit="postJob(event)">
@@ -866,8 +891,8 @@
 
                             <!-- Submit Button -->
                             <div class="col-12" style="margin-top: 12px; padding-bottom: 20px;">
-                                <button type="submit" class="apply-btn" style="width: 100%; height: 52px; font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">
-                                    Post Job Vacancy
+                                <button type="submit" id="post-form-submit" class="apply-btn" style="width: 100%; height: 52px; font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">
+                                    Publish Job Vacancy Now
                                 </button>
                             </div>
                         </div>
@@ -918,55 +943,7 @@
                     <div id="panels-list" class="dashboard-grid"></div>
                 </div>
             </div>
-        </div>
-    </div>
-    </div>
-
-    <!-- Interview Panels -->
-    <div id="sec-panels" style="display:none">
-        <div class="page-title">🗓️ Interview Panels</div>
-        <div class="page-sub">Configure multi-panel interview schedules and auto-assign shortlisted
-            candidates
-        </div>
-        <div class="card" style="margin-bottom:1.25rem">
-            <div class="form-group" style="margin-bottom:0">
-                <label class="form-label">Select Job to Configure</label>
-                <select id="panelJobSelect" class="form-input" style="max-width:420px" onchange="loadPanelJob()">
-                    <option value="">— Choose a job —</option>
-                </select>
-            </div>
-        </div>
-        <div id="panel-builder" style="display:none">
-            <div
-                style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem">
-                <div style="font-size:16px;font-weight:700">🎯 Interview Panels</div>
-                <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
-                    <button class="btn btn-o" onclick="addPanel()">+ Add Panel</button>
-                    <button class="btn btn-p" onclick="savePanels()">💾 Save Panels</button>
-                </div>
-            </div>
-            <div id="panels-list">
-                <p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel".</p>
-            </div>
-            <div
-                style="margin-top:1.5rem;padding:1.25rem;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:14px">
-                <div style="font-size:14px;font-weight:700;margin-bottom:0.4rem">🚀 Auto-Schedule All
-                    Shortlisted Candidates</div>
-                <div style="font-size:13px;color:var(--muted);margin-bottom:1rem">One click assigns all
-                    SHORTLISTED/UNDER_REVIEW candidates round-robin across panels and sends ICS calendar
-                    invites
-                    to candidates AND all panel interviewers simultaneously.</div>
-                <button class="btn btn-p" style="font-size:14px;padding:0.65rem 1.5rem" onclick="autoSchedule(event)">🚀
-                    Auto-Schedule Interviews</button>
-            </div>
-            <div class="section-divider"></div>
-            <div style="font-size:16px;font-weight:700;margin-bottom:1rem">📋 Current Schedule</div>
-            <div id="schedule-table">
-                <div class="loading">Save panels and run auto-schedule to see assignments here</div>
-            </div>
-        </div>
-    </div>
-    </div>
+         </div>
     </div>
 
     <!-- Applications Modal -->

@@ -649,10 +649,61 @@
             .col-4 {
                 grid-column: span 12;
             }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+                height: auto;
+                display: block;
+            }
 
             .main {
+                overflow-y: visible;
+                height: auto;
+                display: block;
+                min-height: 100vh;
                 padding: 16px;
-                padding-bottom: 100px; /* Mobile safe area */
+                padding-bottom: 60px;
+                max-width: 100%;
+                margin-left: 0;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                width: 280px;
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .sidebar-logo span,
+            .nav-item span {
+                display: block;
+            }
+
+            .nav-item {
+                justify-content: flex-start;
+                padding: 12px 20px;
+            }
+
+            .topbar {
+                padding: 0 16px;
+                background: white;
+            }
+
+            .search-box {
+                display: none;
+            }
+
+            .col-8,
+            .col-4 {
+                grid-column: span 12;
             }
         }
 
