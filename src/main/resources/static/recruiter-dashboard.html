@@ -38,7 +38,7 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg);
             color: var(--text);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             overflow: hidden;
         }
@@ -681,6 +681,11 @@
             .col-6,
             .col-8 {
                 grid-column: span 12;
+            }
+
+            .content {
+                padding: 20px;
+                padding-bottom: 100px; /* Extra space for mobile buttons */
             }
         }
     </style>
