@@ -651,6 +651,84 @@
             }
         }
 
+        /* Empty State Styling */
+        .empty-jobs {
+            text-align: center;
+            padding: 48px 24px;
+            background: #ffffff;
+            border: 2px dashed #e2e8f0;
+            border-radius: 20px;
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .empty-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+            background: #f8fafc;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+        }
+
+        .empty-jobs h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .empty-jobs p {
+            color: var(--muted);
+            font-size: 14px;
+            max-width: 320px;
+            line-height: 1.6;
+        }
+
+        .empty-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
         .menu-btn {
             display: none;
             background: none;
@@ -1180,46 +1258,30 @@
 
         async function loadRecJobs() {
             const el = document.getElementById('rec-jobs-grid');
+            el.innerHTML = '<div class="loading col-12" style="padding:40px; text-align:center; color:var(--muted)">Loading recommendations...</div>';
+
             try {
                 const r = await fetch(`${API}/api/jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
                 const jobs = await r.json();
 
-                if (!jobs.length) {
-                    // Show Placeholder UX for Demo
-                    const placeholders = [
-                        { t: 'Senior Software Engineer', c: 'Google', s: '₹18L - ₹24L', m: '94%', sk: ['Java', 'System Design'] },
-                        { t: 'Backend Developer', c: 'Stripe', s: '₹22L - ₹30L', m: '88%', sk: ['Python', 'PostgreSQL'] },
-                        { t: 'Full Stack Architect', c: 'Razorpay', s: '₹25L - ₹35L', m: '82%', sk: ['Node.js', 'React'] }
-                    ];
-                    el.innerHTML = placeholders.map((j, i) => `
-                        <div class="job-card col-4">
-                            <div class="job-card-header">
-                                <div class="company-logo">${j.c[0]}</div>
-                                <div class="match-badge">
-                                    <i data-lucide="zap" style="width:14px"></i>
-                                    ${j.m} Match
-                                </div>
+                if (!jobs || !jobs.length) {
+                    el.innerHTML = `
+                        <div class="empty-jobs">
+                            <div class="empty-icon">💼</div>
+                            <h3>No job matches yet</h3>
+                            <p>Upload your resume or update your skills to receive AI-powered job recommendations.</p>
+                            <div class="empty-actions">
+                                <button onclick="document.getElementById('nav-profile').click()" class="btn-primary">Update Profile</button>
+                                <button onclick="document.getElementById('dropZoneDb').scrollIntoView({behavior:'smooth'})" class="btn-secondary">Upload Resume</button>
                             </div>
-                            <div class="job-info">
-                                <h3>${j.t}</h3>
-                                <p><i data-lucide="building-2" style="width:14px"></i> ${j.c}</p>
-                                <div class="skill-tags">
-                                    ${j.sk.map(s => `<span class="skill-tag">${s}</span>`).join('')}
-                                </div>
-                            </div>
-                            <div class="job-card-footer">
-                                <span class="salary">${j.s}</span>
-                                <button class="apply-btn">Apply</button>
-                            </div>
-                        </div>`).join('');
-                    lucide.createIcons();
+                        </div>`;
                     return;
                 }
 
                 el.innerHTML = jobs.slice(0, 3).map((j, i) => `
                     <div class="job-card col-4">
                         <div class="job-card-header">
-                            <div class="company-logo">${JOB_EMOJIS[i % JOB_EMOJIS.length]}</div>
+                            <div class="company-logo">${j.company ? j.company[0].toUpperCase() : '💼'}</div>
                             <div class="match-badge">
                                 <i data-lucide="zap" style="width:14px"></i>
                                 ${Math.floor(75 + Math.random() * 20)}% Match
@@ -1229,19 +1291,26 @@
                             <h3>${j.title}</h3>
                             <p><i data-lucide="building-2" style="width:14px"></i> ${j.company || 'TalentSync Partner'}</p>
                             <div class="skill-tags">
-                                <span class="skill-tag">Java</span>
-                                <span class="skill-tag">Microservices</span>
-                                <span class="skill-tag">AWS</span>
+                                <span class="skill-tag">${j.location || 'Distributed'}</span>
+                                <span class="skill-tag">${j.type || 'Full-time'}</span>
                             </div>
                         </div>
                         <div class="job-card-footer">
-                            <span class="salary">${j.salary || '₹12L - ₹18L'}</span>
+                            <span class="salary">${j.salary || 'Competitive'}</span>
                             <button class="apply-btn" onclick="applyToJob('${j.id}',this)">Apply</button>
                         </div>
                     </div>`).join('');
                 lucide.createIcons();
             } catch (e) {
-                el.innerHTML = '<p class="col-12" style="color:var(--danger);text-align:center">Failed to load recommendations.</p>';
+                el.innerHTML = `
+                    <div class="empty-jobs" style="border-color:var(--danger)">
+                        <div class="empty-icon" style="background:#fef2f2; color:#dc2626">⚠️</div>
+                        <h3>Unable to load jobs</h3>
+                        <p>We're having trouble reaching the server. Please check your connection.</p>
+                        <div class="empty-actions">
+                            <button onclick="loadRecJobs()" class="btn-primary">Retry Now</button>
+                        </div>
+                    </div>`;
             }
         }
 
