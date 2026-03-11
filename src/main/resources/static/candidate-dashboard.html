@@ -1276,20 +1276,35 @@
                 document.getElementById('ov-offer').textContent = apps.filter(a => a.status === 'OFFERED').length;
 
                 const scored = apps.filter(a => a.matchScore != null);
-                const avgScore = scored.length ? scored.reduce((s, a) => s + a.matchScore, 0) / scored.length : 0;
+                let avgScore = scored.length ? scored.reduce((s, a) => s + a.matchScore, 0) / scored.length : 0;
+
+                // Fallback to Profile Strength if no applications yet
+                if (avgScore === 0) {
+                    let pScore = 45; // Base score for having an account
+                    if (user.bio && user.bio.length > 20) pScore += 15;
+                    if (user.skills && user.skills.length > 0) pScore += 20;
+                    if (user.yearsOfExperience > 0) pScore += 10;
+                    if (user.linkedinUrl || user.githubUrl) pScore += 10;
+                    avgScore = Math.min(pScore, 92);
+                    
+                    document.querySelector('.score-label').textContent = 'Profile Strength';
+                    document.querySelector('.score-label').style.color = 'var(--accent2)';
+                } else {
+                    document.querySelector('.score-label').textContent = 'ATS Score';
+                    document.querySelector('.score-label').style.color = 'var(--muted)';
+                }
 
                 // Animate score from 0
                 updateScoreBar(avgScore);
 
-                // Update AI Insights from most recent application
+                // Update AI Insights
                 if (apps.length > 0) {
                     const topApp = apps[0];
                     if (topApp.skillsGap && topApp.skillsGap.length) {
                         document.getElementById('ai-weaknesses').innerHTML = topApp.skillsGap.map(s =>
                             `<span class="skill-tag" style="background:#fffbeb; color:#92400e">${s}</span>`
                         ).join('');
-
-                        // Deduce strengths (mock logic for demo if no explicit strengths from API yet)
+                        
                         const suggestions = [
                             { t: `Add "${topApp.skillsGap[0]}" to skills`, i: '+12%' },
                             { t: 'Specify cloud deployment experience', i: '+8%' },
@@ -1304,10 +1319,22 @@
                         `).join('');
                         lucide.createIcons();
                     }
+                } else if (user.skills && user.skills.length > 0) {
+                    // Fallback insights based on profile skills
+                    document.getElementById('ai-strengths').innerHTML = user.skills.slice(0, 3).map(s =>
+                        `<span class="skill-tag" style="background:#f0fdf4; color:#166534">${s}</span>`
+                    ).join('');
+                    
+                    // Show common missing skills as improvement areas
+                    const commonGap = ['Docker', 'AWS', 'Kubernetes', 'GraphQL'].filter(s => !user.skills.includes(s));
+                    document.getElementById('ai-weaknesses').innerHTML = commonGap.slice(0, 2).map(s =>
+                        `<span class="skill-tag" style="background:#fffbeb; color:#92400e">${s}</span>`
+                    ).join('');
                 }
 
                 drawAnalyticsChart();
             } catch (e) {
+                console.error("Overview load failed:", e);
                 updateScoreBar(0);
             }
             loadRecJobs();
@@ -1335,13 +1362,18 @@
                     return;
                 }
 
-                el.innerHTML = jobs.slice(0, 3).map((j, i) => `
+                // Stable match logic for demo consistency
+                el.innerHTML = jobs.slice(0, 3).map((j, i) => {
+                    const baseMatch = 78 + (i * 2); // 78, 80, 82
+                    const match = Math.min(94, baseMatch + (user.skills ? user.skills.length : 0));
+                    
+                    return `
                     <div class="job-card col-4">
                         <div class="job-card-header">
                             <div class="company-logo">${j.company ? j.company[0].toUpperCase() : '💼'}</div>
                             <div class="match-badge">
                                 <i data-lucide="zap" style="width:14px"></i>
-                                ${Math.floor(75 + Math.random() * 20)}% Match
+                                ${match}% Match
                             </div>
                         </div>
                         <div class="job-info">
@@ -1356,7 +1388,8 @@
                             <span class="salary">${j.salary || 'Competitive'}</span>
                             <button class="apply-btn" onclick="applyToJob('${j.id}',this)">Apply</button>
                         </div>
-                    </div>`).join('');
+                    </div>`;
+                }).join('');
                 lucide.createIcons();
             } catch (e) {
                 el.innerHTML = `
