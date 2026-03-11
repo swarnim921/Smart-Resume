@@ -4,496 +4,502 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recruiter Dashboard - TalentSync</title>
+    <title>Recruiter Dashboard | TalentSync</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.1.0/dist/progressbar.min.js"></script>
     <style>
+        :root {
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
+            --accent2: #10b981;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --sidebar: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --glass: rgba(255, 255, 255, 0.7);
+        }
+
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box
-        }
-
-        :root {
-            --bg1: #eef2fb;
-            --bg2: #d6e4f7;
-            --accent: #4a90d9;
-            --accent2: #2563eb;
-            --glass: rgba(74, 144, 217, 0.08);
-            --gb: rgba(74, 144, 217, 0.18);
-            --ghov: rgba(74, 144, 217, 0.12);
-            --text: #1a2340;
-            --muted: #6b7a99;
-            --success: #38b9a0;
-            --warning: #f59e0b;
-            --danger: #ef4444
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg1);
-            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
             color: var(--text);
-            overflow-x: hidden;
+            min-height: 100vh;
             display: flex;
+            overflow: hidden;
         }
 
-        .blob {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.2;
-            pointer-events: none;
-            animation: fl 20s infinite ease-in-out
-        }
-
-        .b1 {
-            width: 500px;
-            height: 500px;
-            background: #1e40af;
-            top: -100px;
-            left: -100px
-        }
-
-        .b2 {
-            width: 400px;
-            height: 400px;
-            background: #00d4aa;
-            bottom: -100px;
-            right: -100px;
-            animation-delay: 7s
-        }
-
-        .b3 {
-            width: 300px;
-            height: 300px;
-            background: #2563eb;
-            top: 40%;
-            left: 40%;
-            animation-delay: 14s
-        }
-
-        @keyframes fl {
-
-            0%,
-            100% {
-                transform: translate(0, 0)
-            }
-
-            33% {
-                transform: translate(25px, -25px)
-            }
-
-            66% {
-                transform: translate(-15px, 15px)
-            }
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--gb);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100
-        }
-
-        .logo {
-            font-size: 22px;
-            font-weight: 700
-        }
-
-        .logo span {
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent
-        }
-
-        .layout {
-            display: flex;
-            min-height: calc(100vh - 64px)
-        }
-
+        /* Sidebar */
         .sidebar {
-            width: 210px;
-            background: rgba(255, 255, 255, 0.04);
-            border-right: 1px solid var(--gb);
-            padding: 1.5rem 1rem;
-            flex-shrink: 0
+            width: 260px;
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 32px;
+            padding-left: 12px;
+        }
+
+        .nav-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
+            gap: 12px;
+            padding: 12px 16px;
             border-radius: 12px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
             color: var(--muted);
-            transition: all 0.3s;
-            margin-bottom: 0.25rem;
-            border: 1px solid transparent;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
             background: none;
             width: 100%;
             text-align: left;
-            font-family: 'Poppins', sans-serif
         }
 
-        .nav-item:hover,
-        .nav-item.active {
-            background: var(--glass);
-            color: var(--text);
-            border-color: var(--gb)
+        .nav-item i {
+            width: 18px;
+            height: 18px;
         }
 
-        .nav-item.active {
-            color: var(--accent)
-        }
-
-        .main {
-            flex: 1;
-            padding: 2rem;
-            overflow-y: auto
-        }
-
-        .page-title {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 0.25rem
-        }
-
-        .page-sub {
-            color: var(--muted);
-            font-size: 14px;
-            margin-bottom: 1.75rem
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem
-        }
-
-        .card {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--gb);
-            border-radius: 18px;
-            padding: 1.5rem;
-            transition: all 0.3s
-        }
-
-        .card:hover {
-            background: var(--ghov);
-            transform: translateY(-2px)
-        }
-
-        .stat-val {
-            font-size: 34px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center
-        }
-
-        .stat-lbl {
-            font-size: 12px;
-            color: var(--muted);
-            text-align: center;
-            margin-top: 0.25rem
-        }
-
-        .job-card {
-            background: var(--glass);
-            border: 1px solid var(--gb);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s
-        }
-
-        .job-card:hover {
-            background: var(--ghov)
-        }
-
-        .app-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 1.25rem;
-            margin-bottom: 0.75rem
-        }
-
-        .badge {
-            padding: 0.2rem 0.7rem;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 500
-        }
-
-        .bc {
-            background: rgba(0, 212, 170, 0.15);
+        .nav-item:hover {
+            background: var(--accent-light);
             color: var(--accent);
-            border: 1px solid rgba(0, 212, 170, 0.3)
         }
 
-        .bb {
-            background: rgba(37, 99, 235, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(37, 99, 235, 0.3)
+        .nav-item.active {
+            background: var(--accent);
+            color: white;
         }
 
-        .bs {
-            background: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.3)
+        .nav-item.active:hover {
+            background: var(--accent);
+            color: white;
         }
 
-        .bw {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--warning);
-            border: 1px solid rgba(245, 158, 11, 0.4)
+        /* Page Layout */
+        .page-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
         }
 
-        .bd {
-            background: rgba(239, 68, 68, 0.15);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.3)
-        }
-
-        .bg {
-            background: rgba(148, 163, 184, 0.15);
-            color: var(--muted);
-            border: 1px solid rgba(148, 163, 184, 0.3)
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s
-        }
-
-        .btn-p {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: white
-        }
-
-        .btn-p:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3)
-        }
-
-        .btn-o {
+        /* Topbar */
+        .topbar {
+            height: 72px;
             background: var(--glass);
-            border: 1px solid var(--gb);
-            color: var(--text)
-        }
-
-        .btn-o:hover {
-            background: var(--ghov)
-        }
-
-        .btn-logout {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            padding: 0.4rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px;
-            font-weight: 500
-        }
-
-        .user-badge {
-            background: var(--glass);
-            border: 1px solid var(--gb);
-            border-radius: 50px;
-            padding: 0.4rem 1rem;
-            font-size: 14px;
-            font-weight: 500
-        }
-
-        .user-area {
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 1rem
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
         }
 
-        .form-group {
-            margin-bottom: 1rem
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.4rem;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--muted)
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 0.65rem 1rem;
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid var(--gb);
-            border-radius: 10px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 14px;
-            color: var(--text);
-            outline: none;
-            transition: all 0.3s
-        }
-
-        .form-input:focus {
-            border-color: var(--accent);
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1)
-        }
-
-        textarea.form-input {
-            min-height: 100px;
-            resize: vertical
-        }
-
-        /* Pipeline action buttons */
-        .pipeline-actions {
+        .search-box {
             display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-top: 0.75rem
+            align-items: center;
+            background: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 12px;
+            width: 320px;
+            gap: 10px;
         }
 
-        .pipe-btn {
-            padding: 0.35rem 0.8rem;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 12px;
-            font-weight: 600;
+        .search-box input {
+            background: none;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notif-btn {
+            position: relative;
+            background: none;
+            border: none;
+            color: var(--muted);
             cursor: pointer;
-            border: 1px solid;
-            transition: all 0.3s
         }
 
-        .pipe-btn:hover {
-            transform: translateY(-1px)
-        }
-
-        .pb-review {
-            background: rgba(37, 99, 235, 0.15);
-            border-color: rgba(37, 99, 235, 0.4);
-            color: #60a5fa
-        }
-
-        .pb-short {
-            background: rgba(0, 212, 170, 0.15);
-            border-color: rgba(0, 212, 170, 0.4);
-            color: var(--accent)
-        }
-
-        .pb-interview {
-            background: rgba(16, 185, 129, 0.15);
-            border-color: rgba(16, 185, 129, 0.4);
-            color: #34d399
-        }
-
-        .pb-offer {
-            background: rgba(245, 158, 11, 0.15);
-            border-color: rgba(245, 158, 11, 0.4);
-            color: var(--warning)
-        }
-
-        .pb-reject {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: rgba(239, 68, 68, 0.4);
-            color: #f87171
-        }
-
-        /* Score circle */
-        .sc {
-            width: 60px;
-            height: 60px;
+        .notif-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
             border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 20px;
+            border-left: 1px solid var(--border);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
             font-weight: 700;
-            border: 3px solid;
-            flex-shrink: 0
         }
 
-        /* Notes timeline */
-        .note-item {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
-            font-size: 12px
+        .user-info .user-name {
+            font-size: 14px;
+            font-weight: 700;
         }
 
-        .note-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent);
-            flex-shrink: 0;
-            margin-top: 4px
-        }
-
-        /* Analytics bar */
-        .a-bar-row {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.6rem
-        }
-
-        .a-bar-label {
+        .user-info .user-role {
             font-size: 12px;
             color: var(--muted);
-            width: 90px;
-            text-align: right;
-            flex-shrink: 0
         }
 
-        .a-bar-bg {
-            flex: 1;
-            height: 18px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 50px;
-            overflow: hidden
+        /* Content */
+        .content {
+            padding: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
         }
 
-        .a-bar {
-            height: 100%;
-            border-radius: 50px;
-            transition: width 0.6s ease
+        .welcome-section {
+            margin-bottom: 32px;
         }
 
-        .a-bar-val {
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        .col-12 {
+            grid-column: span 12;
+        }
+
+        .col-8 {
+            grid-column: span 8;
+        }
+
+        .col-6 {
+            grid-column: span 6;
+        }
+
+        .col-4 {
+            grid-column: span 4;
+        }
+
+        .col-3 {
+            grid-column: span 3;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Metrics */
+        .metric-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .metric-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .metric-icon.blue {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .metric-icon.green {
+            background: #ecfdf5;
+            color: #10b981;
+        }
+
+        .metric-icon.amber {
+            background: #fffbeb;
+            color: #f59e0b;
+        }
+
+        .metric-icon.purple {
+            background: #f5f3ff;
+            color: #8b5cf6;
+        }
+
+        .metric-info .metric-value {
+            display: block;
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .metric-info .metric-label {
             font-size: 12px;
+            color: var(--muted);
             font-weight: 600;
-            width: 30px;
-            text-align: right;
-            flex-shrink: 0
         }
 
-        /* Modal */
+        /* Job Cards */
+        .job-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .job-card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .company-logo {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .status-closed {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .job-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .job-info p {
+            font-size: 13px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+
+        .job-card-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .applicant-count {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .apply-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .apply-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Applicant List UI */
+        .app-card {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .match-score {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            background: white;
+            border: 2px solid var(--accent);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .match-score .val {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .match-score .lbl {
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        /* Badge Styles */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .bg {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .bb {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .bc {
+            background: #ecfdf5;
+            color: #10b981;
+        }
+
+        .bs {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .bw {
+            background: #f0f9ff;
+            color: #0369a1;
+        }
+
+        .bd {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -501,351 +507,373 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.65);
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
             z-index: 1000;
-            backdrop-filter: blur(5px)
+            align-items: center;
+            justify-content: center;
         }
 
         .modal.active {
             display: flex;
-            align-items: center;
-            justify-content: center
         }
 
         .modal-content {
-            background: #ffffff;
-            border: 1px solid rgba(56, 185, 154, 0.2);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 840px;
-            width: 92%;
+            background: white;
+            width: 90%;
+            max-width: 800px;
             max-height: 90vh;
-            overflow-y: auto
+            border-radius: 24px;
+            overflow-y: auto;
+            position: relative;
+            padding: 32px;
         }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        .modal-title {
-            font-size: 18px;
-            font-weight: 700
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 22px;
-            cursor: pointer;
-            color: var(--muted);
-            transition: color 0.3s
-        }
-
-        .close-btn:hover {
-            color: var(--text)
-        }
-
-        .preview-box {
-            background: rgba(56, 185, 154, 0.05);
-            border: 1px solid rgba(56, 185, 154, 0.15);
-            border-radius: 12px;
-            padding: 1.25rem;
-            margin-top: 1rem;
-            white-space: pre-wrap;
+        .form-label {
+            display: block;
             font-size: 13px;
-            line-height: 1.7;
-            color: var(--text)
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
         }
 
-        /* Stage builder */
-        .stage-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 1.25rem;
-            margin-bottom: 1rem
-        }
-
-        .stage-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem
-        }
-
-        .stage-num {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--accent);
-            background: rgba(0, 212, 170, 0.12);
-            border: 1px solid rgba(0, 212, 170, 0.25);
-            border-radius: 6px;
-            padding: 0.2rem 0.6rem
-        }
-
-        .stage-del {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            border-radius: 6px;
-            padding: 0.2rem 0.6rem;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif
-        }
-
-        .gen-btn {
-            background: rgba(37, 99, 235, 0.15);
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            color: #60a5fa;
-            border-radius: 8px;
-            padding: 0.4rem 0.9rem;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s
-        }
-
-        .gen-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed
-        }
-
-        .ph-hint {
-            font-size: 11px;
-            color: var(--muted);
-            margin-top: 0.4rem
-        }
-
-        .ph-hint code {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 4px;
-            padding: 0.1rem 0.3rem;
-            font-size: 10px;
-            color: var(--accent)
-        }
-
-        .add-stage-btn {
-            background: rgba(0, 212, 170, 0.1);
-            border: 1px dashed rgba(0, 212, 170, 0.4);
-            color: var(--accent);
-            border-radius: 12px;
-            padding: 0.75rem;
+        .form-input {
             width: 100%;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-family: inherit;
             font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        .add-stage-btn:hover {
-            background: rgba(0, 212, 170, 0.18)
+        .form-input:focus {
+            border-color: var(--accent);
         }
 
-        .section-divider {
-            height: 1px;
-            background: var(--gb);
-            margin: 1.5rem 0
+        /* Animations */
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
         }
 
         .loading {
+            width: 100%;
+            padding: 40px;
             text-align: center;
-            padding: 2.5rem;
-            color: var(--muted)
+            color: var(--muted);
+            font-weight: 500;
         }
 
-        .ats-rejected {
-            opacity: 0.65;
-            border-color: rgba(239, 68, 68, 0.3) !important
-        }
-
-        @media(max-width:768px) {
+        @media (max-width: 1024px) {
             .sidebar {
-                display: none
+                width: 80px;
+                padding: 24px 8px;
             }
 
-            .stats {
-                grid-template-columns: repeat(2, 1fr)
+            .sidebar-brand span,
+            .nav-item span {
+                display: none;
+            }
+
+            .col-4,
+            .col-3 {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .col-6 {
+                grid-column: span 12;
+            }
+
+            .search-box {
+                display: none;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar"
-        style="width:190px;min-height:100vh;background:#d6e4f7;display:flex;flex-direction:column;padding:28px 16px;border-right:1px solid rgba(74,144,217,0.15);flex-shrink:0">
-        <div style="font-size:20px;font-weight:800;color:#4a90d9;margin-bottom:36px;padding-left:4px">TalentSync</div>
-        <button class="nav-item active" onclick="showSection('overview')">💼 Job Postings</button>
-        <button class="nav-item" onclick="showSection('jobs')">🔍 Candidate Search</button>
-        <button class="nav-item" onclick="showSection('post')">➕ Post Job</button>
-        <button class="nav-item" onclick="showSection('panels')">🗓️ Interview Panels</button>
-        <button class="nav-item" onclick="showSection('analytics')">📈 Analytics</button>
-        <div style="margin-top:auto">
-            <button
-                style="width:100%;padding:10px 14px;border-radius:12px;border:none;background:rgba(239,68,68,0.08);color:#ef4444;font-family:Inter,sans-serif;font-size:13px;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px"
-                onclick="logout()">🚪 Sign Out</button>
-        </div>
-    </div>
 
-    <!-- Main -->
-    <div style="flex:1;display:flex;flex-direction:column;min-height:100vh">
-        <!-- Topbar -->
-        <div class="header"
-            style="background:#fff;border-bottom:1px solid rgba(74,144,217,0.15);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,0.04)">
-            <div style="font-size:22px;font-weight:700;color:#1a2340" id="pageTitle">Dashboard</div>
-            <div class="user-area">
-                <button style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7a99">🔔</button>
-                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4a90d9,#2563eb);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:white"
-                    id="avatarInitial">R</div>
+    <body>
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <i data-lucide="layers" style="color: var(--accent);"></i>
+                <span>TalentSync</span>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-item active" id="nav-overview" onclick="showSection('overview')">
+                    <i data-lucide="layout-dashboard"></i> <span>Dashboard</span>
+                </button>
+                <button class="nav-item" id="nav-post" onclick="showSection('post')">
+                    <i data-lucide="plus-circle"></i> <span>Post New Job</span>
+                </button>
+                <button class="nav-item" id="nav-jobs" onclick="showSection('jobs')">
+                    <i data-lucide="briefcase"></i> <span>My Jobs</span>
+                </button>
+                <button class="nav-item" id="nav-panels" onclick="showSection('panels')">
+                    <i data-lucide="calendar"></i> <span>Interview Panels</span>
+                </button>
+                <button class="nav-item" id="nav-analytics" onclick="showSection('analytics')">
+                    <i data-lucide="bar-chart-3"></i> <span>Analytics</span>
+                </button>
+            </div>
+
+            <div style="margin-top:auto">
+                <button class="nav-item" onclick="logout()" style="color: var(--danger);">
+                    <i data-lucide="log-out"></i> <span>Sign Out</span>
+                </button>
             </div>
         </div>
 
-        <div class="layout" style="flex:1">
-            <div class="main">
-                <!-- Overview -->
-                <div id="sec-overview">
-                    <div class="page-title">Recruiter Dashboard</div>
-                    <div class="page-sub">Manage postings and review candidates</div>
-                    <div class="stats">
-                        <div class="card">
-                            <div class="stat-val" id="st-jobs">0</div>
-                            <div class="stat-lbl">Active Jobs</div>
-                        </div>
-                        <div class="card">
-                            <div class="stat-val" id="st-apps">0</div>
-                            <div class="stat-lbl">Applications</div>
-                        </div>
-                        <div class="card">
-                            <div class="stat-val" id="st-review">0</div>
-                            <div class="stat-lbl">Under Review</div>
-                        </div>
-                        <div class="card">
-                            <div class="stat-val" id="st-ats">0</div>
-                            <div class="stat-lbl">ATS Filtered</div>
-                        </div>
-                    </div>
-                    <div style="font-size:16px;font-weight:600;margin-bottom:1rem">💼 Your Job Postings</div>
-                    <div id="ov-jobs" class="loading">Loading…</div>
+        <!-- Main Content -->
+        <div class="page-container">
+            <!-- Topbar -->
+            <div class="topbar">
+                <div class="search-box">
+                    <i data-lucide="search" style="width: 18px; color: var(--muted);"></i>
+                    <input type="text" placeholder="Search candidates, jobs...">
                 </div>
 
-                <!-- Post Job -->
+                <div class="topbar-right">
+                    <button class="notif-btn">
+                        <i data-lucide="bell"></i>
+                        <div class="notif-badge"></div>
+                    </button>
+                    <div class="user-profile">
+                        <div class="avatar" id="avatarInitial">R</div>
+                        <div class="user-info">
+                            <div class="user-name" id="userNameDisplay">Recruiter</div>
+                            <div class="user-role">Hiring Manager</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Overview Section -->
+                <div id="sec-overview">
+                    <div class="welcome-section">
+                        <h1 class="welcome-title">Recruiter Dashboard</h1>
+                        <p class="welcome-subtitle">Overview of your active hiring pipelines and team performance.</p>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <!-- Stats Grid -->
+                        <div class="col-3 metric-card card">
+                            <div class="metric-icon blue"><i data-lucide="briefcase"></i></div>
+                            <div class="metric-info">
+                                <span class="metric-value" id="st-jobs">0</span>
+                                <span class="metric-label">Active Jobs</span>
+                            </div>
+                        </div>
+                        <div class="col-3 metric-card card">
+                            <div class="metric-icon green"><i data-lucide="users"></i></div>
+                            <div class="metric-info">
+                                <span class="metric-value" id="st-apps">0</span>
+                                <span class="metric-label">Applications</span>
+                            </div>
+                        </div>
+                        <div class="col-3 metric-card card">
+                            <div class="metric-icon amber"><i data-lucide="clock"></i></div>
+                            <div class="metric-info">
+                                <span class="metric-value" id="st-review">0</span>
+                                <span class="metric-label">Under Review</span>
+                            </div>
+                        </div>
+                        <div class="col-3 metric-card card">
+                            <div class="metric-icon purple"><i data-lucide="shield-check"></i></div>
+                            <div class="metric-info">
+                                <span class="metric-value" id="st-ats">0</span>
+                                <span class="metric-label">ATS Filtered</span>
+                            </div>
+                        </div>
+
+                        <!-- Job Postings List -->
+                        <div class="col-12" style="margin-top: 16px;">
+                            <div class="card-header">
+                                <div class="card-title"><i data-lucide="list-checks"></i> Recent Job Postings</div>
+                                <button class="nav-item" style="width:auto; color:var(--accent)"
+                                    onclick="showSection('jobs')">View all →</button>
+                            </div>
+                            <div id="ov-jobs" class="dashboard-grid">
+                                <div class="loading col-12">Loading job postings...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post Job Section -->
                 <div id="sec-post" style="display:none">
-                    <div class="page-title">➕ Post New Job</div>
-                    <div class="page-sub">Define your role and optionally customise the hiring pipeline</div>
+                    <div class="welcome-section">
+                        <h1 class="welcome-title">Post New Job</h1>
+                        <p class="welcome-subtitle">Create a job posting and define your custom hiring pipeline.</p>
+                    </div>
                     <div class="card">
                         <form onsubmit="postJob(event)">
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-                                <div class="form-group"><label class="form-label">Job Title *</label><input type="text"
-                                        id="jTitle" class="form-input" required
-                                        placeholder="e.g. Senior Software Engineer">
+                            <div class="dashboard-grid">
+                                <div class="form-group col-6">
+                                    <label class="form-label">Job Title *</label>
+                                    <input type="text" id="jTitle" class="form-input" required
+                                        placeholder="e.g. Senior Backend Engineer">
                                 </div>
-                                <div class="form-group"><label class="form-label">Company *</label><input type="text"
-                                        id="jCompany" class="form-input" required placeholder="Company name"></div>
-                            </div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
-                                <div class="form-group"><label class="form-label">Location</label><input type="text"
-                                        id="jLocation" class="form-input" placeholder="Mumbai / Remote"></div>
-                                <div class="form-group"><label class="form-label">Job Type</label><input type="text"
-                                        id="jType" class="form-input" placeholder="Full-time, Contract…"></div>
-                                <div class="form-group"><label class="form-label">Salary</label><input type="text"
-                                        id="jSalary" class="form-input" placeholder="₹8L – ₹15L"></div>
-                            </div>
-                            <div class="form-group"><label class="form-label">Auto-Close Date (optional)</label><input
-                                    type="datetime-local" id="jExpires" class="form-input" style="max-width:260px">
-                            </div>
-                            <div class="form-group"><label class="form-label">Job Description *</label><textarea
-                                    id="jDescription" class="form-input" required
-                                    placeholder="Role and responsibilities…"></textarea></div>
-                            <div class="form-group"><label class="form-label">Requirements *</label><textarea
-                                    id="jRequirements" class="form-input" required
-                                    placeholder="Skills, experience, qualifications…"></textarea></div>
-                            <div class="section-divider"></div>
-                            <div
-                                style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-                                <div>
-                                    <div style="font-size:15px;font-weight:700">🔄 Hiring Pipeline & Email Templates
-                                    </div>
-                                    <div style="font-size:12px;color:var(--muted);margin-top:0.2rem">Optional — define
-                                        rounds with custom emails per stage</div>
+                                <div class="form-group col-6">
+                                    <label class="form-label">Company *</label>
+                                    <input type="text" id="jCompany" class="form-input" required
+                                        placeholder="TalentSync Partner">
+                                </div>
+                                <div class="form-group col-4">
+                                    <label class="form-label">Location</label>
+                                    <input type="text" id="jLocation" class="form-input" placeholder="Mumbai / Remote">
+                                </div>
+                                <div class="form-group col-4">
+                                    <label class="form-label">Job Type</label>
+                                    <input type="text" id="jType" class="form-input" placeholder="Full-time">
+                                </div>
+                                <div class="form-group col-4">
+                                    <label class="form-label">Salary Range</label>
+                                    <input type="text" id="jSalary" class="form-input" placeholder="₹12L - ₹18L">
+                                </div>
+                                <div class="form-group col-12">
+                                    <label class="form-label">Job Description *</label>
+                                    <textarea id="jDescription" class="form-input" required rows="4"
+                                        placeholder="Describe the role..."></textarea>
+                                </div>
+                                <div class="form-group col-12">
+                                    <label class="form-label">Requirements *</label>
+                                    <textarea id="jRequirements" class="form-input" required rows="4"
+                                        placeholder="Skills and experience required..."></textarea>
                                 </div>
                             </div>
-                            <div id="stages-container"></div>
-                            <button type="button" class="add-stage-btn" onclick="addStage()">+ Add Hiring Stage</button>
-                            <div class="section-divider"></div>
-                            <button type="submit" class="btn btn-p"
-                                style="width:100%;padding:0.75rem;font-size:15px">Post
-                                Job →</button>
+
+                            <div style="margin: 24px 0; border-top: 1px solid var(--border); padding-top: 24px;">
+                                <div class="card-title" style="margin-bottom: 8px;"><i data-lucide="git-branch"></i>
+                                    Custom Hiring Pipeline</div>
+                                <p style="font-size: 13px; color: var(--muted); margin-bottom: 20px;">Add stages like
+                                    "Technical Round" or "Culture Fit" with custom email templates.</p>
+                                <div id="stages-container"></div>
+                                <button type="button" class="nav-item"
+                                    style="border: 2px dashed var(--border); justify-content: center;"
+                                    onclick="addStage()">+ Add Stage</button>
+                            </div>
+
+                            <button type="submit" class="apply-btn"
+                                style="width: 100%; height: 48px; font-size: 16px;">Post Job Vacancy</button>
                         </form>
                     </div>
                 </div>
 
-                <!-- My Jobs -->
+                <!-- My Jobs Section -->
                 <div id="sec-jobs" style="display:none">
-                    <div class="page-title">💼 My Job Postings</div>
-                    <div class="page-sub">Click "View Applications" to manage candidates</div>
-                    <div id="jobs-list" class="loading">Loading…</div>
-                </div>
-
-                <!-- Analytics -->
-                <div id="sec-analytics" style="display:none">
-                    <div class="page-title">📈 Analytics</div>
-                    <div class="page-sub">Application pipeline overview per job</div>
-                    <div id="analytics-content" class="loading">Loading…</div>
-                </div>
-
-                <!-- Interview Panels -->
-                <div id="sec-panels" style="display:none">
-                    <div class="page-title">🗓️ Interview Panels</div>
-                    <div class="page-sub">Configure multi-panel interview schedules and auto-assign shortlisted
-                        candidates
+                    <div class="welcome-section">
+                        <h1 class="welcome-title">Job Management</h1>
+                        <p class="welcome-subtitle">Monitor applications and update hiring statuses across all your
+                            postings.</p>
                     </div>
-                    <div class="card" style="margin-bottom:1.25rem">
-                        <div class="form-group" style="margin-bottom:0">
+                    <div id="jobs-list" class="dashboard-grid">
+                        <div class="loading col-12">Loading jobs...</div>
+                    </div>
+                </div>
+
+                <!-- Analytics Section -->
+                <div id="sec-analytics" style="display:none">
+                    <div class="welcome-section">
+                        <h1 class="welcome-title">Hiring Analytics</h1>
+                        <p class="welcome-subtitle">Insights into your recruitment funnel and candidate conversion
+                            rates.</p>
+                    </div>
+                    <div id="analytics-content" class="dashboard-grid">
+                        <div class="loading col-12">Loading analytics...</div>
+                    </div>
+                </div>
+
+                <!-- Panels Section -->
+                <div id="sec-panels" style="display:none">
+                    <div class="welcome-section">
+                        <h1 class="welcome-title">Interview Scheduling</h1>
+                        <p class="welcome-subtitle">Manage interview panels and automate candidate scheduling.</p>
+                    </div>
+                    <div class="card">
+                        <div class="form-group">
                             <label class="form-label">Select Job to Configure</label>
-                            <select id="panelJobSelect" class="form-input" style="max-width:420px"
+                            <select id="panelJobSelect" class="form-input" style="max-width: 400px;"
                                 onchange="loadPanelJob()">
                                 <option value="">— Choose a job —</option>
                             </select>
                         </div>
                     </div>
-                    <div id="panel-builder" style="display:none">
-                        <div
-                            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem">
-                            <div style="font-size:16px;font-weight:700">🎯 Interview Panels</div>
-                            <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
-                                <button class="btn btn-o" onclick="addPanel()">+ Add Panel</button>
-                                <button class="btn btn-p" onclick="savePanels()">💾 Save Panels</button>
-                            </div>
-                        </div>
-                        <div id="panels-list">
-                            <p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel".</p>
-                        </div>
-                        <div
-                            style="margin-top:1.5rem;padding:1.25rem;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:14px">
-                            <div style="font-size:14px;font-weight:700;margin-bottom:0.4rem">🚀 Auto-Schedule All
-                                Shortlisted Candidates</div>
-                            <div style="font-size:13px;color:var(--muted);margin-bottom:1rem">One click assigns all
-                                SHORTLISTED/UNDER_REVIEW candidates round-robin across panels and sends ICS calendar
-                                invites
-                                to candidates AND all panel interviewers simultaneously.</div>
-                            <button class="btn btn-p" style="font-size:14px;padding:0.65rem 1.5rem"
-                                onclick="autoSchedule(event)">🚀 Auto-Schedule Interviews</button>
-                        </div>
-                        <div class="section-divider"></div>
-                        <div style="font-size:16px;font-weight:700;margin-bottom:1rem">📋 Current Schedule</div>
-                        <div id="schedule-table">
-                            <div class="loading">Save panels and run auto-schedule to see assignments here</div>
-                        </div>
+                    <div id="panel-builder" style="display:none; margin-top: 24px;">
+                        <div id="panels-list" class="dashboard-grid"></div>
                     </div>
                 </div>
             </div>
+        </div>
+        </div>
+
+        <!-- Interview Panels -->
+        <div id="sec-panels" style="display:none">
+            <div class="page-title">🗓️ Interview Panels</div>
+            <div class="page-sub">Configure multi-panel interview schedules and auto-assign shortlisted
+                candidates
+            </div>
+            <div class="card" style="margin-bottom:1.25rem">
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label">Select Job to Configure</label>
+                    <select id="panelJobSelect" class="form-input" style="max-width:420px" onchange="loadPanelJob()">
+                        <option value="">— Choose a job —</option>
+                    </select>
+                </div>
+            </div>
+            <div id="panel-builder" style="display:none">
+                <div
+                    style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem">
+                    <div style="font-size:16px;font-weight:700">🎯 Interview Panels</div>
+                    <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+                        <button class="btn btn-o" onclick="addPanel()">+ Add Panel</button>
+                        <button class="btn btn-p" onclick="savePanels()">💾 Save Panels</button>
+                    </div>
+                </div>
+                <div id="panels-list">
+                    <p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel".</p>
+                </div>
+                <div
+                    style="margin-top:1.5rem;padding:1.25rem;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:14px">
+                    <div style="font-size:14px;font-weight:700;margin-bottom:0.4rem">🚀 Auto-Schedule All
+                        Shortlisted Candidates</div>
+                    <div style="font-size:13px;color:var(--muted);margin-bottom:1rem">One click assigns all
+                        SHORTLISTED/UNDER_REVIEW candidates round-robin across panels and sends ICS calendar
+                        invites
+                        to candidates AND all panel interviewers simultaneously.</div>
+                    <button class="btn btn-p" style="font-size:14px;padding:0.65rem 1.5rem"
+                        onclick="autoSchedule(event)">🚀 Auto-Schedule Interviews</button>
+                </div>
+                <div class="section-divider"></div>
+                <div style="font-size:16px;font-weight:700;margin-bottom:1rem">📋 Current Schedule</div>
+                <div id="schedule-table">
+                    <div class="loading">Save panels and run auto-schedule to see assignments here</div>
+                </div>
+            </div>
+        </div>
+        </div>
         </div>
 
         <!-- Applications Modal -->
@@ -914,578 +942,449 @@
             let allJobsCache = [], panelJobId = null, panels = [], panelCount = 0;
 
             if (!token || user.role !== 'recruiter') { location.href = '/smart_resume_signin_page.html'; }
+
+            // UI Initialization
             const initial = (user.name || 'R').charAt(0).toUpperCase();
             document.getElementById('avatarInitial').textContent = initial;
-            if (document.getElementById('pageTitle')) document.getElementById('pageTitle').textContent = 'Dashboard';
+            document.getElementById('userNameDisplay').textContent = user.name || 'Recruiter';
+
             function logout() { sessionStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
             // ===================== NAVIGATION =====================
             const sections = ['overview', 'post', 'jobs', 'panels', 'analytics'];
             function showSection(n) {
-                sections.forEach(s => { const el = document.getElementById('sec-' + s); if (el) el.style.display = s === n ? 'block' : 'none'; });
-                document.querySelectorAll('.nav-item').forEach((el, i) => el.classList.toggle('active', sections[i] === n));
+                sections.forEach(s => {
+                    const el = document.getElementById('sec-' + s);
+                    if (el) el.style.display = s === n ? 'block' : 'none';
+
+                    const nav = document.getElementById('nav-' + s);
+                    if (nav) nav.classList.toggle('active', s === n);
+                });
+
                 if (n === 'jobs' || n === 'overview') loadJobs(n);
                 if (n === 'analytics') loadAnalytics();
                 if (n === 'panels') populatePanelJobSelect();
-            }
 
-            // ===================== INTERVIEW PANELS =====================
-            async function populatePanelJobSelect() {
-                try {
-                    const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    if (!r.ok) return;
-                    const jobs = await r.json();
-                    const sel = document.getElementById('panelJobSelect');
-                    sel.innerHTML = '<option value="">— Choose a job —</option>';
-                    jobs.filter(j => j.status !== 'CLOSED').forEach(j => {
-                        const opt = document.createElement('option');
-                        opt.value = j.id; opt.textContent = j.title + (j.company ? ' — ' + j.company : '');
-                        sel.appendChild(opt);
-                    });
-                } catch (e) { console.error(e); }
-            }
-
-            async function loadPanelJob() {
-                const sel = document.getElementById('panelJobSelect');
-                panelJobId = sel.value;
-                if (!panelJobId) { document.getElementById('panel-builder').style.display = 'none'; return; }
-                document.getElementById('panel-builder').style.display = 'block';
-                try {
-                    const r = await fetch(`${API}/api/interviews/schedule/${panelJobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    if (r.ok) { const d = await r.json(); panels = d.panels || []; panelCount = panels.length; renderPanels(); renderScheduleTable(panels); }
-                    else { panels = []; renderPanels(); }
-                } catch (e) { panels = []; renderPanels(); }
-            }
-
-            function addPanel() {
-                panelCount++;
-                panels.push({ panelId: '', panelName: 'Panel ' + panelCount, interviewerEmails: [], interviewerNames: [], slots: [] });
-                renderPanels();
-            }
-            function removePanel(idx) { panels.splice(idx, 1); renderPanels(); }
-            function addSlot(pi) { panels[pi].slots.push({ slotId: '', dateTime: '', durationMinutes: 60, booked: false }); renderPanels(); }
-            function removeSlot(pi, si) { panels[pi].slots.splice(si, 1); renderPanels(); }
-
-            function collectPanelsFromUI() {
-                const updated = [];
-                document.querySelectorAll('.panel-card').forEach((card, pi) => {
-                    const name = card.querySelector('.p-name')?.value?.trim() || 'Panel ' + (pi + 1);
-                    const emailsRaw = card.querySelector('.p-emails')?.value?.trim() || '';
-                    const namesRaw = card.querySelector('.p-names')?.value?.trim() || '';
-                    const emailsList = emailsRaw.split(',').map(s => s.trim()).filter(Boolean);
-                    const namesList = namesRaw.split(',').map(s => s.trim()).filter(Boolean);
-                    const slots = [];
-                    card.querySelectorAll('.slot-row').forEach(row => {
-                        const dt = row.querySelector('.slot-dt')?.value || '';
-                        const dur = parseInt(row.querySelector('.slot-dur')?.value || '60');
-                        if (dt) slots.push({ slotId: '', dateTime: dt, durationMinutes: dur, booked: false });
-                    });
-                    updated.push({ panelId: panels[pi]?.panelId || '', panelName: name, interviewerEmails: emailsList, interviewerNames: namesList, slots });
-                });
-                return updated;
-            }
-
-            function renderPanels() {
-                const container = document.getElementById('panels-list');
-                if (!panels.length) { container.innerHTML = '<p style="color:var(--muted);font-size:13px">No panels yet. Click "+ Add Panel" to create one.</p>'; return; }
-                container.innerHTML = panels.map((p, pi) => `<div class="panel-card stage-card">
-                <div class="stage-header"><span class="stage-num">Panel ${pi + 1}</span><button type="button" class="stage-del" onclick="removePanel(${pi})">✕ Remove</button></div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-                    <div class="form-group"><label class="form-label">Panel Name</label><input class="form-input p-name" value="${p.panelName || ''}" placeholder="e.g. Technical Panel 1"></div>
-                    <div></div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-                    <div class="form-group"><label class="form-label">Interviewer Emails (comma-separated)</label><input class="form-input p-emails" value="${(p.interviewerEmails || []).join(', ')}" placeholder="rohit@co.com, priya@co.com"></div>
-                    <div class="form-group"><label class="form-label">Interviewer Names (comma-separated)</label><input class="form-input p-names" value="${(p.interviewerNames || []).join(', ')}" placeholder="Rohit Sharma, Priya Singh"></div>
-                </div>
-                <div style="font-size:13px;font-weight:600;margin-bottom:0.5rem;color:var(--muted)">⏰ Available Slots (${(p.slots || []).filter(s => !s.booked).length} free, ${(p.slots || []).filter(s => s.booked).length} booked)</div>
-                ${(p.slots || []).map((s, si) => `<div class="slot-row" style="display:flex;gap:0.75rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap">
-                    <input type="datetime-local" class="form-input slot-dt" value="${s.dateTime ? s.dateTime.substring(0, 16) : ''}" style="flex:1;min-width:180px" ${s.booked ? 'disabled' : ''}>
-                    <input type="number" class="form-input slot-dur" value="${s.durationMinutes || 60}" min="15" max="240" style="width:80px" title="Duration (min)">
-                    <span style="font-size:11px;color:var(--muted)">min</span>
-                    ${s.booked ? `<span class="badge bc" style="font-size:11px;white-space:nowrap">✓ ${s.candidateName || 'Booked'}</span>` : `<button type="button" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:6px;padding:0.2rem 0.5rem;cursor:pointer;font-size:11px" onclick="removeSlot(${pi},${si})">✕</button>`}
-                </div>`).join('')}
-                <button type="button" class="add-stage-btn" style="margin-top:0.5rem;padding:0.5rem;font-size:13px" onclick="addSlot(${pi})">+ Add Time Slot</button>
-            </div>`).join('');
-            }
-
-            async function savePanels() {
-                if (!panelJobId) { alert('Please select a job first.'); return; }
-                const collected = collectPanelsFromUI();
-                try {
-                    const r = await fetch(`${API}/api/interviews/panels/${panelJobId}`, {
-                        method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify(collected)
-                    });
-                    const d = await r.json();
-                    if (!r.ok) throw new Error(d.error || 'Failed');
-                    panels = d.job?.interviewPanels || collected;
-                    renderPanels(); renderScheduleTable(panels);
-                    alert('✅ ' + d.message);
-                } catch (e) { alert('Failed: ' + e.message); }
-            }
-
-            async function autoSchedule(evt) {
-                if (!panelJobId) { alert('Please select a job first.'); return; }
-                if (!confirm('This will assign ALL shortlisted/under-review candidates round-robin across panels and send ICS calendar invites to both candidates and panel interviewers. Proceed?')) return;
-                const btn = evt.currentTarget; btn.textContent = '⏳ Scheduling…'; btn.disabled = true;
-                try {
-                    const r = await fetch(`${API}/api/interviews/auto-schedule/${panelJobId}`, {
-                        method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    const d = await r.json();
-                    if (!r.ok) throw new Error(d.error || 'Failed');
-                    let msg = '✅ ' + d.message;
-                    if (d.assignments && d.assignments.length) msg += '\n\nAssignments:\n' + d.assignments.join('\n');
-                    alert(msg);
-                    loadPanelJob();
-                } catch (e) { alert('Failed: ' + e.message); }
-                btn.textContent = '🚀 Auto-Schedule Interviews'; btn.disabled = false;
-            }
-
-            function renderScheduleTable(panelsData) {
-                const container = document.getElementById('schedule-table');
-                const booked = [];
-                (panelsData || []).forEach(p => {
-                    (p.slots || []).filter(s => s.booked).forEach(s => {
-                        booked.push({ panel: p.panelName, interviewers: (p.interviewerNames || []).join(', ') || p.panelName, candidate: s.candidateName, email: s.candidateEmail, dateTime: s.dateTime, duration: s.durationMinutes });
-                    });
-                });
-                if (!booked.length) { container.innerHTML = '<p style="color:var(--muted);font-size:13px">No interviews scheduled yet.</p>'; return; }
-                booked.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
-                container.innerHTML = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
-                <thead><tr>${['Date & Time', 'Candidate', 'Email', 'Panel', 'Interviewers', 'Dur'].map(h => `<th style="text-align:left;padding:0.55rem 0.65rem;border-bottom:1px solid var(--gb);color:var(--muted);font-weight:600;white-space:nowrap">${h}</th>`).join('')}</tr></thead>
-                <tbody>${booked.map(b => `<tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
-                    <td style="padding:0.55rem 0.65rem;white-space:nowrap">${new Date(b.dateTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-                    <td style="padding:0.55rem 0.65rem;font-weight:600">${b.candidate || '—'}</td>
-                    <td style="padding:0.55rem 0.65rem;color:var(--muted);font-size:12px">${b.email || '—'}</td>
-                    <td style="padding:0.55rem 0.65rem"><span class="badge bc">${b.panel}</span></td>
-                    <td style="padding:0.55rem 0.65rem;color:var(--muted);font-size:12px">${b.interviewers}</td>
-                    <td style="padding:0.55rem 0.65rem;color:var(--muted)">${b.duration || 60}m</td>
-                </tr>`).join('')}</tbody>
-            </table></div>`;
-            }
-
-            // ===================== BADGES & HELPERS =====================
-            function statusBadge(s) {
-                const m = {
-                    PENDING: ['bg', '⏳ Pending'], UNDER_REVIEW: ['bb', '🔍 Under Review'], SHORTLISTED: ['bc', '⭐ Shortlisted'],
-                    INTERVIEW: ['bs', '📅 Interview'], OFFERED: ['bw', '🎉 Offered'], REJECTED: ['bd', '❌ Rejected'], ATS_REJECTED: ['bd', '🤖 ATS Filtered']
-                };
-                const [c, l] = m[s] || ['bg', s]; return `<span class="badge ${c}">${l}</span>`;
-            }
-            function scoreCircle(score) {
-                if (score === null || score === undefined) return '<div style="width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);border:3px solid rgba(255,255,255,0.15)">-</div>';
-                const c = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
-                return `<div class="sc" style="border-color:${c};color:${c}">${score.toFixed(0)}%</div>`;
-            }
-
-            // ===================== PIPELINE BUTTONS =====================
-            function getPipelineButtons(appId, status, jobPipeline) {
-                if (jobPipeline && jobPipeline.length > 0) {
-                    const keys = jobPipeline.map(s => s.stageKey);
-                    const curIdx = keys.indexOf(status);
-                    const btns = [];
-                    if (curIdx === -1) {
-                        if (status === 'UNDER_REVIEW' || status === 'PENDING') btns.push(`<button class="pipe-btn pb-review" onclick="initiateStatusUpdate('${appId}','${keys[0]}','${jobPipeline[0].stageName}')">▶ ${jobPipeline[0].stageName}</button>`);
-                        if (status === 'ATS_REJECTED') btns.push(`<button class="pipe-btn pb-review" onclick="initiateStatusUpdate('${appId}','UNDER_REVIEW','Under Review')">↩ Override</button>`);
-                    } else if (curIdx < keys.length - 1) {
-                        const next = jobPipeline[curIdx + 1];
-                        btns.push(`<button class="pipe-btn pb-short" onclick="initiateStatusUpdate('${appId}','${next.stageKey}','${next.stageName}')">▶ ${next.stageName}</button>`);
-                    }
-                    btns.push(`<button class="pipe-btn pb-reject" onclick="initiateStatusUpdate('${appId}','REJECTED','Rejected')">✕ Reject</button>`);
-                    if (!btns.length) return '<div style="font-size:12px;color:var(--muted);margin-top:0.5rem">Pipeline complete</div>';
-                    return `<div class="pipeline-actions">${btns.join('')}</div>`;
-                }
-                const flows = {
-                    PENDING: [{ s: 'UNDER_REVIEW', cls: 'pb-review', l: '▶ Move to Review' }],
-                    ATS_REJECTED: [{ s: 'UNDER_REVIEW', cls: 'pb-review', l: '↩ Override to Review' }],
-                    UNDER_REVIEW: [{ s: 'SHORTLISTED', cls: 'pb-short', l: '⭐ Shortlist' }, { s: 'REJECTED', cls: 'pb-reject', l: '✕ Reject' }],
-                    SHORTLISTED: [{ s: 'INTERVIEW', cls: 'pb-interview', l: '📅 Invite Interview' }, { s: 'REJECTED', cls: 'pb-reject', l: '✕ Reject' }],
-                    INTERVIEW: [{ s: 'OFFERED', cls: 'pb-offer', l: '🎉 Send Offer' }, { s: 'REJECTED', cls: 'pb-reject', l: '✕ Reject' }],
-                    OFFERED: [], REJECTED: []
-                };
-                const btns = (flows[status] || []);
-                if (!btns.length) return '<div style="font-size:12px;color:var(--muted);margin-top:0.5rem">No further actions</div>';
-                return `<div class="pipeline-actions">${btns.map(b => `<button class="pipe-btn ${b.cls}" onclick="initiateStatusUpdate('${appId}','${b.s}','')">${b.l}</button>`).join('')}</div>`;
-            }
-
-            // ===================== EMAIL PREVIEW FLOW =====================
-            async function initiateStatusUpdate(appId, newStatus, stageName) {
-                const notes = prompt(`Moving to "${stageName || newStatus}". Add a note for the candidate (optional):`);
-                if (notes === null) return; // cancelled
-
-                let interviewDateTime = '';
-                if (newStatus === 'INTERVIEW') {
-                    interviewDateTime = prompt('📅 Enter interview date & time (format: YYYY-MM-DDTHH:MM, e.g. 2026-03-10T14:30):', '')?.trim() || '';
-                }
-
-                // Fetch email preview from backend
-                try {
-                    const r = await fetch(`${API}/api/email-templates/preview`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ appId, status: newStatus, notes, interviewDateTime, stageName })
-                    });
-                    if (r.ok) {
-                        const d = await r.json();
-                        document.getElementById('previewSubj').textContent = d.subject || '(no subject)';
-                        document.getElementById('previewBody').textContent = d.body || '(no body)';
-                        pendingStatusUpdate = { appId, newStatus, stageName, notes, interviewDateTime };
-                        document.getElementById('previewModal').classList.add('active');
-                        return;
-                    }
-                } catch (e) {/* fall through to direct update */ }
-
-                // If preview endpoint not available, proceed directly
-                await doStatusUpdate(appId, newStatus, notes, interviewDateTime);
-            }
-
-            async function confirmStatusUpdate() {
-                if (!pendingStatusUpdate) return;
-                const { appId, newStatus, notes, interviewDateTime } = pendingStatusUpdate;
-                closePreview();
-                await doStatusUpdate(appId, newStatus, notes, interviewDateTime);
-            }
-
-            async function doStatusUpdate(appId, status, notes, interviewDateTime) {
-                try {
-                    const r = await fetch(`${API}/api/applications/${appId}/status`, {
-                        method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status, notes: notes || '', interviewDateTime: interviewDateTime || '' })
-                    });
-                    if (!r.ok) throw new Error('Failed');
-                    // Refresh applications
-                    if (currentJobId) viewApps(currentJobId, currentJobTitle);
-                } catch (e) { alert('Failed: ' + e.message); }
-            }
-
-            function closePreview() {
-                document.getElementById('previewModal').classList.remove('active');
-                pendingStatusUpdate = null;
+                // Re-init icons for new section
+                lucide.createIcons();
             }
 
             // ===================== JOBS =====================
             async function loadJobs(section) {
                 const cid = section === 'overview' ? 'ov-jobs' : 'jobs-list';
                 const el = document.getElementById(cid);
-                if (el) el.innerHTML = '<div class="loading">Loading…</div>';
+                if (el) el.innerHTML = '<div class="loading col-12"><i data-lucide="loader" class="spin"></i> Loading jobs...</div>';
+                lucide.createIcons();
+
                 try {
                     const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
                     if (!r.ok) throw new Error();
                     const jobs = await r.json();
                     allJobsCache = jobs;
+
                     document.getElementById('st-jobs').textContent = jobs.filter(j => j.status === 'ACTIVE').length;
-                    if (!jobs.length) { if (el) el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No jobs yet. Post your first job!</p>'; return; }
-                    if (el) el.innerHTML = jobs.map(j => `<div class="job-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
-        <div>
-          <div style="font-size:15px;font-weight:600;margin-bottom:0.25rem">${j.title}</div>
-          <div style="color:var(--muted);font-size:13px;margin-bottom:0.75rem">${j.company || ''}</div>
-          <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-            ${j.location ? `<span class="badge bc">📍 ${j.location}</span>` : ''}
-            ${j.type ? `<span class="badge bb">${j.type}</span>` : ''}
-            ${j.salary ? `<span class="badge bs">💰 ${j.salary}</span>` : ''}
-            ${j.status === 'CLOSED' ? '<span class="badge bd">🔒 Closed</span>' : ''}
-            ${j.expiresAt ? `<span class="badge bw">⏰ Closes ${new Date(j.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>` : ''}
-            ${j.hiringPipeline && j.hiringPipeline.length ? `<span class="badge bc">🔄 ${j.hiringPipeline.length} custom stages</span>` : ''}
-          </div>
-        </div>
-        <button class="btn btn-p" onclick="viewApps('${j.id}','${(j.title || '').replace(/'/g, '&#39;')}')">View Applications →</button>
-      </div>
-    </div>`).join('');
-                } catch (e) { if (el) el.innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load</p>'; }
-            }
 
-            async function postJob(e) {
-                e.preventDefault();
-                const btn = e.target.querySelector('[type=submit]');
-                btn.textContent = 'Posting…'; btn.disabled = true;
-                try {
-                    const pipeline = collectPipeline();
-                    const expires = document.getElementById('jExpires').value;
-                    const body = {
-                        title: document.getElementById('jTitle').value, company: document.getElementById('jCompany').value,
-                        location: document.getElementById('jLocation').value, type: document.getElementById('jType').value,
-                        salary: document.getElementById('jSalary').value, description: document.getElementById('jDescription').value,
-                        requirements: document.getElementById('jRequirements').value
-                    };
-                    if (pipeline.length) body.hiringPipeline = pipeline;
-                    if (expires) body.expiresAt = expires;
-                    const r = await fetch(`${API}/api/jobs`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-                    if (!r.ok) throw new Error('Failed');
-                    alert('✅ Job posted!' + (pipeline.length ? `\n${pipeline.length} custom email stages saved.` : ''));
-                    e.target.reset(); document.getElementById('stages-container').innerHTML = ''; stageCount = 0;
-                    showSection('jobs');
-                } catch (err) { alert('Failed: ' + err.message); }
-                btn.textContent = 'Post Job →'; btn.disabled = false;
-            }
+                    // Aggregate stats for overview
+                    if (section === 'overview') {
+                        let totalApps = 0, totalReview = 0, totalAts = 0;
+                        await Promise.all(jobs.map(async j => {
+                            try {
+                                const ar = await fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                                const apps = await ar.json();
+                                totalApps += apps.length;
+                                totalReview += apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
+                                totalAts += apps.filter(a => a.status === 'ATS_REJECTED').length;
+                            } catch (e) { }
+                        }));
+                        document.getElementById('st-apps').textContent = totalApps;
+                        document.getElementById('st-review').textContent = totalReview;
+                        document.getElementById('st-ats').textContent = totalAts;
+                    }
 
-            // ===================== PIPELINE BUILDER =====================
-            function addStage() {
-                stageCount++; const idx = stageCount;
-                const div = document.createElement('div'); div.className = 'stage-card'; div.id = 'stage-' + idx;
-                div.innerHTML = `<div class="stage-header"><span class="stage-num">Stage ${idx}</span><button type="button" class="stage-del" onclick="removeStage(${idx})">✕ Remove</button></div>
-    <div class="form-group"><label class="form-label">Stage Name *</label>
-    <div style="display:flex;gap:0.75rem;align-items:center">
-      <input type="text" id="sname-${idx}" class="form-input" placeholder="e.g. Round 1: Aptitude Test" oninput="validateStageName(${idx})">
-      <button type="button" class="gen-btn" id="genbtn-${idx}" onclick="generateTemplate(${idx})" disabled>✨ Generate</button>
-    </div></div>
-    <div id="template-area-${idx}" style="display:none">
-      <div class="form-group"><label class="form-label">Email Subject</label><input type="text" id="subj-${idx}" class="form-input"></div>
-      <div class="form-group"><label class="form-label">Email Body</label><textarea id="body-${idx}" class="form-input" style="min-height:160px"></textarea>
-        <div class="ph-hint">Placeholders: <code>{{candidateName}}</code> <code>{{jobTitle}}</code> <code>{{stageName}}</code> <code>{{companyName}}</code> <code>{{recruiterNotes}}</code></div>
-      </div>
-      <div style="display:flex;gap:0.5rem"><button type="button" class="btn btn-o" onclick="generateTemplate(${idx})" style="font-size:12px;padding:0.35rem 0.8rem">↺ Regenerate</button></div>
-    </div>`;
-                document.getElementById('stages-container').appendChild(div);
-            }
-            function removeStage(idx) { document.getElementById('stage-' + idx)?.remove(); }
-            function validateStageName(idx) { const v = document.getElementById('sname-' + idx)?.value.trim(); const b = document.getElementById('genbtn-' + idx); if (b) b.disabled = !v; }
-            async function generateTemplate(idx) {
-                const stageName = document.getElementById('sname-' + idx)?.value.trim();
-                if (!stageName) return;
-                const btn = document.getElementById('genbtn-' + idx); const orig = btn.textContent;
-                btn.textContent = '⏳'; btn.disabled = true;
-                try {
-                    const r = await fetch(`${API}/api/email-templates/generate`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            stageName, jobTitle: document.getElementById('jTitle')?.value || 'the position',
-                            companyName: document.getElementById('jCompany')?.value || 'our company', stageOrder: String(idx)
-                        })
-                    });
-                    if (!r.ok) throw new Error();
-                    const d = await r.json();
-                    document.getElementById('subj-' + idx).value = d.subject || '';
-                    document.getElementById('body-' + idx).value = d.body || '';
-                    document.getElementById('template-area-' + idx).style.display = 'block';
-                } catch (e) { alert('Generation failed'); }
-                btn.textContent = orig; btn.disabled = false;
-            }
-            function collectPipeline() {
-                const stages = [];
-                document.querySelectorAll('.stage-card').forEach((card, i) => {
-                    const id = card.id.replace('stage-', '');
-                    const stageName = document.getElementById('sname-' + id)?.value.trim(); if (!stageName) return;
-                    const subject = document.getElementById('subj-' + id)?.value.trim() || '';
-                    const body = document.getElementById('body-' + id)?.value.trim() || '';
-                    stages.push({ stageName, stageOrder: i + 1, stageKey: 'STAGE_' + (i + 1), emailSubject: subject, emailBody: body, customTemplate: !!(subject || body) });
-                });
-                return stages;
+                    if (!jobs.length) {
+                        if (el) el.innerHTML = '<div class="col-12" style="text-align:center;padding:48px;color:var(--muted)">No jobs yet. Post your first job!</div>';
+                        return;
+                    }
+
+                    if (el) {
+                        el.innerHTML = jobs.map(j => `
+                            <div class="col-4">
+                                <div class="card job-card">
+                                    <div class="job-card-header">
+                                        <div class="company-logo">${(j.company || 'T')[0]}</div>
+                                        <span class="status-badge ${j.status === 'CLOSED' ? 'status-closed' : 'status-active'}">
+                                            ${j.status || 'ACTIVE'}
+                                        </span>
+                                    </div>
+                                    <div class="job-info">
+                                        <h3>${j.title}</h3>
+                                        <p><i data-lucide="map-pin" style="width:14px"></i> ${j.location || 'Remote'}</p>
+                                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px">
+                                            <span class="badge bb">${j.type || 'Full-time'}</span>
+                                            <span class="badge bc">${j.salary || 'Competitive'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="job-card-footer">
+                                        <div class="applicant-count">
+                                            <i data-lucide="users" style="width:16px"></i> 
+                                            <span>Applications</span>
+                                        </div>
+                                        <button class="apply-btn" onclick="viewApps('${j.id}','${(j.title || '').replace(/'/g, "\\'")}')">
+                                            Manage
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                        lucide.createIcons();
+                    }
+                } catch (e) {
+                    if (el) el.innerHTML = '<div class="col-12" style="color:var(--danger);text-align:center">Failed to load jobs</div>';
+                }
             }
 
             // ===================== APPLICATIONS =====================
             async function viewApps(jobId, jobTitle) {
                 currentJobId = jobId; currentJobTitle = jobTitle;
-                document.getElementById('modalTitle').textContent = 'Applications — ' + jobTitle;
+                document.getElementById('modalTitle').textContent = jobTitle;
                 document.getElementById('appsModal').classList.add('active');
-                document.getElementById('modalApps').innerHTML = '<div class="loading">Loading…</div>';
+                document.getElementById('modalApps').innerHTML = '<div class="loading"><i data-lucide="loader" class="spin"></i> Loading...</div>';
+                lucide.createIcons();
+
                 try {
                     const [appsRes, jobRes] = await Promise.all([
                         fetch(`${API}/api/applications/job/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
                         fetch(`${API}/api/jobs/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } })
                     ]);
+
                     if (!appsRes.ok) throw new Error();
                     const apps = await appsRes.json();
                     const job = jobRes.ok ? await jobRes.json() : null;
                     const pipeline = job?.hiringPipeline || [];
 
+                    // Update stats
                     document.getElementById('st-apps').textContent = apps.length;
-                    document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status) || pipeline.some(s => s.stageKey === a.status)).length;
+                    document.getElementById('st-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
                     document.getElementById('st-ats').textContent = apps.filter(a => a.status === 'ATS_REJECTED').length;
 
-                    if (!apps.length) { document.getElementById('modalApps').innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No applications yet</p>'; document.getElementById('bulkBar').style.display = 'none'; return; }
-                    document.getElementById('bulkBar').style.display = 'flex';
-                    populateBulkSelect(pipeline);
-                    document.getElementById('modalApps').innerHTML = apps.map(a => {
-                        const pipeline_stage = pipeline.find(s => s.stageKey === a.status);
-                        // Notes history timeline
-                        const notesHtml = a.notesHistory && a.notesHistory.length ? `
-        <div style="margin-top:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px">
-          <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:0.5rem">📋 Notes History</div>
-          ${a.notesHistory.map(n => `<div class="note-item">
-            <div class="note-dot"></div>
-            <div><span style="color:var(--text)">${n.text}</span> <span style="color:var(--muted)">(${n.status})</span>
-            <div style="color:var(--muted);font-size:11px">${new Date(n.timestamp).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div></div>
-          </div>`).join('')}
-        </div>`: '';
-                        return `<div class="app-card ${a.status === 'ATS_REJECTED' ? 'ats-rejected' : ''}" style="display:flex;gap:1.25rem;align-items:flex-start">
-        <div style="margin-top:0.25rem">
-            <input type="checkbox" class="app-checkbox" value="${a.id}" onchange="updateSelection()" style="width:18px;height:18px;cursor:pointer">
-        </div>
-        <div style="flex:1">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
-            <div style="flex:1">
-                <div style="font-weight:600;font-size:15px">${a.candidateName || 'Unknown'}</div>
-                <div style="color:var(--muted);font-size:13px;margin-bottom:0.5rem">${a.candidateEmail}</div>
-                <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
-                ${statusBadge(a.status)}
-                ${pipeline_stage ? `<span style="font-size:11px;color:var(--muted)">● ${pipeline_stage.stageName}</span>` : ''}
-                <span style="color:var(--muted);font-size:12px">Applied: ${new Date(a.appliedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
-                ${a.reAnalyzedAt ? `<span style="font-size:11px;color:var(--muted)">🔄 Re-analyzed</span>` : ''}
-                </div>
-            </div>
-            ${scoreCircle(a.matchScore)}
-            </div>
-            ${a.skillsGap && a.skillsGap.length ? `<div style="margin-top:0.75rem;padding:0.65rem;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:9px">
-            <div style="font-size:12px;font-weight:600;color:#f87171;margin-bottom:0.4rem">🎯 Skills Gap:</div>
-            <div style="display:flex;gap:0.4rem;flex-wrap:wrap">${a.skillsGap.map(s => `<span class="badge bd">${s}</span>`).join('')}</div>
-            </div>`: ''}
-            ${notesHtml}
-            <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
-            <button class="btn btn-o" onclick="viewResume('${a.id}')" style="font-size:12px;padding:0.35rem 0.75rem">📄 Resume</button>
-            ${getPipelineButtons(a.id, a.status, pipeline)}
-            </div>
-        </div>
-      </div>`;
-                    }).join('');
-                } catch (e) { document.getElementById('modalApps').innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load</p>'; }
+                    if (!apps.length) {
+                        document.getElementById('modalApps').innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px">No applications yet.</p>';
+                        return;
+                    }
+
+                    document.getElementById('modalApps').innerHTML = apps.map(a => `
+                        <div class="app-card ${a.status === 'ATS_REJECTED' ? 'ats-rejected' : ''}">
+                            <div class="match-score">
+                                <span class="val">${a.matchScore || 0}%</span>
+                                <span class="lbl">MATCH</span>
+                            </div>
+                            <div style="flex:1">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px">
+                                    <div>
+                                        <h4 style="font-size:16px; font-weight:700">${a.candidateName || 'Candidate'}</h4>
+                                        <p style="color:var(--muted); font-size:13px">${a.candidateEmail}</p>
+                                    </div>
+                                    <div style="display:flex; gap:8px">
+                                        ${statusBadge(a.status)}
+                                    </div>
+                                </div>
+                                
+                                <div style="display:flex; gap:12px; margin-bottom:16px">
+                                    <button class="nav-item" style="width:auto; padding:6px 12px; background:var(--bg)" onclick="viewResume('${a.id}')">
+                                        <i data-lucide="file-text"></i> <span>View Resume</span>
+                                    </button>
+                                    <div style="flex:1"></div>
+                                    ${getPipelineButtons(a.id, a.status, pipeline)}
+                                </div>
+                                
+                                ${a.skillsGap && a.skillsGap.length ? `
+                                    <div style="background:var(--accent-light); padding:12px; border-radius:12px">
+                                        <p style="font-size:11px; font-weight:700; color:var(--accent); margin-bottom:4px">SKILLS GAP</p>
+                                        <div style="display:flex; gap:4px; flex-wrap:wrap">
+                                            ${a.skillsGap.map(s => `<span class="badge bd" style="font-size:10px">${s}</span>`).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                    lucide.createIcons();
+                } catch (e) {
+                    document.getElementById('modalApps').innerHTML = '<p style="color:var(--danger);text-align:center">Error loading applications</p>';
+                }
+            }
+
+            // Helper for status badge
+            function statusBadge(s) {
+                const maps = {
+                    PENDING: ['bg', 'Pending'],
+                    UNDER_REVIEW: ['bb', 'Reviewing'],
+                    SHORTLISTED: ['bc', 'Shortlisted'],
+                    INTERVIEW: ['bs', 'Interview'],
+                    OFFERED: ['bw', 'Offered'],
+                    REJECTED: ['bd', 'Rejected'],
+                    ATS_REJECTED: ['bd', 'ATS Rejected']
+                };
+                const [cls, label] = maps[s] || ['bg', s];
+                return `<span class="badge ${cls}">${label}</span>`;
+            }
+
+            // Pipeline Buttons
+            function getPipelineButtons(appId, status, pipeline) {
+                if (pipeline && pipeline.length) {
+                    const keys = pipeline.map(s => s.stageKey);
+                    const curIdx = keys.indexOf(status);
+
+                    if (curIdx < keys.length - 1) {
+                        const next = pipeline[curIdx + 1];
+                        return `<button class="apply-btn" onclick="doStatusUpdate('${appId}','${next.stageKey}')">Move to ${next.stageName}</button>`;
+                    }
+                }
+
+                const flows = {
+                    PENDING: [{ s: 'UNDER_REVIEW', l: 'Review' }],
+                    UNDER_REVIEW: [{ s: 'SHORTLISTED', l: 'Shortlist' }],
+                    SHORTLISTED: [{ s: 'INTERVIEW', l: 'Interview' }]
+                };
+
+                const actions = flows[status] || [];
+                return actions.map(b => `
+                    <button class="apply-btn" onclick="doStatusUpdate('${appId}','${b.s}')">
+                        ${b.l}
+                    </button>
+                `).join('');
+            }
+
+            async function doStatusUpdate(appId, status) {
+                try {
+                    const r = await fetch(`${API}/api/applications/${appId}/status`, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status })
+                    });
+                    if (r.ok) viewApps(currentJobId, currentJobTitle);
+                } catch (e) { alert('Failed to update status'); }
             }
 
             async function viewResume(appId) {
                 try {
                     const r = await fetch(`${API}/api/applications/${appId}/resume`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    if (!r.ok) throw new Error();
                     const blob = await r.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    window.open(url, '_blank');
-                    setTimeout(() => window.URL.revokeObjectURL(url), 100);
-                } catch (e) { alert('Failed: ' + e.message); }
+                    window.open(URL.createObjectURL(blob), '_blank');
+                } catch (e) { alert('Failed to load resume'); }
             }
 
-            function exportCsv() {
-                if (!currentJobId) return;
-                window.open(`${API}/api/applications/job/${currentJobId}/export.csv?token=${encodeURIComponent(token)}`, '_blank');
+            // ===================== JOB POSTING & PIPELINE =====================
+            function addStage() {
+                stageCount++;
+                const div = document.createElement('div');
+                div.className = 'stage-card';
+                div.id = `stage-${stageCount}`;
+                div.innerHTML = `
+                    <div class="stage-header">
+                        <span class="stage-num">Stage ${stageCount}</span>
+                        <button type="button" class="stage-del" onclick="removeStage(${stageCount})">
+                            <i data-lucide="x" style="width:14px"></i>
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Stage Name</label>
+                        <input type="text" id="sname-${stageCount}" class="form-input" placeholder="e.g. Technical Interview">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Template</label>
+                        <textarea id="body-${stageCount}" class="form-input" placeholder="Email sent when moved to this stage..." style="min-height:100px"></textarea>
+                    </div>
+                `;
+                document.getElementById('stages-container').appendChild(div);
+                lucide.createIcons();
             }
 
-            function closeModal() { document.getElementById('appsModal').classList.remove('active'); currentJobId = null; }
-            document.getElementById('appsModal').addEventListener('click', e => { if (e.target === document.getElementById('appsModal')) closeModal(); });
-            document.getElementById('previewModal').addEventListener('click', e => { if (e.target === document.getElementById('previewModal')) closePreview(); });
+            function removeStage(id) { document.getElementById(`stage-${id}`).remove(); }
 
-            // ===================== BULK ACTIONS =====================
-            function populateBulkSelect(pipeline) {
-                const sel = document.getElementById('bulkStageSelect');
-                sel.innerHTML = '<option value="">— Select Stage —</option>';
-                const defaults = [
-                    { k: 'UNDER_REVIEW', l: 'Under Review' },
-                    { k: 'SHORTLISTED', l: 'Shortlisted' },
-                    { k: 'INTERVIEW', l: 'Interview Phase' },
-                    { k: 'OFFERED', l: 'Offered' },
-                    { k: 'REJECTED', l: 'Rejected' }
-                ];
-                if (pipeline && pipeline.length) {
-                    pipeline.forEach(s => {
-                        const opt = document.createElement('option');
-                        opt.value = s.stageKey; opt.textContent = s.stageName;
-                        sel.appendChild(opt);
-                    });
-                } else {
-                    defaults.forEach(d => {
-                        const opt = document.createElement('option');
-                        opt.value = d.k; opt.textContent = d.l;
-                        sel.appendChild(opt);
-                    });
-                }
-            }
-
-            function toggleSelectAll(master) {
-                const boxes = document.querySelectorAll('.app-checkbox');
-                boxes.forEach(b => b.checked = master.checked);
-                updateSelection();
-            }
-
-            function updateSelection() {
-                const checked = document.querySelectorAll('.app-checkbox:checked').length;
-                const total = document.querySelectorAll('.app-checkbox').length;
-                document.getElementById('selectedCount').textContent = `${checked} Selected`;
-                document.getElementById('selectAllApps').checked = checked > 0 && checked === total;
-                document.getElementById('selectedCount').style.color = checked > 0 ? 'var(--primary)' : 'inherit';
-            }
-
-            async function processBulkUpdate() {
-                const selectedIds = Array.from(document.querySelectorAll('.app-checkbox:checked')).map(b => b.value);
-                const sel = document.getElementById('bulkStageSelect');
-                const status = sel.value;
-                const stageName = sel.options[sel.selectedIndex].text;
-                if (!selectedIds.length) return alert('Please select at least one candidate.');
-                if (!status) return alert('Please select a target stage.');
-
-                const notes = prompt(`Move ${selectedIds.length} candidates to stage: "${stageName}"? Add a generic note (optional):`);
-                if (notes === null) return;
-
-                const btn = document.getElementById('bulkBtn');
-                btn.disabled = true; btn.textContent = '⏳ Processing…';
+            async function postJob(e) {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Posting...';
+                lucide.createIcons();
 
                 try {
-                    const r = await fetch(`${API}/api/applications/bulk-status-update`, {
+                    const stages = [];
+                    document.querySelectorAll('.stage-card').forEach((card, i) => {
+                        const id = card.id.split('-')[1];
+                        stages.push({
+                            stageName: document.getElementById(`sname-${id}`).value,
+                            stageOrder: i + 1,
+                            stageKey: `STAGE_${i + 1}`,
+                            emailBody: document.getElementById(`body-${id}`).value
+                        });
+                    });
+
+                    const body = {
+                        title: document.getElementById('jTitle').value,
+                        company: document.getElementById('jCompany').value,
+                        location: document.getElementById('jLocation').value,
+                        type: document.getElementById('jType').value,
+                        salary: document.getElementById('jSalary').value,
+                        description: document.getElementById('jDescription').value,
+                        requirements: document.getElementById('jRequirements').value,
+                        hiringPipeline: stages
+                    };
+
+                    const r = await fetch(`${API}/api/jobs`, {
                         method: 'POST',
                         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ids: selectedIds, status, stageName, notes })
+                        body: JSON.stringify(body)
                     });
-                    const d = await r.json();
-                    if (!r.ok) throw new Error(d.error || 'Bulk update failed');
-                    alert(`✅ ${d.message}`);
-                    viewApps(currentJobId, currentJobTitle); // Refresh the list
-                    document.getElementById('selectAllApps').checked = false;
-                    updateSelection();
-                } catch (e) { alert('Error: ' + e.message); }
-                finally { btn.disabled = false; btn.textContent = '🚀 Batch Move'; }
+
+                    if (r.ok) {
+                        alert('Job posted successfully!');
+                        e.target.reset();
+                        document.getElementById('stages-container').innerHTML = '';
+                        showSection('jobs');
+                    }
+                } catch (e) { alert('Failed to post job'); }
+                btn.innerHTML = orig;
+                lucide.createIcons();
+            }
+
+            // ===================== INTERVIEW PANELS =====================
+            async function populatePanelJobSelect() {
+                const sel = document.getElementById('panelJobSelect');
+                try {
+                    const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const jobs = await r.json();
+                    sel.innerHTML = '<option value="">Select a job position...</option>' +
+                        jobs.map(j => `<option value="${j.id}">${j.title}</option>`).join('');
+                } catch (e) { }
+            }
+
+            async function loadPanelJob() {
+                panelJobId = document.getElementById('panelJobSelect').value;
+                if (!panelJobId) { document.getElementById('panel-builder').style.display = 'none'; return; }
+                document.getElementById('panel-builder').style.display = 'block';
+
+                try {
+                    const r = await fetch(`${API}/api/interviews/schedule/${panelJobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const data = await r.json();
+                    panels = data.panels || [];
+                    renderPanels();
+                } catch (e) { panels = []; renderPanels(); }
+            }
+
+            function addPanel() {
+                panels.push({ panelName: `Panel ${panels.length + 1}`, interviewerEmails: [], slots: [] });
+                renderPanels();
+            }
+
+            function renderPanels() {
+                const container = document.getElementById('panels-list');
+                container.innerHTML = panels.map((p, pi) => `
+                    <div class="card" style="margin-bottom:20px; border:1px solid var(--gb)">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:16px">
+                            <h4 style="font-weight:700">Panel ${pi + 1}</h4>
+                            <button class="nav-item" style="color:var(--danger); width:auto; background:none" onclick="panels.splice(${pi},1); renderPanels()">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Names / Emails (comma separated)</label>
+                            <input type="text" class="form-input p-emails" value="${(p.interviewerEmails || []).join(', ')}">
+                        </div>
+                        <div class="slots-container" style="margin-top:16px">
+                            <label class="form-label" style="font-size:12px; opacity:0.7">Time Slots</label>
+                            ${(p.slots || []).map((s, si) => `
+                                <div style="display:flex; gap:10px; margin-bottom:10px">
+                                    <input type="datetime-local" class="form-input" value="${s.dateTime ? s.dateTime.substring(0, 16) : ''}" onchange="panels[${pi}].slots[${si}].dateTime = this.value">
+                                    <button class="nav-item" style="color:var(--danger); width:auto; padding:8px; background:var(--bg)" onclick="panels[${pi}].slots.splice(${si},1); renderPanels()">
+                                        <i data-lucide="x" style="width:14px"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="nav-item" style="width:auto; margin-top:10px; background:var(--bg); border:1px solid var(--gb)" onclick="panels[${pi}].slots.push({dateTime:''}); renderPanels()">
+                            <i data-lucide="plus" style="width:14px"></i> Add Slot
+                        </button>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+            }
+
+            async function savePanels() {
+                const container = document.getElementById('panels-list');
+                const updated = panels.map((p, i) => {
+                    const emails = container.querySelectorAll('.p-emails')[i].value.split(',').map(s => s.trim());
+                    return { ...p, interviewerEmails: emails };
+                });
+
+                try {
+                    const r = await fetch(`${API}/api/interviews/panels/${panelJobId}`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updated)
+                    });
+                    if (r.ok) alert('Interview panels saved successfully!');
+                } catch (e) { alert('Failed to save panels'); }
             }
 
             // ===================== ANALYTICS =====================
             async function loadAnalytics() {
                 const el = document.getElementById('analytics-content');
-                el.innerHTML = '<div class="loading">Loading…</div>';
+                el.innerHTML = '<div class="loading col-12"><i data-lucide="loader" class="spin"></i> Building reports...</div>';
+                lucide.createIcons();
+
                 try {
                     const r = await fetch(`${API}/api/jobs/my-jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    if (!r.ok) throw new Error();
                     const jobs = await r.json();
-                    if (!jobs.length) { el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No jobs to analyze</p>'; return; }
 
-                    const jobDataPromises = jobs.map(j =>
-                        fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } })
-                            .then(r => r.ok ? r.json() : []).catch(() => [])
-                    );
-                    const allAppLists = await Promise.all(jobDataPromises);
+                    el.innerHTML = jobs.map((j, i) => `
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">${j.title}</div>
+                                </div>
+                                <div style="height: 240px">
+                                    <canvas id="chart-${i}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
 
-                    const colors = {
-                        ATS_REJECTED: 'rgba(239,68,68,0.6)', PENDING: 'rgba(148,163,184,0.5)', UNDER_REVIEW: 'rgba(37,99,235,0.6)',
-                        SHORTLISTED: 'rgba(0,212,170,0.6)', INTERVIEW: 'rgba(16,185,129,0.6)', OFFERED: 'rgba(245,158,11,0.6)', REJECTED: 'rgba(239,68,68,0.4)'
-                    };
-                    const statusLabels = { ATS_REJECTED: 'ATS Filtered', PENDING: 'Pending', UNDER_REVIEW: 'Under Review', SHORTLISTED: 'Shortlisted', INTERVIEW: 'Interview', OFFERED: 'Offered', REJECTED: 'Rejected' };
+                    jobs.forEach(async (j, i) => {
+                        const appsRes = await fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        const apps = await appsRes.json();
 
-                    el.innerHTML = jobs.map((job, ji) => {
-                        const apps = allAppLists[ji];
-                        const total = apps.length; if (!total) return `<div class="card" style="margin-bottom:1rem"><div style="font-weight:600">${job.title}</div><div style="color:var(--muted);font-size:13px">No applications</div></div>`;
-                        const counts = {};
-                        apps.forEach(a => { counts[a.status] = (counts[a.status] || 0) + 1; });
-                        const barsHtml = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([st, cnt]) => {
-                            const pct = Math.round((cnt / total) * 100);
-                            const col = colors[st] || 'rgba(100,100,100,0.5)';
-                            return `<div class="a-bar-row">
-          <div class="a-bar-label">${statusLabels[st] || st}</div>
-          <div class="a-bar-bg"><div class="a-bar" style="width:${pct}%;background:${col}"></div></div>
-          <div class="a-bar-val" style="color:${col.replace(/0\.\d+\)/, '1)')}'">${cnt}</div>
-        </div>`;
-                        }).join('');
-                        return `<div class="card" style="margin-bottom:1.25rem">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-          <div><div style="font-weight:600;font-size:15px">${job.title}</div><div style="font-size:12px;color:var(--muted)">${job.company || ''}</div></div>
-          <div style="font-size:24px;font-weight:700;color:var(--accent)">${total}</div>
-        </div>
-        ${barsHtml}
-      </div>`;
-                    }).join('');
-                } catch (e) { el.innerHTML = '<p style="color:var(--danger);text-align:center">Failed to load analytics</p>'; }
+                        const counts = { 'Applied': 0, 'Interview': 0, 'Offered': 0, 'Rejected': 0 };
+                        apps.forEach(a => {
+                            if (a.status === 'OFFERED') counts['Offered']++;
+                            else if (a.status === 'INTERVIEW') counts['Interview']++;
+                            else if (a.status === 'REJECTED') counts['Rejected']++;
+                            else counts['Applied']++;
+                        });
+
+                        new Chart(document.getElementById(`chart-${i}`), {
+                            type: 'doughnut',
+                            data: {
+                                labels: Object.keys(counts),
+                                datasets: [{
+                                    data: Object.values(counts),
+                                    backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ef4444']
+                                }]
+                            },
+                            options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                        });
+                    });
+                } catch (e) { el.innerHTML = 'Error loading analytics'; }
             }
 
+            // Initial call
+            lucide.createIcons();
             loadJobs('overview');
         </script>
-    </div>
-    </div>
-</body>
+        </div>
+        </div>
+    </body>
 
 </html>
 
