@@ -598,13 +598,89 @@
             }
         }
 
+        .menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text);
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            margin-right: 12px;
+        }
+
+        .menu-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
         @media (max-width: 768px) {
-            .col-6 {
-                grid-column: span 12;
+            .menu-btn {
+                display: block;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                width: 280px;
+                z-index: 999;
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .sidebar-brand span,
+            .nav-item span {
+                display: block;
+            }
+
+            .nav-item {
+                justify-content: flex-start;
+                padding: 12px 20px;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+                opacity: 1;
+            }
+
+            .topbar {
+                padding: 0 20px;
             }
 
             .search-box {
                 display: none;
+            }
+
+            .welcome-section {
+                padding: 24px 0;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .col-3,
+            .col-4,
+            .col-6,
+            .col-8 {
+                grid-column: span 12;
             }
         }
     </style>
@@ -643,13 +719,21 @@
         </div>
     </div>
 
+    <!-- Mobile Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
     <!-- Main Content -->
     <div class="page-container">
         <!-- Topbar -->
         <div class="topbar">
-            <div class="search-box">
-                <i data-lucide="search" style="width: 18px; color: var(--muted);"></i>
-                <input type="text" placeholder="Search candidates, jobs...">
+            <div style="display:flex; align-items:center">
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div class="search-box">
+                    <i data-lucide="search" style="width: 18px; color: var(--muted);"></i>
+                    <input type="text" placeholder="Search candidates, jobs...">
+                </div>
             </div>
 
             <div class="topbar-right">
@@ -1401,6 +1485,12 @@
                     });
                 });
             } catch (e) { el.innerHTML = 'Error loading analytics'; }
+        }
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
         }
 
         // Initial call
