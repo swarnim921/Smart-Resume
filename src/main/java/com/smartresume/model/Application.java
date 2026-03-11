@@ -17,6 +17,8 @@ public class Application {
     @Id
     private String id;
     private String jobId;
+    private String jobTitle;
+    private String jobCompany;
     private String candidateEmail;
     private String candidateName;
     private String resumeId;

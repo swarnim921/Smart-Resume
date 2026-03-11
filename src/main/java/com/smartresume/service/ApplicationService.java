@@ -74,6 +74,8 @@ public class ApplicationService {
 
         Application application = new Application();
         application.setJobId(jobId);
+        application.setJobTitle(job.getTitle());
+        application.setJobCompany(job.getCompany());
         application.setCandidateEmail(candidateEmail);
         application.setCandidateName(user.getName());
         application.setResumeId(resume.getId());
