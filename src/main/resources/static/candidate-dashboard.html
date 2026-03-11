@@ -1436,6 +1436,17 @@
                                     <div style="display: flex; gap: 6px; flex-wrap: wrap">
                                         ${a.skillsGap.map(s => `<span class="badge bd" style="font-size: 10px; background: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6">${s}</span>`).join('')}
                                     </div>
+                                    <div style="margin-top:12px; border-top: 1px solid rgba(225, 29, 72, 0.1); padding-top:10px">
+                                        <p style="font-size: 10px; font-weight: 700; color: #64748b; margin-bottom:6px">Bridge the gap:</p>
+                                        <div style="display:flex; gap:8px">
+                                            <a href="https://www.udemy.com/courses/search/?q=${encodeURIComponent(a.skillsGap[0])}" target="_blank" class="nav-item" style="width:auto; padding:4px 8px; font-size:10px; background:#fff; border:1px solid #e2e8f0">
+                                                <i data-lucide="external-link" style="width:10px"></i> Udemy
+                                            </a>
+                                            <a href="https://www.coursera.org/search?query=${encodeURIComponent(a.skillsGap[0])}" target="_blank" class="nav-item" style="width:auto; padding:4px 8px; font-size:10px; background:#fff; border:1px solid #e2e8f0">
+                                                <i data-lucide="external-link" style="width:10px"></i> Coursera
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                                 ` : `
                                 <div style="margin: 16px 0; padding: 12px; background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 12px; display: flex; align-items: center; gap: 8px">
