@@ -1178,28 +1178,47 @@
                                     <div style="flex:1"></div>
                                     ${getPipelineButtons(a.id, a.status, pipeline)}
                                 </div>
-                                
-                                <div style="background:var(--bg); padding:16px; border-radius:16px; border:1px solid var(--border)">
-                                    <p style="font-size:11px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:12px">AI Match Breakdown</p>
+
+                                <!-- Industry View: Full Candidate Profile -->
+                                <div style="background:rgba(79, 125, 243, 0.05); padding:16px; border-radius:16px; border:1px solid rgba(79, 125, 243, 0.1); margin-bottom:16px">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+                                        <p style="font-size:11px; font-weight:800; color:var(--accent); text-transform:uppercase; letter-spacing:0.05em">Industry View – Full Profile</p>
+                                        <div style="display:flex; gap:10px">
+                                            ${a.candidateLinkedin ? `<a href="${a.candidateLinkedin}" target="_blank" style="color:var(--muted)"><i data-lucide="linkedin" style="width:14px"></i></a>` : ''}
+                                            ${a.candidateGithub ? `<a href="${a.candidateGithub}" target="_blank" style="color:var(--muted)"><i data-lucide="github" style="width:14px"></i></a>` : ''}
+                                        </div>
+                                    </div>
+                                    
+                                    <p style="font-size:13px; line-height:1.5; color:var(--text); margin-bottom:16px">
+                                        ${a.candidateBio || '<span style="color:var(--muted); font-style:italic">No bio provided</span>'}
+                                    </p>
+                                    
                                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px">
                                         <div>
-                                            <p style="font-size:10px; font-weight:700; color:var(--success); margin-bottom:8px">MATCHED SKILLS</p>
+                                            <p style="font-size:10px; font-weight:700; color:var(--success); margin-bottom:8px">CANDIDATE SKILLS</p>
                                             <div style="display:flex; gap:6px; flex-wrap:wrap">
-                                                <span class="badge bc" style="font-size:10px">Java</span>
-                                                <span class="badge bc" style="font-size:10px">Spring Boot</span>
-                                                <span class="badge bc" style="font-size:10px">SQL</span>
+                                                ${a.candidateSkills && a.candidateSkills.length ? 
+                                                    a.candidateSkills.map(s => `<span class="badge bc" style="font-size:10px">${s}</span>`).join('') :
+                                                    '<span style="font-size:10px; color:var(--muted)">No skills listed</span>'
+                                                }
                                             </div>
                                         </div>
                                         <div>
-                                            <p style="font-size:10px; font-weight:700; color:var(--danger); margin-bottom:8px">MISSING SKILLS</p>
+                                            <p style="font-size:10px; font-weight:700; color:var(--danger); margin-bottom:8px">SKILLS GAP (AI ANALYSIS)</p>
                                             <div style="display:flex; gap:6px; flex-wrap:wrap">
                                                 ${a.skillsGap && a.skillsGap.length ?
-                        a.skillsGap.map(s => `<span class="badge bd" style="font-size:10px">${s}</span>`).join('') :
-                        '<span style="font-size:10px; color:var(--muted)">None</span>'
-                    }
+                                                    a.skillsGap.map(s => `<span class="badge bd" style="font-size:10px">${s}</span>`).join('') :
+                                                    '<span style="font-size:10px; color:var(--muted)">Perfect Match / No Gap</span>'
+                                                }
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    ${a.candidateExperience ? `
+                                    <div style="margin-top:12px; border-top:1px solid rgba(79, 125, 243, 0.1); padding-top:12px; font-size:12px; color:var(--muted)">
+                                        <i data-lucide="briefcase" style="width:12px; vertical-align:middle; margin-right:4px"></i>
+                                        <strong>Experience:</strong> ${a.candidateExperience} Years
+                                    </div>` : ''}
                                 </div>
                             </div>
                         </div>

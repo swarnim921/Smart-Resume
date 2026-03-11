@@ -35,4 +35,11 @@ public class Application {
     private LocalDateTime interviewDateTime;
     /** Predicted job role based on ML skill clustering */
     private String predictedRole;
+    
+    // Cached candidate profile data for recruiter "Industry View"
+    private String candidateBio;
+    private String candidateLinkedin;
+    private String candidateGithub;
+    private List<String> candidateSkills;
+    private Integer candidateExperience;
 }

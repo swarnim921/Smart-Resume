@@ -64,6 +64,14 @@ public class ApplicationService {
 
         ResumeMeta resume = resumes.get(resumes.size() - 1);
 
+        // Profile Guard: Check for minimum profile completion
+        boolean isProfileComplete = (user.getSkills() != null && !user.getSkills().isEmpty()) &&
+                                  (user.getBio() != null && user.getBio().length() >= 20);
+        
+        if (!isProfileComplete) {
+            throw new RuntimeException("Profile incomplete! Please add your skills and a short bio in 'My Profile' before applying.");
+        }
+
         Application application = new Application();
         application.setJobId(jobId);
         application.setCandidateEmail(candidateEmail);
@@ -71,6 +79,13 @@ public class ApplicationService {
         application.setResumeId(resume.getId());
         application.setAppliedAt(LocalDateTime.now());
         application.setNotesHistory(new ArrayList<>());
+        
+        // Populate candidate metadata for Recruiter Industry View
+        application.setCandidateBio(user.getBio());
+        application.setCandidateLinkedin(user.getLinkedinUrl());
+        application.setCandidateGithub(user.getGithubUrl());
+        application.setCandidateSkills(user.getSkills());
+        application.setCandidateExperience(user.getYearsOfExperience());
 
         // Run ATS/ML scoring
         try {
