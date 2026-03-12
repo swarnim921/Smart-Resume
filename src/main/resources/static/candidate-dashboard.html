@@ -158,7 +158,7 @@
             justify-content: space-between;
             position: sticky;
             top: 0;
-            z-index: 90;
+            z-index: 1000;
         }
 
         .search-box {
@@ -641,7 +641,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             display: none;
             flex-direction: column;
-            z-index: 1000;
+            z-index: 1100;
             overflow: hidden;
             animation: slideDown 0.3s ease;
         }
@@ -1425,7 +1425,8 @@
         // ── Notifications ──────────────────────────────────────────
         let notifications = JSON.parse(localStorage.getItem(`notifs_${user.id}`) || '[]');
 
-        function toggleNotifs() {
+        function toggleNotifs(e) {
+            if (e) e.stopPropagation();
             const dropdown = document.getElementById('notifDropdown');
             dropdown.classList.toggle('active');
             if (dropdown.classList.contains('active')) {
@@ -1519,13 +1520,13 @@
             updateBadge();
         }
 
-        // Close dropdown on click outside
-        window.onclick = (e) => {
+        // Global interactions
+        window.addEventListener('click', (e) => {
             if (!e.target.closest('.notif-btn')) {
                 const drop = document.getElementById('notifDropdown');
                 if (drop) drop.classList.remove('active');
             }
-        }
+        });
 
         // ── Overview ──────────────────────────────────────────────
         async function loadOverview() {
