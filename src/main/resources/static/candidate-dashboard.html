@@ -1155,6 +1155,7 @@
         const API = 'https://api.talentsynctech.in';
         const token = sessionStorage.getItem('token');
         const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        let appliedJobIds = new Set();
 
         // Auth check
         if (!token || user.role === 'recruiter') {
@@ -1272,6 +1273,7 @@
                 const r = await fetch(`${API}/api/applications/my-applications`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (!r.ok) return;
                 const apps = await r.json();
+                appliedJobIds = new Set(apps.map(a => a.jobId));
 
                 document.getElementById('ov-total').textContent = apps.length;
                 document.getElementById('ov-short').textContent = apps.filter(a => a.status === 'SHORTLISTED').length;
@@ -1394,7 +1396,10 @@
                         </div>
                         <div class="job-card-footer">
                             <span class="salary">${j.salary || 'Competitive'}</span>
-                            <button class="apply-btn" onclick="applyToJob('${j.id}',this)">Apply</button>
+                            ${appliedJobIds.has(j.id) 
+                                ? `<button class="apply-btn" disabled style="background:#f1f5f9; color:var(--muted); cursor:default">Applied</button>`
+                                : `<button class="apply-btn" onclick="applyToJob('${j.id}',this)">Apply</button>`
+                            }
                         </div>
                     </div>`;
                 }).join('');
@@ -1514,7 +1519,10 @@
                                 </div>
                                 <div class="job-card-footer">
                                     <span class="salary">${j.salary || 'Competitive'}</span>
-                                    <button class="apply-btn" onclick="applyToJob('${j.id}',this)">Quick Apply</button>
+                                    ${appliedJobIds.has(j.id) 
+                                        ? `<button class="apply-btn" disabled style="background:#f1f5f9; color:var(--muted); cursor:default">Applied</button>`
+                                        : `<button class="apply-btn" onclick="applyToJob('${j.id}',this)">Quick Apply</button>`
+                                    }
                                 </div>
                             </div>
                         `).join('')}
@@ -1530,6 +1538,7 @@
                 const r = await fetch(`${API}/api/applications`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ jobId }) });
                 const d = await r.json();
                 if (!r.ok) throw new Error(d.error || 'Failed');
+                appliedJobIds.add(jobId);
                 alert('Success! Your resume has been submitted to the ATS.');
                 showSection('apps');
             } catch (e) { alert('Apply failed: ' + e.message); }
