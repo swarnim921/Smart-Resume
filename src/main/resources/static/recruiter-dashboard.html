@@ -598,6 +598,121 @@
             color: #0369a1;
         }
 
+        /* Notifications */
+        .notif-btn {
+            position: relative;
+        }
+
+        .notif-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 320px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            animation: slideDown 0.3s ease;
+        }
+
+        .notif-dropdown.active {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notif-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        .notif-header h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .notif-clear {
+            font-size: 12px;
+            color: var(--accent);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .notif-list {
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .notif-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            transition: background 0.2s;
+            cursor: default;
+        }
+
+        .notif-item:hover {
+            background: #f1f5f9;
+        }
+
+        .notif-item.unread {
+            background: rgba(37, 99, 235, 0.03);
+        }
+
+        .notif-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .notif-text {
+            flex: 1;
+        }
+
+        .notif-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .notif-msg {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        .notif-time {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .notif-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
         .bd {
             background: #fef2f2;
             color: #dc2626;
@@ -935,9 +1050,18 @@
             </div>
 
             <div class="topbar-right">
-                <button class="notif-btn">
+                <button class="notif-btn" onclick="toggleNotifs()">
                     <i data-lucide="bell"></i>
-                    <div class="notif-badge"></div>
+                    <div class="notif-badge" id="notifBadge" style="display:none"></div>
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <h3>Notifications</h3>
+                            <span class="notif-clear" onclick="clearNotifs(event)">Clear All</span>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">No new notifications</div>
+                        </div>
+                    </div>
                 </button>
                 <div class="user-profile">
                     <div class="avatar" id="avatarInitial">R</div>
@@ -1303,6 +1427,107 @@
             }
         }
 
+        // ── Notifications ──────────────────────────────────────────
+        let notifications = JSON.parse(localStorage.getItem(`rec_notifs_${user.id}`) || '[]');
+
+        function toggleNotifs() {
+            const dropdown = document.getElementById('notifDropdown');
+            dropdown.classList.toggle('active');
+            if (dropdown.classList.contains('active')) {
+                renderNotifs();
+                markRead();
+            }
+        }
+
+        function renderNotifs() {
+            const list = document.getElementById('notifList');
+            if (!notifications.length) {
+                list.innerHTML = '<div class="notif-empty">No new notifications</div>';
+                return;
+            }
+
+            list.innerHTML = notifications.map(n => `
+                <div class="notif-item ${n.read ? '' : 'unread'}">
+                    <div class="notif-icon">
+                        <i data-lucide="${getNotifIcon(n.type)}"></i>
+                    </div>
+                    <div class="notif-text">
+                        <div class="notif-title">${n.title}</div>
+                        <div class="notif-msg">${n.message}</div>
+                        <div class="notif-time">${formatTime(n.time)}</div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function getNotifIcon(type) {
+            switch(type) {
+                case 'success': return 'check-circle';
+                case 'info': return 'info';
+                case 'warn': return 'alert-triangle';
+                default: return 'bell';
+            }
+        }
+
+        function addNotif(type, title, message) {
+            const n = { type, title, message, time: new Date().getTime(), read: false };
+            notifications.unshift(n);
+            if (notifications.length > 20) notifications.pop();
+            saveNotifs();
+            updateBadge();
+        }
+
+        function markRead() {
+            notifications.forEach(n => n.read = true);
+            saveNotifs();
+            updateBadge();
+        }
+
+        function clearNotifs(e) {
+            e.stopPropagation();
+            notifications = [];
+            saveNotifs();
+            renderNotifs();
+            updateBadge();
+        }
+
+        function saveNotifs() {
+            localStorage.setItem(`rec_notifs_${user.id}`, JSON.stringify(notifications));
+        }
+
+        function updateBadge() {
+            const unread = notifications.filter(n => !n.read).length;
+            const badge = document.getElementById('notifBadge');
+            if (badge) {
+                if (unread > 0) {
+                    badge.style.display = 'block';
+                    badge.textContent = unread > 9 ? '9+' : unread;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        function formatTime(ms) {
+            const diff = new Date().getTime() - ms;
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+            return new Date(ms).toLocaleDateString();
+        }
+
+        // Initialize
+        updateBadge();
+
+        // Close dropdown on click outside
+        window.onclick = (e) => {
+            if (!e.target.closest('.notif-btn')) {
+                const drop = document.getElementById('notifDropdown');
+                if (drop) drop.classList.remove('active');
+            }
+        }
+
         // ===================== APPLICATIONS =====================
         async function viewApps(jobId, jobTitle) {
             currentJobId = jobId; currentJobTitle = jobTitle;
@@ -1490,7 +1715,10 @@
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status })
                 });
-                if (r.ok) viewApps(currentJobId, currentJobTitle);
+                if (r.ok) {
+                    addNotif('success', 'Candidate Moved', `Candidate status updated to ${status.replace('_', ' ')}.`);
+                    viewApps(currentJobId, currentJobTitle);
+                }
             } catch (e) { alert('Failed to update status'); }
         }
 
@@ -1592,12 +1820,16 @@
                 });
 
                 if (r.ok) {
+                    addNotif('success', 'Job Listing Live!', `"${body.title}" is now active and receiving applications.`);
                     alert('Job posted successfully!');
                     e.target.reset();
                     document.getElementById('stages-container').innerHTML = '';
                     showSection('jobs');
                 }
-            } catch (e) { alert('Failed to post job'); }
+            } catch (e) { 
+                addNotif('warn', 'Post Job Failed', 'There was an issue creating the job listing.');
+                alert('Failed to post job'); 
+            }
             btn.innerHTML = orig;
             lucide.createIcons();
         }
