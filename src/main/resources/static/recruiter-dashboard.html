@@ -675,6 +675,35 @@
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
         }
 
+        /* Fail-safe Close */
+        .floating-back {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            background: var(--accent);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+            cursor: pointer;
+            font-weight: 700;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .modal.active ~ .floating-back {
+            display: flex;
+        }
+
+        .floating-back:hover {
+            transform: scale(1.05);
+            background: #1d4ed8;
+        }
+
         /* Forms */
         .form-group {
             margin-bottom: 20px;
@@ -1465,6 +1494,8 @@
 
         function closeModal() {
             document.getElementById('appsModal').classList.remove('active');
+            // Ensure no other modal is stuck
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
         }
 
         function closePreview() {
@@ -1719,6 +1750,10 @@
     </script>
     </div>
     </div>
+    <!-- Fail-safe Go Back Button -->
+    <button class="floating-back" onclick="closeModal()">
+        <i data-lucide="arrow-left"></i> <span>Back to Dashboard</span>
+    </button>
 </body>
 
 </html>
