@@ -164,6 +164,28 @@
             transform: translateY(-1px);
         }
 
+        .back-btn {
+            background: #f8fafc;
+            color: var(--muted);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .back-btn:hover {
+            background: #f1f5f9;
+            color: var(--text);
+            transform: translateY(-1px);
+        }
+
         /* Main Content wrapper */
         .page-container {
             flex: 1;
@@ -606,9 +628,48 @@
             max-width: 800px;
             max-height: 90vh;
             border-radius: 24px;
-            overflow-y: auto;
+            overflow: hidden;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        #modalApps {
             padding: 32px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .close-btn {
+            background: var(--white);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+
+        .close-btn:hover {
+            background: #fef2f2;
+            color: var(--danger);
+            border-color: #fee2e2;
+            transform: scale(1.05);
         }
 
         /* Forms */
@@ -1033,10 +1094,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title" id="modalTitle">Applications</div>
-                <div style="display:flex;gap:0.5rem">
-                    <button class="btn btn-o" style="font-size:12px;padding:0.35rem 0.75rem" onclick="exportCsv()">📥
-                        Export CSV</button>
-                    <button class="close-btn" onclick="closeModal()">✕</button>
+                <div style="display:flex;gap:0.75rem;align-items:center">
+                    <button class="btn btn-o" style="font-size:12px;padding:0.5rem 1rem;height:36px;display:flex;align-items:center;gap:6px" onclick="exportCsv()">
+                        <i data-lucide="download" style="width:14px"></i> Export CSV
+                    </button>
+                    <button class="close-btn" onclick="closeModal()" title="Back to Dashboard">✕</button>
                 </div>
             </div>
             <div id="modalApps">
@@ -1330,34 +1392,54 @@
         function getPipelineButtons(appId, status, pipeline) {
             let btns = '';
             
-            // Add primary action button
+            // 1. Move Forward (Primary action)
             if (pipeline && pipeline.length) {
                 const keys = pipeline.map(s => s.stageKey);
                 const curIdx = keys.indexOf(status);
-
                 if (curIdx < keys.length - 1) {
                     const next = pipeline[curIdx + 1];
                     btns += `<button class="apply-btn" onclick="doStatusUpdate('${appId}','${next.stageKey}')">Move to ${next.stageName}</button>`;
                 }
             } else {
-                const flows = {
-                    PENDING: [{ s: 'UNDER_REVIEW', l: 'Review' }],
-                    UNDER_REVIEW: [{ s: 'SHORTLISTED', l: 'Shortlist' }],
-                    SHORTLISTED: [{ s: 'INTERVIEW', l: 'Interview' }]
+                const forwardFlows = {
+                    PENDING: { s: 'UNDER_REVIEW', l: 'Move to Reviewing' },
+                    UNDER_REVIEW: { s: 'SHORTLISTED', l: 'Shortlist Candidate' },
+                    SHORTLISTED: { s: 'INTERVIEW', l: 'Schedule Interview' },
+                    INTERVIEW: { s: 'OFFERED', l: 'Generate Offer' }
                 };
-                const actions = flows[status] || [];
-                btns += actions.map(b => `
-                    <button class="apply-btn" onclick="doStatusUpdate('${appId}','${b.s}')">
-                        ${b.l}
-                    </button>
-                `).join('');
+                const f = forwardFlows[status];
+                if (f) btns += `<button class="apply-btn" onclick="doStatusUpdate('${appId}','${f.s}')">${f.l}</button>`;
             }
 
-            // Always add Reject button if not already rejected/offered
+            // 2. Move Backward (Secondary action)
+            if (pipeline && pipeline.length) {
+                const keys = pipeline.map(s => s.stageKey);
+                const curIdx = keys.indexOf(status);
+                if (curIdx > 0) {
+                    const prev = pipeline[curIdx - 1];
+                    btns += `<button class="back-btn" onclick="doStatusUpdate('${appId}','${prev.stageKey}')">
+                                <i data-lucide="arrow-left" style="width:14px"></i> Move Back to ${prev.stageName}
+                             </button>`;
+                }
+            } else {
+                const backFlows = {
+                    UNDER_REVIEW: { s: 'PENDING', l: 'Move back to Pending' },
+                    SHORTLISTED: { s: 'UNDER_REVIEW', l: 'Return to Review' },
+                    INTERVIEW: { s: 'SHORTLISTED', l: 'Back to Shortlisted' },
+                    OFFERED: { s: 'INTERVIEW', l: 'Revert to Interview' },
+                    REJECTED: { s: 'PENDING', l: 'Undo Rejection' }
+                };
+                const b = backFlows[status];
+                if (b) btns += `<button class="back-btn" onclick="doStatusUpdate('${appId}','${b.s}')">
+                                <i data-lucide="arrow-left" style="width:14px"></i> ${b.l}
+                             </button>`;
+            }
+
+            // 3. Reject (Danger action)
             if (!['REJECTED', 'ATS_REJECTED', 'OFFERED'].includes(status)) {
                 btns += `
-                    <button class="reject-btn" onclick="doStatusUpdate('${appId}','REJECTED')">
-                        <i data-lucide="user-x" style="width:14px"></i> Reject
+                    <button class="reject-btn" style="margin-top:8px" onclick="doStatusUpdate('${appId}','REJECTED')">
+                        <i data-lucide="user-x" style="width:14px"></i> Reject Candidate
                     </button>
                 `;
             }
@@ -1375,6 +1457,29 @@
                 if (r.ok) viewApps(currentJobId, currentJobTitle);
             } catch (e) { alert('Failed to update status'); }
         }
+
+        function closeModal() {
+            document.getElementById('appsModal').classList.remove('active');
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        // Global Modal Listeners
+        window.onclick = (e) => {
+            if (e.target.classList.contains('modal')) {
+                closeModal();
+                closePreview();
+            }
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                closePreview();
+            }
+        });
 
         async function viewResume(appId) {
             try {
