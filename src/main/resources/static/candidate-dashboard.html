@@ -1333,18 +1333,26 @@
                 // Animate score from 0
                 updateScoreBar(avgScore);
 
-                // Update AI Insights
+                // Update AI Insights & Suggestions
                 if (apps.length > 0) {
                     const topApp = apps[0];
+                    // Strengths from profile
+                    if (user.skills && user.skills.length) {
+                        document.getElementById('ai-strengths').innerHTML = user.skills.slice(0, 5).map(s =>
+                            `<span class="skill-tag" style="background:#f0fdf4; color:#166534; border:1px solid #dcfce7">${s}</span>`
+                        ).join('');
+                    }
+
+                    // Weaknesses from latest application
                     if (topApp.skillsGap && topApp.skillsGap.length) {
                         document.getElementById('ai-weaknesses').innerHTML = topApp.skillsGap.map(s =>
                             `<span class="skill-tag" style="background:#fffbeb; color:#92400e">${s}</span>`
                         ).join('');
                         
                         const suggestions = [
-                            { t: `Add "${topApp.skillsGap[0]}" to skills`, i: '+12%' },
-                            { t: 'Specify cloud deployment experience', i: '+8%' },
-                            { t: 'Highlight system design projects', i: '+5%' }
+                            { t: `Learn "${topApp.skillsGap[0]}" to boost score`, i: '+15%' },
+                            { t: 'Add more project details to resume', i: '+10%' },
+                            { t: 'Apply to 3 more relevant roles', i: '+5%' }
                         ];
                         document.getElementById('ai-suggestions').innerHTML = suggestions.map(s => `
                             <div class="suggestion-item">
@@ -1356,20 +1364,29 @@
                         lucide.createIcons();
                     }
                 } else {
-                    // Total fallback when neither apps nor skills exist
-                    document.getElementById('ai-strengths').innerHTML = '<span style="font-size:12px; color:var(--muted)">Add skills to see strengths</span>';
-                    document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--muted)">Upload a resume for gap analysis</span>';
-                    document.getElementById('ai-suggestions').innerHTML = `
-                        <div class="suggestion-item" style="opacity:0.7">
+                    // Profile-based insights when no applications exist
+                    if (user.skills && user.skills.length) {
+                        document.getElementById('ai-strengths').innerHTML = user.skills.slice(0, 5).map(s =>
+                            `<span class="skill-tag" style="background:#f0fdf4; color:#166534; border:1px solid #dcfce7">${s}</span>`
+                        ).join('');
+                        document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--muted)">Apply to a job for gap analysis</span>';
+                    } else {
+                        document.getElementById('ai-strengths').innerHTML = '<span style="font-size:12px; color:var(--muted)">Add skills to your profile</span>';
+                        document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--muted)">Upload resume for analysis</span>';
+                    }
+
+                    const profileSuggestions = [];
+                    if (!user.skills || !user.skills.length) profileSuggestions.push({ t: 'Add skills to your profile', i: '+25%' });
+                    if (!user.bio || user.bio.length < 20) profileSuggestions.push({ t: 'Write a professional bio', i: '+15%' });
+                    profileSuggestions.push({ t: 'Apply to your first job', i: '+10%' });
+
+                    document.getElementById('ai-suggestions').innerHTML = profileSuggestions.slice(0, 3).map(s => `
+                        <div class="suggestion-item">
                             <i data-lucide="plus-circle"></i>
-                            <span>Add professional skills</span>
-                            <span class="score-impact">+20%</span>
+                            <span>${s.t}</span>
+                            <span class="score-impact">${s.i}</span>
                         </div>
-                        <div class="suggestion-item" style="opacity:0.7">
-                            <i data-lucide="plus-circle"></i>
-                            <span>Write a compelling bio</span>
-                            <span class="score-impact">+15%</span>
-                        </div>`;
+                    `).join('');
                     lucide.createIcons();
                 }
 
