@@ -7,6 +7,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import java.util.*;
 
 @Service
@@ -16,7 +17,14 @@ public class MLIntegrationService {
     @Value("${ml.service.url:http://localhost:5000}")
     private String mlServiceUrl;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public MLIntegrationService() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 5 seconds
+        factory.setReadTimeout(15000);    // 15 seconds
+        this.restTemplate = new RestTemplate(factory);
+    }
 
     /**
      * Analyze resume-job match using ML service
