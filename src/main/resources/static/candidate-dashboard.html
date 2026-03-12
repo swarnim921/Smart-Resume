@@ -1763,7 +1763,7 @@
 
                                 <div style="margin-top:20px; display:flex; gap:10px">
                                     <button class="apply-btn" style="background:var(--accent-light); color:var(--accent)">View Details</button>
-                                    <button class="apply-btn" style="background:#f8fafc; color:var(--muted); border:1px solid #e2e8f0" onclick="withdraw('${a.id}')">Withdraw</button>
+                                    <button class="apply-btn" style="background:#f8fafc; color:var(--muted); border:1px solid #e2e8f0" onclick="withdraw('${a.id}', '${a.jobTitle}')">Withdraw</button>
                                 </div>
                             </div>
                         `).join('')}
@@ -1830,12 +1830,26 @@
             btn.textContent = 'Apply'; btn.disabled = false;
         }
 
-        async function withdraw(appId) {
-            if (!confirm('Withdraw application?')) return;
+        async function withdraw(appId, jobTitle) {
+            if (!confirm(`Are you sure you want to withdraw your application for "${jobTitle || 'this position'}"?`)) return;
             try {
-                await fetch(`${API}/api/applications/${appId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-                loadApplications();
-            } catch (e) { alert('Failed: ' + e.message); }
+                const r = await fetch(`${API}/api/applications/${appId}`, { 
+                    method: 'DELETE', 
+                    headers: { 'Authorization': `Bearer ${token}` } 
+                });
+                if (!r.ok) throw new Error('Failed to withdraw');
+                
+                addNotif('info', 'Application Withdrawn', `Withdrawn from ${jobTitle || 'the position'}.`);
+                
+                // Refresh everything
+                await loadOverview();
+                if (document.getElementById('sec-apps').style.display !== 'none') {
+                    loadApplications();
+                }
+            } catch (e) { 
+                addNotif('warn', 'Withdrawal Failed', e.message);
+                alert('Withdrawal failed: ' + e.message); 
+            }
         }
 
         // ── Resume Upload ─────────────────────────────────────────
