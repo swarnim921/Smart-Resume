@@ -651,25 +651,28 @@
         }
 
         .close-btn {
-            background: var(--white);
-            color: var(--muted);
+            background: white;
+            color: var(--text);
             border: 1px solid var(--border);
-            width: 36px;
-            height: 36px;
+            padding: 8px 16px;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 8px;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 18px;
+            font-size: 13px;
+            font-weight: 700;
+            z-index: 10;
         }
 
         .close-btn:hover {
             background: #fef2f2;
             color: var(--danger);
             border-color: #fee2e2;
-            transform: scale(1.05);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
         }
 
         /* Forms */
@@ -1095,10 +1098,12 @@
             <div class="modal-header">
                 <div class="modal-title" id="modalTitle">Applications</div>
                 <div style="display:flex;gap:0.75rem;align-items:center">
-                    <button class="btn btn-o" style="font-size:12px;padding:0.5rem 1rem;height:36px;display:flex;align-items:center;gap:6px" onclick="exportCsv()">
+                    <button class="btn btn-o" style="font-size:12px;padding:0.5rem 1rem;height:40px;display:flex;align-items:center;gap:6px" onclick="exportCsv()">
                         <i data-lucide="download" style="width:14px"></i> Export CSV
                     </button>
-                    <button class="close-btn" onclick="closeModal()" title="Back to Dashboard">✕</button>
+                    <button class="close-btn" onclick="closeModal()">
+                        <i data-lucide="x" style="width:16px"></i> <span>Close</span>
+                    </button>
                 </div>
             </div>
             <div id="modalApps">
