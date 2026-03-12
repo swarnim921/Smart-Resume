@@ -96,7 +96,7 @@ public class ApplicationService {
             var mlResult = mlIntegrationService.analyzeMatch(
                     resumeText, jobDescription, job.getTitle(), job.getRequirements());
 
-            if (mlResult != null) {
+                if (mlResult != null) {
                 application.setMatchScore(mlResult.getMatchScore());
                 application.setSkillsGap(mlResult.getSkillsGap());
                 application.setPredictedRole(mlResult.getPredictedRole());
@@ -114,25 +114,20 @@ public class ApplicationService {
                     System.out.println("✅ ATS passed: score=" + mlResult.getMatchScore() + ", role="
                             + mlResult.getPredictedRole());
                     Application saved = applicationRepository.save(application);
-                    emailService.sendStatusUpdateEmailWithJob(candidateEmail, user.getName(), job, "UNDER_REVIEW",
-                            "Under Review", null);
+                    emailService.sendApplicationConfirmationEmail(candidateEmail, user.getName(), job.getTitle(), job.getCompany());
                     return saved;
                 }
             } else {
                 application.setStatus("PENDING");
-                application.setMatchScore(null);
-                application.setSkillsGap(null);
-                application.setPredictedRole(null);
             }
         } catch (Exception e) {
             System.err.println("❌ ML/ATS failed: " + e.getMessage());
             application.setStatus("PENDING");
-            application.setMatchScore(null);
-            application.setSkillsGap(null);
-            application.setPredictedRole(null);
         }
 
-        return applicationRepository.save(application);
+        Application saved = applicationRepository.save(application);
+        emailService.sendApplicationConfirmationEmail(candidateEmail, user.getName(), job.getTitle(), job.getCompany());
+        return saved;
     }
 
     public List<Application> getCandidateApplications(String candidateEmail) {

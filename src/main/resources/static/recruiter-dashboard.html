@@ -144,6 +144,26 @@
             transform: translateY(-1px);
         }
 
+        .reject-btn {
+            background: #fef2f2;
+            color: var(--danger);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #fee2e2;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .reject-btn:hover {
+            background: #fee2e2;
+            transform: translateY(-1px);
+        }
+
         /* Main Content wrapper */
         .page-container {
             flex: 1;
@@ -1308,28 +1328,41 @@
 
         // Pipeline Buttons
         function getPipelineButtons(appId, status, pipeline) {
+            let btns = '';
+            
+            // Add primary action button
             if (pipeline && pipeline.length) {
                 const keys = pipeline.map(s => s.stageKey);
                 const curIdx = keys.indexOf(status);
 
                 if (curIdx < keys.length - 1) {
                     const next = pipeline[curIdx + 1];
-                    return `<button class="apply-btn" onclick="doStatusUpdate('${appId}','${next.stageKey}')">Move to ${next.stageName}</button>`;
+                    btns += `<button class="apply-btn" onclick="doStatusUpdate('${appId}','${next.stageKey}')">Move to ${next.stageName}</button>`;
                 }
-            }
-
-            const flows = {
-                PENDING: [{ s: 'UNDER_REVIEW', l: 'Review' }],
-                UNDER_REVIEW: [{ s: 'SHORTLISTED', l: 'Shortlist' }],
-                SHORTLISTED: [{ s: 'INTERVIEW', l: 'Interview' }]
-            };
-
-            const actions = flows[status] || [];
-            return actions.map(b => `
+            } else {
+                const flows = {
+                    PENDING: [{ s: 'UNDER_REVIEW', l: 'Review' }],
+                    UNDER_REVIEW: [{ s: 'SHORTLISTED', l: 'Shortlist' }],
+                    SHORTLISTED: [{ s: 'INTERVIEW', l: 'Interview' }]
+                };
+                const actions = flows[status] || [];
+                btns += actions.map(b => `
                     <button class="apply-btn" onclick="doStatusUpdate('${appId}','${b.s}')">
                         ${b.l}
                     </button>
                 `).join('');
+            }
+
+            // Always add Reject button if not already rejected/offered
+            if (!['REJECTED', 'ATS_REJECTED', 'OFFERED'].includes(status)) {
+                btns += `
+                    <button class="reject-btn" onclick="doStatusUpdate('${appId}','REJECTED')">
+                        <i data-lucide="user-x" style="width:14px"></i> Reject
+                    </button>
+                `;
+            }
+
+            return btns;
         }
 
         async function doStatusUpdate(appId, status) {

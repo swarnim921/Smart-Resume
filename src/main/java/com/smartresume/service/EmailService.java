@@ -39,7 +39,12 @@ public class EmailService {
                         payload.put("from", "TalentSync <" + sender + ">");
                         payload.put("to", Collections.singletonList(to));
                         payload.put("subject", subject);
-                        payload.put("text", body);
+
+                        if (body != null && body.contains("<html") || body.contains("<div")) {
+                                payload.put("html", body);
+                        } else {
+                                payload.put("text", body);
+                        }
 
                         if (attachments != null && !attachments.isEmpty()) {
                                 payload.put("attachments", attachments);
@@ -56,6 +61,38 @@ public class EmailService {
                         logger.error("❌ Failed to send email via Resend API to {}: {}", to, e.getMessage());
                         throw new RuntimeException("Email sending failed via Resend: " + e.getMessage());
                 }
+        }
+
+        public void sendApplicationConfirmationEmail(String toEmail, String candidateName, String jobTitle, String company) {
+                String subject = "Thank you for your application to " + company + " — " + jobTitle;
+                String htmlBody = "<div style=\"font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;\">" +
+                                "  <div style=\"background: linear-gradient(135deg, #2563eb, #4f46e5); padding: 32px; text-align: center;\">" +
+                                "    <h1 style=\"color: white; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;\">TalentSync</h1>" +
+                                "  </div>" +
+                                "  <div style=\"padding: 32px; background: white;\">" +
+                                "    <h2 style=\"color: #1e293b; margin-top: 0; font-size: 20px;\">Dear " + candidateName + ",</h2>" +
+                                "    <p style=\"color: #475569; line-height: 1.6; font-size: 16px;\">" +
+                                "      Thank you for your application and interest in the position of <strong>" + jobTitle + "</strong> at <strong>" + company + "</strong>. " +
+                                "      Our Talent Acquisition Team will review your application and be in touch shortly." +
+                                "    </p>" +
+                                "    <div style=\"margin: 32px 0; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #f1f5f9;\">" +
+                                "      <p style=\"margin: 0; color: #64748b; font-size: 14px;\">You can review your application status at any time on your dashboard:</p>" +
+                                "      <a href=\"https://talentsynctech.in/candidate-dashboard.html\" style=\"display: inline-block; margin-top: 12px; padding: 12px 24px; background: #2563eb; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;\">View Application Status</a>" +
+                                "    </div>" +
+                                "    <p style=\"color: #475569; line-height: 1.6; font-size: 16px;\">" +
+                                "      Your username is: <strong style=\"color: #2563eb;\">" + toEmail + "</strong>" +
+                                "    </p>" +
+                                "    <p style=\"color: #475569; line-height: 1.6; font-size: 16px;\">" +
+                                "      We wish you all the best with your application." +
+                                "    </p>" +
+                                "    <p style=\"color: #1e293b; margin-top: 32px; font-weight: 700;\">Best regards,<br>Talent Acquisition Team</p>" +
+                                "  </div>" +
+                                "  <div style=\"padding: 24px; background: #f8fafc; text-align: center; border-top: 1px solid #e2e8f0;\">" +
+                                "    <p style=\"margin: 0; color: #94a3b8; font-size: 12px;\">&copy; 2026 TalentSync Technology. All rights reserved.</p>" +
+                                "  </div>" +
+                                "</div>";
+
+                sendViaResend(toEmail, subject, htmlBody, null);
         }
 
         public void sendVerificationEmail(String toEmail, String code) {
