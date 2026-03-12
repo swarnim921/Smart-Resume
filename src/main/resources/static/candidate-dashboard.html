@@ -1362,6 +1362,10 @@
                             </div>
                         `).join('');
                         lucide.createIcons();
+                    } else if (topApp.matchScore === 0) {
+                        document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--muted); font-style:italic">AI is analyzing your application...</span>';
+                    } else {
+                         document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--success); font-weight:700">Perfect Match! No skills gap found.</span>';
                     }
                 } else {
                     // Profile-based insights when no applications exist

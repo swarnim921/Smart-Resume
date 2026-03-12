@@ -1334,8 +1334,8 @@
 
                 document.getElementById('modalApps').innerHTML = apps.map(a => `
                         <div class="app-card ${a.status === 'ATS_REJECTED' ? 'ats-rejected' : ''}">
-                            <div class="match-score">
-                                <span class="val">${a.matchScore || 0}%</span>
+                            <div class="match-score" style="border-color: ${a.matchScore > 0 ? 'var(--accent)' : 'var(--border)'}">
+                                <span class="val" style="color: ${a.matchScore > 0 ? 'var(--accent)' : 'var(--muted)'}">${a.matchScore || 0}%</span>
                                 <span class="lbl">MATCH</span>
                             </div>
                             <div style="flex:1">
@@ -1386,7 +1386,9 @@
                                             <div style="display:flex; gap:6px; flex-wrap:wrap">
                                                 ${a.skillsGap && a.skillsGap.length ?
                                                     a.skillsGap.map(s => `<span class="badge bd" style="font-size:10px">${s}</span>`).join('') :
-                                                    '<span style="font-size:10px; color:var(--muted)">Perfect Match / No Gap</span>'
+                                                    (a.matchScore > 0 ? 
+                                                        '<span style="font-size:10px; color:var(--success); font-weight:700">Perfect Match / No Gap</span>' :
+                                                        '<span style="font-size:10px; color:var(--muted); font-style:italic">Awaiting AI Analysis...</span>')
                                                 }
                                             </div>
                                         </div>
