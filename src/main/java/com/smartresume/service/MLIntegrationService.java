@@ -12,6 +12,7 @@ import java.util.*;
 
 @Service
 @Slf4j
+@SuppressWarnings("unchecked")
 public class MLIntegrationService {
 
     @Value("${ml.service.url:http://localhost:5000}")
@@ -45,11 +46,11 @@ public class MLIntegrationService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 Map<String, Object> mlResponse = response.getBody();
-                return convertToMLResult(mlResponse);
+                return mlResponse != null ? convertToMLResult(mlResponse) : null;
             }
         } catch (Exception e) {
             log.error("ML service unavailable: {}", e.getMessage());
@@ -77,7 +78,7 @@ public class MLIntegrationService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 return response.getBody();
@@ -106,11 +107,13 @@ public class MLIntegrationService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 Map<String, Object> mlResponse = response.getBody();
-                return (List<Map<String, String>>) mlResponse.get("recommendations");
+                if (mlResponse != null && mlResponse.containsKey("recommendations")) {
+                    return (List<Map<String, String>>) mlResponse.get("recommendations");
+                }
             }
         } catch (Exception e) {
             log.error("Error calling ML service: {}", e.getMessage());
@@ -136,11 +139,13 @@ public class MLIntegrationService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 Map<String, Object> mlResponse = response.getBody();
-                return (List<Map<String, Object>>) mlResponse.get("results");
+                if (mlResponse != null && mlResponse.containsKey("results")) {
+                    return (List<Map<String, Object>>) mlResponse.get("results");
+                }
             }
         } catch (Exception e) {
             log.error("Error calling ML service: {}", e.getMessage());
@@ -160,8 +165,17 @@ public class MLIntegrationService {
 
         result.setMatchScore(
                 mlResponse.get("matchScore") != null ? ((Number) mlResponse.get("matchScore")).doubleValue() : 0.0);
-        result.setSkillsMatched((List<String>) mlResponse.get("skillsMatched"));
-        result.setSkillsGap((List<String>) mlResponse.get("skillsGap"));
+        
+        Object matched = mlResponse.get("skillsMatched");
+        if (matched instanceof List) {
+            result.setSkillsMatched((List<String>) matched);
+        }
+        
+        Object gap = mlResponse.get("skillsGap");
+        if (gap instanceof List) {
+            result.setSkillsGap((List<String>) gap);
+        }
+
         result.setConfidence(
                 mlResponse.get("confidence") != null ? ((Number) mlResponse.get("confidence")).doubleValue() : 0.0);
         result.setPredictedRole((String) mlResponse.get("predictedRole"));

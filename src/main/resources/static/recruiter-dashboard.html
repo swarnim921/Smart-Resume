@@ -1623,8 +1623,69 @@
                                     ${a.candidateExperience ? `
                                     <div style="margin-top:12px; border-top:1px solid rgba(79, 125, 243, 0.1); padding-top:12px; font-size:12px; color:var(--muted)">
                                         <i data-lucide="briefcase" style="width:12px; vertical-align:middle; margin-right:4px"></i>
-                                        <strong>Experience:</strong> ${a.candidateExperience} Years
+                                        <strong>Experience:</strong> ${a.candidateExperience} Years ${a.candidateAvailability ? ` • <span style="color:var(--accent2)">${a.candidateAvailability}</span>` : ''}
                                     </div>` : ''}
+
+                                    <!-- Expanded Profile Details -->
+                                    <div style="margin-top:16px; display:grid; grid-template-columns: 1fr; gap:16px">
+                                        ${a.candidateEducation && a.candidateEducation.length ? `
+                                        <div>
+                                            <p style="font-size:10px; font-weight:700; color:var(--muted); margin-bottom:8px; text-transform:uppercase">Education</p>
+                                            ${a.candidateEducation.map(e => `
+                                                <div style="font-size:12px; margin-bottom:6px">
+                                                    <div style="font-weight:600">${e.degree}</div>
+                                                    <div style="color:var(--muted)">${e.institution} • ${e.gradYear} • CGPA: ${e.cgpa}</div>
+                                                </div>
+                                            `).join('')}
+                                        </div>` : ''}
+
+                                        ${a.candidateExperienceList && a.candidateExperienceList.length ? `
+                                        <div>
+                                            <p style="font-size:10px; font-weight:700; color:var(--muted); margin-bottom:8px; text-transform:uppercase">Professional History</p>
+                                            ${a.candidateExperienceList.map(exp => `
+                                                <div style="font-size:12px; margin-bottom:6px">
+                                                    <div style="font-weight:600">${exp.role} @ ${exp.company}</div>
+                                                    <div style="color:var(--muted)">${exp.startDate} - ${exp.endDate}</div>
+                                                </div>
+                                            `).join('')}
+                                        </div>` : ''}
+
+                                        ${a.candidateProjects && a.candidateProjects.length ? `
+                                        <div>
+                                            <p style="font-size:10px; font-weight:700; color:var(--muted); margin-bottom:8px; text-transform:uppercase">Key Projects</p>
+                                            ${a.candidateProjects.map(p => `
+                                                <div style="font-size:12px; margin-bottom:8px; background:white; padding:10px; border-radius:10px; border:1px solid var(--border)">
+                                                    <div style="font-weight:700; color:var(--accent)">${p.title}</div>
+                                                    <div style="font-size:11px; margin:4px 0">${p.description.substring(0, 120)}...</div>
+                                                    <div style="display:flex; gap:6px; flex-wrap:wrap">
+                                                        ${p.technologies.map(t => `<span style="font-size:9px; background:var(--bg); padding:2px 6px; border-radius:4px">${t}</span>`).join('')}
+                                                    </div>
+                                                </div>
+                                            `).join('')}
+                                        </div>` : ''}
+
+                                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px">
+                                            ${(a.candidateCertifications && a.candidateCertifications.length) || (a.candidateAchievements && a.candidateAchievements.length) ? `
+                                            <div>
+                                                <p style="font-size:10px; font-weight:700; color:var(--muted); margin-bottom:8px; text-transform:uppercase">Certs & Achievements</p>
+                                                <div style="display:flex; gap:6px; flex-wrap:wrap">
+                                                    ${[...(a.candidateCertifications || []), ...(a.candidateAchievements || [])].map(c => `
+                                                        <span class="badge bw" style="font-size:10px">${c}</span>
+                                                    `).join('')}
+                                                </div>
+                                            </div>` : ''}
+
+                                            ${(a.candidatePreferredRoles && a.candidatePreferredRoles.length) || (a.candidateLanguages && a.candidateLanguages.length) ? `
+                                            <div>
+                                                <p style="font-size:10px; font-weight:700; color:var(--muted); margin-bottom:8px; text-transform:uppercase">Preferences & Langs</p>
+                                                <div style="display:flex; gap:6px; flex-wrap:wrap">
+                                                    ${[...(a.candidatePreferredRoles || []), ...(a.candidateLanguages || [])].map(l => `
+                                                        <span class="badge bg" style="font-size:10px">${l}</span>
+                                                    `).join('')}
+                                                </div>
+                                            </div>` : ''}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

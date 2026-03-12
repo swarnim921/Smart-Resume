@@ -88,6 +88,17 @@ public class ApplicationService {
         application.setCandidateGithub(user.getGithubUrl());
         application.setCandidateSkills(user.getSkills());
         application.setCandidateExperience(user.getYearsOfExperience());
+        
+        // Populate expanded profile data
+        application.setCandidateEducation(user.getEducation());
+        application.setCandidateProjects(user.getProjects());
+        application.setCandidateExperienceList(user.getExperienceList());
+        application.setCandidateCertifications(user.getCertifications());
+        application.setCandidateAchievements(user.getAchievements());
+        application.setCandidatePreferredRoles(user.getPreferredRoles());
+        application.setCandidatePreferredLocations(user.getPreferredLocations());
+        application.setCandidateAvailability(user.getAvailability());
+        application.setCandidateLanguages(user.getLanguages());
 
         // Run ATS/ML scoring
         try {

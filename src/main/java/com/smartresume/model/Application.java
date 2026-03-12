@@ -44,4 +44,15 @@ public class Application {
     private String candidateGithub;
     private List<String> candidateSkills;
     private Integer candidateExperience;
+    
+    // Expanded profile data
+    private List<Education> candidateEducation;
+    private List<Project> candidateProjects;
+    private List<Experience> candidateExperienceList;
+    private List<String> candidateCertifications;
+    private List<String> candidateAchievements;
+    private List<String> candidatePreferredRoles;
+    private List<String> candidatePreferredLocations;
+    private String candidateAvailability;
+    private List<String> candidateLanguages;
 }

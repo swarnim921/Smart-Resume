@@ -32,4 +32,15 @@ public class User {
     private Integer yearsOfExperience;
     private String location;
     private LocalDateTime profileCompletedAt;
+
+    // Recruiter-Grade Expansion
+    private List<Education> education;
+    private List<Project> projects;
+    private List<Experience> experienceList;
+    private List<String> certifications;
+    private List<String> achievements;
+    private List<String> preferredRoles;
+    private List<String> preferredLocations;
+    private String availability;
+    private List<String> languages;
 }

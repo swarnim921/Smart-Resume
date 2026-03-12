@@ -464,18 +464,93 @@
             transform: translateY(0);
         }
 
-        @media (max-width: 640px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 24px;
+        }
 
-            .topbar {
-                padding: 16px 20px;
-            }
+        .modal-content {
+            background: var(--white);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 500px;
+            padding: 32px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-            .main {
-                padding: 0 20px;
-            }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            transition: color 0.2s;
+        }
+
+        .btn-close:hover { color: var(--text); }
+
+        /* List Items */
+        .list-item {
+            background: rgba(255,255,255,0.4);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: all 0.2s;
+        }
+        .list-item:hover {
+            border-color: var(--accent);
+            background: var(--white);
+        }
+        .item-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+        .item-info p { font-size: 13px; color: var(--muted); line-height: 1.4; }
+        .item-actions { display: flex; gap: 8px; }
+        .btn-action-sm {
+            padding: 6px;
+            border-radius: 8px;
+            border: none;
+            background: var(--accent-light);
+            color: var(--accent);
+            cursor: pointer;
+        }
+
+        .badge-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
         }
     </style>
 </head>
@@ -562,7 +637,17 @@
                 </div>
             </div>
 
-            <!-- Social -->
+            <!-- Education -->
+            <div class="card">
+                <div class="section-header">
+                    <div class="section-icon"><i data-lucide="graduation-cap"></i></div>
+                    <div class="section-title">Education</div>
+                </div>
+                <div id="educationList"></div>
+                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;" onclick="openModal('edu')">
+                    <i data-lucide="plus"></i> Add Education History
+                </button>
+            </div>
             <div class="card">
                 <div class="section-header">
                     <div class="section-icon"><i data-lucide="globe"></i></div>
@@ -582,7 +667,29 @@
                 </div>
             </div>
 
-            <!-- Skills -->
+            <!-- Projects -->
+            <div class="card">
+                <div class="section-header">
+                    <div class="section-icon"><i data-lucide="code-2"></i></div>
+                    <div class="section-title">Projects</div>
+                </div>
+                <div id="projectsList"></div>
+                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;" onclick="openModal('proj')">
+                    <i data-lucide="plus"></i> Add Major Project
+                </button>
+            </div>
+
+            <!-- Experience List -->
+            <div class="card">
+                <div class="section-header">
+                    <div class="section-icon"><i data-lucide="briefcase"></i></div>
+                    <div class="section-title">Professional Experience</div>
+                </div>
+                <div id="expList"></div>
+                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;" onclick="openModal('exp')">
+                    <i data-lucide="plus"></i> Add Experience/Internship
+                </button>
+            </div>
             <div class="card">
                 <div class="section-header">
                     <div class="section-icon"><i data-lucide="award"></i></div>
@@ -597,7 +704,71 @@
                 </div>
             </div>
 
-            <!-- Experience -->
+            <!-- Multi-chips -->
+            <div class="card">
+                <div class="section-header">
+                    <div class="section-icon"><i data-lucide="shield-check"></i></div>
+                    <div class="section-title">Certifications & Achievements</div>
+                </div>
+                <label class="form-label">Certifications (e.g. AWS, Meta Front-End)</label>
+                <div class="skills-area" id="certsArea"></div>
+                <div class="skill-row" style="margin-bottom: 24px;">
+                    <input type="text" id="certInput" class="form-input" placeholder="Add certification..." onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('certs')}">
+                    <button type="button" class="btn-add-skill" onclick="addItem('certs')">Add</button>
+                </div>
+
+                <label class="form-label">Key Achievements (e.g. NCC, Hackathon Winner)</label>
+                <div class="skills-area" id="achsArea"></div>
+                <div class="skill-row">
+                    <input type="text" id="achInput" class="form-input" placeholder="Add achievement..." onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('achs')}">
+                    <button type="button" class="btn-add-skill" onclick="addItem('achs')">Add</button>
+                </div>
+            </div>
+
+            <!-- Job Preferences -->
+            <div class="card">
+                <div class="section-header">
+                    <div class="section-icon"><i data-lucide="target"></i></div>
+                    <div class="section-title">Job Preferences</div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Preferred Roles</label>
+                        <div class="skills-area" id="rolesArea"></div>
+                        <div class="skill-row">
+                            <input type="text" id="roleInput" class="form-input" placeholder="e.g. SDE, AI Engineer" onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('roles')}">
+                            <button type="button" class="btn-add-skill" onclick="addItem('roles')">Add</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Preferred Locations</label>
+                        <div class="skills-area" id="locsArea"></div>
+                        <div class="skill-row">
+                            <input type="text" id="locInput" class="form-input" placeholder="e.g. Remote, Bangalore" onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('locs')}">
+                            <button type="button" class="btn-add-skill" onclick="addItem('locs')">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Languages</label>
+                        <div class="skills-area" id="langsArea"></div>
+                        <div class="skill-row">
+                            <input type="text" id="langInput" class="form-input" placeholder="e.g. English, Hindi" onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('langs')}">
+                            <button type="button" class="btn-add-skill" onclick="addItem('langs')">Add</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Availability</label>
+                        <select id="pAvailability" class="form-input" onchange="updateCompleteness()">
+                            <option value="">Select availability</option>
+                            <option value="Immediate">Immediate</option>
+                            <option value="1 Month Notice">1 Month Notice</option>
+                            <option value="Final Year Student">Final Year Student</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div class="card">
                 <div class="section-header">
                     <div class="section-icon"><i data-lucide="briefcase"></i></div>
@@ -635,6 +806,53 @@
         </form>
     </div>
 
+    <!-- Modals -->
+    <div id="eduModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Education</h3>
+                <button onclick="closeModal('edu')" class="btn-close"><i data-lucide="x"></i></button>
+            </div>
+            <div class="form-group"><label class="form-label">Degree</label><input type="text" id="eduDegree" class="form-input" placeholder="e.g. B.Tech AIML"></div>
+            <div class="form-group"><label class="form-label">Institution</label><input type="text" id="eduInst" class="form-input" placeholder="e.g. NSEC"></div>
+            <div class="grid-2">
+                <div class="form-group"><label class="form-label">Graduation Year</label><input type="number" id="eduYear" class="form-input" placeholder="2026"></div>
+                <div class="form-group"><label class="form-label">CGPA / %</label><input type="text" id="eduGpa" class="form-input" placeholder="9.0"></div>
+            </div>
+            <button onclick="saveItem('edu')" class="btn-save">Add Education</button>
+        </div>
+    </div>
+
+    <div id="projModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Project</h3>
+                <button onclick="closeModal('proj')" class="btn-close"><i data-lucide="x"></i></button>
+            </div>
+            <div class="form-group"><label class="form-label">Project Title</label><input type="text" id="projTitle" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Tech Stack</label><input type="text" id="projTech" class="form-input" placeholder="e.g. Python, TensorFlow"></div>
+            <div class="form-group"><label class="form-label">Description</label><textarea id="projDesc" class="form-input"></textarea></div>
+            <div class="form-group"><label class="form-label">GitHub Link</label><input type="url" id="projLink" class="form-input"></div>
+            <button onclick="saveItem('proj')" class="btn-save">Add Project</button>
+        </div>
+    </div>
+
+    <div id="expModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Experience</h3>
+                <button onclick="closeModal('exp')" class="btn-close"><i data-lucide="x"></i></button>
+            </div>
+            <div class="form-group"><label class="form-label">Role</label><input type="text" id="expRole" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Company</label><input type="text" id="expComp" class="form-input"></div>
+            <div class="grid-2">
+                <div class="form-group"><label class="form-label">Start Date</label><input type="text" id="expStart" class="form-input" placeholder="Jan 2025"></div>
+                <div class="form-group"><label class="form-label">End Date</label><input type="text" id="expEnd" class="form-input" placeholder="Present"></div>
+            </div>
+            <button onclick="saveItem('exp')" class="btn-save">Add Experience</button>
+        </div>
+    </div>
+
     <div id="toast" class="toast">
         <i data-lucide="check-circle" style="width: 18px;"></i>
         <span id="toastMsg">Changes saved!</span>
@@ -646,6 +864,14 @@
         if (!token) location.href = '/smart_resume_signin_page.html';
 
         let skills = [];
+        let education = [];
+        let projectsList = [];
+        let experienceList = [];
+        let certifications = [];
+        let achievements = [];
+        let preferredRoles = [];
+        let preferredLocations = [];
+        let languages = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
@@ -685,24 +911,97 @@
             const area = document.getElementById('skillsArea');
             area.innerHTML = skills.map(s => `
                 <div class="skill-chip">
-                    ${s} <span onclick="removeSkill('${s}')">✕</span>
+                    ${s} <span onclick="removeItem('skills', '${s}')">✕</span>
+                </div>
+            `).join('');
+        }
+
+        function addItem(type) {
+            const map = {
+                certs: { id: 'certInput', list: certifications, area: 'certsArea' },
+                achs: { id: 'achInput', list: achievements, area: 'achsArea' },
+                roles: { id: 'roleInput', list: preferredRoles, area: 'rolesArea' },
+                locs: { id: 'locInput', list: preferredLocations, area: 'locsArea' },
+                langs: { id: 'langInput', list: languages, area: 'langsArea' }
+            };
+            const cfg = map[type];
+            if (!cfg) return;
+            const input = document.getElementById(cfg.id);
+            const val = input.value.trim();
+            if (!val || cfg.list.includes(val)) return;
+            cfg.list.push(val);
+            input.value = '';
+            renderChips(type);
+            updateCompleteness();
+        }
+
+        function removeItem(type, val) {
+            const listMap = {
+                skills: skills,
+                certs: certifications,
+                achs: achievements,
+                roles: preferredRoles,
+                locs: preferredLocations,
+                langs: languages
+            };
+            const list = listMap[type];
+            if (!list) return;
+            const idx = list.indexOf(val);
+            if (idx > -1) list.splice(idx, 1);
+            
+            if (type === 'skills') renderSkills();
+            else renderChips(type);
+            updateCompleteness();
+        }
+
+        function renderChips(type) {
+            const map = {
+                certs: { list: certifications, area: 'certsArea' },
+                achs: { list: achievements, area: 'achsArea' },
+                roles: { list: preferredRoles, area: 'rolesArea' },
+                locs: { list: preferredLocations, area: 'locsArea' },
+                langs: { list: languages, area: 'langsArea' }
+            };
+            const cfg = map[type];
+            const area = document.getElementById(cfg.area);
+            area.innerHTML = cfg.list.map(s => `
+                <div class="skill-chip" style="border-color: var(--accent2);">
+                    ${s} <span onclick="removeItem('${type}', '${s}')">✕</span>
                 </div>
             `).join('');
         }
 
         function updateCompleteness() {
-            const fields = [
-                document.getElementById('pName')?.value.trim(),
-                document.getElementById('pBio')?.value.trim(),
-                document.getElementById('pLinkedin')?.value.trim(),
-                document.getElementById('pGithub')?.value.trim(),
-                document.getElementById('pLocation')?.value.trim(),
-                skills.length > 0 ? 'yes' : '',
-                document.getElementById('pExp')?.value.trim()
-            ];
-            const filled = fields.filter(Boolean).length;
-            const pct = Math.round((filled / fields.length) * 100);
+            // LinkedIn-style Weighted Scores
+            let score = 0;
+            
+            // Basic Info (15%)
+            if (document.getElementById('pName').value) score += 5;
+            if (document.getElementById('pBio').value) score += 5;
+            if (document.getElementById('pLocation').value) score += 5;
+            
+            // Skills (20%)
+            if (skills.length > 0) score += 20;
+            
+            // Education (15%)
+            if (education.length > 0) score += 15;
+            
+            // Projects (20%)
+            if (projectsList.length > 0) score += 20;
+            
+            // Experience (10%)
+            if (experienceList.length > 0) score += 10;
+            
+            // Resume (10%)
+            if (document.getElementById('resumeStatus').innerText.includes('Successfully')) score += 10;
+            
+            // Links (5%)
+            if (document.getElementById('pLinkedin').value || document.getElementById('pGithub').value) score += 5;
+            
+            // Certs/Achievements (5%)
+            if (certifications.length > 0 || achievements.length > 0) score += 5;
 
+            const pct = Math.min(score, 100);
             const pctEl = document.getElementById('compPct');
             const barEl = document.getElementById('compBar');
             const hintEl = document.getElementById('compHint');
@@ -711,14 +1010,94 @@
             barEl.style.width = pct + '%';
 
             const hints = [
-                'Add your name and bio to get started.',
-                'Good start! Connect your social links.',
-                'Almost there! List your top technical skills.',
-                'Looking strong! Add your years of experience.',
-                'Profile optimized! You are ready for AI matching. 🎉'
+                'Complete your education to boost profile strength.',
+                'Add projects to showcase your practical skills.',
+                'Listing certifications makes you 5x more discoverable.',
+                'Great profile! Recruiters love seeing detailed experience.',
+                'Premium Profile! Your completeness score is elite. 🔥'
             ];
             const hi = Math.min(Math.floor(pct / 21), hints.length - 1);
             hintEl.textContent = hints[hi];
+        }
+
+        function openModal(type) {
+            document.getElementById(type + 'Modal').style.display = 'flex';
+        }
+
+        function closeModal(type) {
+            document.getElementById(type + 'Modal').style.display = 'none';
+        }
+
+        function saveItem(type) {
+            if (type === 'edu') {
+                const item = {
+                    degree: document.getElementById('eduDegree').value,
+                    institution: document.getElementById('eduInst').value,
+                    gradYear: parseInt(document.getElementById('eduYear').value),
+                    cgpa: document.getElementById('eduGpa').value
+                };
+                education.push(item);
+                renderList('edu');
+            } else if (type === 'proj') {
+                const item = {
+                    title: document.getElementById('projTitle').value,
+                    technologies: document.getElementById('projTech').value.split(',').map(t => t.trim()),
+                    description: document.getElementById('projDesc').value,
+                    githubLink: document.getElementById('projLink').value
+                };
+                projectsList.push(item);
+                renderList('proj');
+            } else if (type === 'exp') {
+                const item = {
+                    role: document.getElementById('expRole').value,
+                    company: document.getElementById('expComp').value,
+                    startDate: document.getElementById('expStart').value,
+                    endDate: document.getElementById('expEnd').value
+                };
+                experienceList.push(item);
+                renderList('exp');
+            }
+            closeModal(type);
+            updateCompleteness();
+        }
+
+        function renderList(type) {
+            if (type === 'edu') {
+                const list = document.getElementById('educationList');
+                list.innerHTML = education.map((e, i) => `
+                    <div class="list-item">
+                        <div class="item-info">
+                            <h4>${e.degree}</h4>
+                            <p>${e.institution} • Grad: ${e.gradYear} • CGPA: ${e.cgpa}</p>
+                        </div>
+                        <button class="btn-action-sm" onclick="education.splice(${i},1);renderList('edu');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                    </div>
+                `).join('');
+            } else if (type === 'proj') {
+                const list = document.getElementById('projectsList');
+                list.innerHTML = projectsList.map((p, i) => `
+                    <div class="list-item">
+                        <div class="item-info">
+                            <h4>${p.title}</h4>
+                            <p>${p.description.substring(0, 100)}...</p>
+                            <div class="badge-grid">${p.technologies.map(t => `<span class="skill-chip" style="font-size:10px; padding:2px 8px;">${t}</span>`).join('')}</div>
+                        </div>
+                        <button class="btn-action-sm" onclick="projectsList.splice(${i},1);renderList('proj');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                    </div>
+                `).join('');
+            } else if (type === 'exp') {
+                const list = document.getElementById('expList');
+                list.innerHTML = experienceList.map((e, i) => `
+                    <div class="list-item">
+                        <div class="item-info">
+                            <h4>${e.role} @ ${e.company}</h4>
+                            <p>${e.startDate} - ${e.endDate}</p>
+                        </div>
+                        <button class="btn-action-sm" onclick="experienceList.splice(${i},1);renderList('exp');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                    </div>
+                `).join('');
+            }
+            lucide.createIcons();
         }
 
         async function loadProfile() {
@@ -733,9 +1112,23 @@
                 document.getElementById('pGithub').value = d.githubUrl || '';
                 document.getElementById('pLocation').value = d.location || '';
                 document.getElementById('pExp').value = d.yearsOfExperience || '';
+                document.getElementById('pAvailability').value = d.availability || '';
 
                 skills = d.skills || [];
+                education = d.education || [];
+                projectsList = d.projects || [];
+                experienceList = d.experienceList || [];
+                certifications = d.certifications || [];
+                achievements = d.achievements || [];
+                preferredRoles = d.preferredRoles || [];
+                preferredLocations = d.preferredLocations || [];
+                languages = d.languages || [];
+
                 renderSkills();
+                renderList('edu');
+                renderList('proj');
+                renderList('exp');
+                ['certs', 'achs', 'roles', 'locs', 'langs'].forEach(renderChips);
                 updateCompleteness();
             } catch (e) {
                 console.error('Failed to load profile', e);
@@ -761,7 +1154,16 @@
                         githubUrl: document.getElementById('pGithub').value,
                         location: document.getElementById('pLocation').value,
                         yearsOfExperience: parseInt(document.getElementById('pExp').value) || 0,
-                        skills
+                        availability: document.getElementById('pAvailability').value,
+                        skills,
+                        education,
+                        projects: projectsList,
+                        experienceList,
+                        certifications,
+                        achievements,
+                        preferredRoles,
+                        preferredLocations,
+                        languages
                     })
                 });
                 if (!r.ok) throw new Error('Update failed');
