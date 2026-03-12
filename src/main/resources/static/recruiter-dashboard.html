@@ -69,6 +69,10 @@
             letter-spacing: -0.02em;
         }
 
+        .sidebar-brand i {
+            color: var(--white); /* Ensure brand icon is bright white */
+        }
+
         .nav-group {
             display: flex;
             flex-direction: column;
@@ -83,7 +87,7 @@
             border-radius: 12px;
             font-size: 14px;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.9); /* Increased opacity for better visibility */
             cursor: pointer;
             border: none;
             background: none;
@@ -96,10 +100,11 @@
         .nav-item i {
             width: 18px;
             height: 18px;
+            opacity: 1; /* Keep icons crisp */
         }
 
         .nav-item:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             color: var(--white);
             transform: translateX(4px);
         }
@@ -108,13 +113,13 @@
             background: var(--white);
             color: var(--accent);
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .sidebar-footer {
             margin-top: auto;
             padding-top: 24px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .logout-btn {
@@ -253,13 +258,15 @@
         }
 
         .welcome-title {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.02em;
             margin-bottom: 8px;
         }
 
         .welcome-subtitle {
-            font-size: 14px;
+            font-size: 15px;
             color: var(--muted);
         }
 
@@ -343,7 +350,7 @@
         }
 
         .metric-icon.green {
-            background: #ecfdf5;
+            background: #f0fdf4;
             color: #10b981;
         }
 
@@ -354,7 +361,7 @@
 
         .metric-icon.purple {
             background: #f5f3ff;
-            color: #8b5cf6;
+            color: #7c3aed;
         }
 
         .metric-info .metric-value {
@@ -370,11 +377,39 @@
             font-weight: 600;
         }
 
-        /* Job Cards */
         .job-card {
-            height: 100%;
+            background: var(--white);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
+            gap: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .job-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 0;
+            background: var(--accent);
+            transition: height 0.3s;
+        }
+
+        .job-card:hover::before {
+            height: 100%;
+        }
+
+        .job-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--premium-shadow);
+            border-color: var(--accent-light);
         }
 
         .job-card-header {
@@ -435,29 +470,21 @@
             border-top: 1px solid var(--border);
         }
 
-        .applicant-count {
+        .metric-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--accent);
+            gap: 20px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
         }
 
-        .apply-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .apply-btn:hover {
-            opacity: 0.9;
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--premium-shadow);
         }
 
         /* Applicant List UI */
@@ -747,7 +774,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-brand">
-            <i data-lucide="layers"></i>
+            <i data-lucide="zap"></i>
             <span>TalentSync</span>
         </div>
 
@@ -815,7 +842,7 @@
             <div id="sec-overview">
                 <div class="welcome-section" style="display:flex; justify-content:space-between; align-items:flex-start;">
                     <div>
-                        <h1 class="welcome-title">Recruiter Dashboard <span style="font-size:12px; color:var(--muted); font-weight:400; opacity:0.6;">v2.1</span></h1>
+                        <h1 class="welcome-title">Welcome back, <span id="recruiterNameHeader">Recruiter</span> 👋</h1>
                         <p class="welcome-subtitle">Overview of your active hiring pipelines and team performance.</p>
                     </div>
                 </div>
@@ -1534,7 +1561,16 @@
             document.querySelector('.sidebar-overlay').classList.toggle('active');
         }
 
-        // Initial call
+        // Initialize UI
+        function initUI() {
+            const initial = (user.name || 'R').charAt(0).toUpperCase();
+            document.getElementById('avatarInitial').textContent = initial;
+            document.getElementById('userNameDisplay').textContent = user.name || 'Recruiter';
+            const nameHeader = document.getElementById('recruiterNameHeader');
+            if (nameHeader) nameHeader.textContent = user.name || 'Recruiter';
+        }
+
+        initUI();
         lucide.createIcons();
         loadJobs('overview');
     </script>
