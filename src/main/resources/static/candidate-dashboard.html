@@ -35,6 +35,11 @@
             --premium-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg);
@@ -258,23 +263,12 @@
         }
 
         .user-info {
-            display: none;
+            display: block;
         }
 
-        @media (min-width: 1024px) {
+        @media (max-width: 768px) {
             .user-info {
-                display: block;
-            }
-
-            .user-name {
-                font-size: 14px;
-                font-weight: 600;
-                color: var(--text);
-            }
-
-            .user-role {
-                font-size: 11px;
-                color: var(--muted);
+                display: none;
             }
         }
 
@@ -768,34 +762,21 @@
         }
 
         @media (max-width: 768px) {
-            body {
-                overflow-y: auto;
-                height: auto;
+            .menu-btn {
                 display: block;
-            }
-
-            .main {
-                overflow-y: visible;
-                height: auto;
-                display: block;
-                min-height: 100vh;
-                padding: 16px;
-                padding-bottom: 60px;
-                max-width: 100%;
-                margin-left: 0;
             }
 
             .sidebar {
                 position: fixed;
                 left: -280px;
                 width: 280px;
-                height: 100vh;
-                z-index: 1000;
-                transition: left 0.3s ease;
+                z-index: 1200;
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             .sidebar.active {
                 left: 0;
+                display: flex;
             }
 
             .sidebar-logo span,
@@ -808,18 +789,50 @@
                 padding: 12px 20px;
             }
 
+            .sidebar-overlay.active {
+                display: block;
+                opacity: 1;
+                z-index: 1150;
+            }
+
+            .main {
+                max-width: 100%;
+                margin-left: 0;
+            }
+
             .topbar {
-                padding: 0 16px;
-                background: white;
+                padding: 16px 20px;
+                z-index: 1100;
             }
 
-            .search-box {
-                display: none;
+            .metric-grid,
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
             }
 
-            .col-8,
-            .col-4 {
+            .col-3,
+            .col-4,
+            .col-6,
+            .col-8 {
                 grid-column: span 12;
+            }
+            
+            .col-12.dashboard-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .metric-card {
+                padding: 16px;
+                gap: 12px;
+            }
+
+            .metric-value {
+                font-size: 18px;
+            }
+            
+            .analytics-chart-container {
+                height: 300px !important;
             }
         }
 
@@ -1036,9 +1049,14 @@
     <div class="main">
         <!-- Topbar -->
         <div class="topbar">
-            <div class="search-box">
-                <i data-lucide="search"></i>
-                <input type="text" placeholder="Search for jobs, companies...">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search for jobs, companies...">
+                </div>
             </div>
             <div class="topbar-right">
                 <button class="notif-btn" onclick="toggleNotifs()">
@@ -1198,7 +1216,7 @@
                                     <span class="skill-tag">Monthly</span>
                                 </div>
                             </div>
-                            <div style="height: 240px; position: relative;">
+                            <div class="analytics-chart-container" style="height: 240px; position: relative;">
                                 <canvas id="analyticsChart"></canvas>
                             </div>
                         </div>
@@ -1305,6 +1323,11 @@
             location.href = '/smart_resume_signin_page.html';
         }
 
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
         const sections = ['overview', 'apps', 'jobs'];
         function showSection(n) {
             sections.forEach(s => {
@@ -1401,6 +1424,10 @@
                         x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
                     }
                 }
+            });
+
+            window.addEventListener('resize', () => {
+                if (analyticsChart) analyticsChart.resize();
             });
         }
 
@@ -1645,7 +1672,7 @@
                         <div class="empty-jobs">
                             <div class="empty-icon">💼</div>
                             <h3>No job matches yet</h3>
-                            <p>Upload your resume or update your skills to receive AI-powered job recommendations.</p>
+                            <p>No job matches yet. Upload your resume or update skills to improve recommendations.</p>
                             <div class="empty-actions">
                                 <button onclick="document.getElementById('nav-profile').click()" class="btn-primary">Update Profile</button>
                                 <button onclick="document.getElementById('dropZoneDb').scrollIntoView({behavior:'smooth'})" class="btn-secondary">Upload Resume</button>

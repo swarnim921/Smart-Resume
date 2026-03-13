@@ -401,6 +401,7 @@
             font-weight: 600;
             background: linear-gradient(135deg, #4F7DF3, #1E56F0);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             text-decoration: none;
             transition: opacity 0.2s;
@@ -545,6 +546,7 @@
             font-weight: 600;
             background: linear-gradient(135deg, #4F7DF3, #1E56F0);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             text-decoration: none;
             transition: opacity 0.2s;
@@ -639,48 +641,34 @@
         @media (max-width: 860px) {
             body {
                 overflow-y: auto;
-                padding: 20px 0;
+                padding: 20px 16px;
+                align-items: center;
+                justify-content: center;
             }
 
             .container {
                 flex-direction: column;
-                max-width: 500px;
+                max-width: 100%;
+                width: 100%;
                 min-height: auto;
-                margin: 20px;
+                margin: 0;
             }
 
             .hero-panel {
-                flex: none;
-                max-width: 100%;
-                padding: 40px 32px;
                 display: none;
-                /* Keep hidden for cleaner mobile look as per instructions */
             }
 
             .form-panel {
                 flex: none;
                 max-width: 100%;
                 width: 100%;
-                padding: 40px 32px;
+                padding: 40px 24px;
             }
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 0;
-                background: #ffffff;
-            }
-
-            .container {
-                margin: 0;
-                border-radius: 0;
-                box-shadow: none;
-                max-width: 100%;
-                min-height: 100vh;
-            }
-
             .form-panel {
-                padding: 32px 24px;
+                padding: 32px 20px;
             }
         }
     </style>

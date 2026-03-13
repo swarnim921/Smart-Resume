@@ -35,6 +35,11 @@
             --premium-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg);
@@ -929,14 +934,12 @@
                 height: auto;
                 display: block;
                 min-height: 100vh;
+                max-width: 100%; /* Reset max-width for mobile */
             }
 
             .topbar {
-                background: white;
-            }
-
-            .menu-btn {
-                display: block;
+                z-index: 1000;
+                padding: 0 16px;
             }
 
             .sidebar {
@@ -944,7 +947,7 @@
                 left: -280px;
                 width: 280px;
                 height: 100vh;
-                z-index: 999;
+                z-index: 1200; /* Sidebar must be higher than topbar */
                 transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
@@ -965,6 +968,7 @@
             .sidebar-overlay.active {
                 display: block;
                 opacity: 1;
+                z-index: 1100;
             }
 
             .topbar {
@@ -975,12 +979,17 @@
                 display: none;
             }
 
+            .user-info {
+                display: none; /* Hide recruiter name on mobile */
+            }
+
             .welcome-section {
                 padding: 24px 0;
             }
 
             .dashboard-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
             }
 
             .col-3,
@@ -988,6 +997,23 @@
             .col-6,
             .col-8 {
                 grid-column: span 12;
+            }
+            
+            .col-12.dashboard-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .metric-card {
+                padding: 16px;
+                gap: 12px;
+            }
+
+            .metric-value {
+                font-size: 18px;
+            }
+
+            .analytics-chart-container {
+                height: 300px !important;
             }
 
             .content {
@@ -1997,7 +2023,7 @@
                                 <div class="card-header">
                                     <div class="card-title">${j.title}</div>
                                 </div>
-                                <div style="height: 240px">
+                                <div class="analytics-chart-container" style="height: 240px; position: relative;">
                                     <canvas id="chart-${i}"></canvas>
                                 </div>
                             </div>
@@ -2025,7 +2051,11 @@
                                 backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ef4444']
                             }]
                         },
-                        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                        options: { 
+                            responsive: true,
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { position: 'bottom' } } 
+                        }
                     });
                 });
             } catch (e) { el.innerHTML = 'Error loading analytics'; }
