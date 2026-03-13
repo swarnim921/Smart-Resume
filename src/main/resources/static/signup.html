@@ -893,7 +893,10 @@
                     body: JSON.stringify({ name, email, password, role: currentRole === 'candidate' ? 'ROLE_USER' : 'ROLE_RECRUITER' })
                 });
                 const data = await r.json();
-                if (!r.ok) throw new Error(data.error || 'Signup failed');
+                if (!r.ok) {
+                    const errorMsg = data.details ? `${data.error} (${data.details})` : (data.error || 'Signup failed');
+                    throw new Error(errorMsg);
+                }
 
                 registeredEmail = email;
                 document.getElementById('verifyEmailDisplay').textContent = email;

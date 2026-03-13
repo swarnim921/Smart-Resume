@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.*;
 
@@ -57,9 +58,13 @@ public class EmailService {
                         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
                         restTemplate.postForEntity(RESEND_API_URL, entity, String.class);
                         logger.info("✅ Email sent via Resend API to: {}", to);
+                } catch (HttpStatusCodeException e) {
+                        String errorBody = e.getResponseBodyAsString();
+                        logger.error("❌ Resend API Error ({}): {}", e.getStatusCode(), errorBody);
+                        throw new RuntimeException("Resend API error: " + errorBody);
                 } catch (Exception e) {
                         logger.error("❌ Failed to send email via Resend API to {}: {}", to, e.getMessage());
-                        throw new RuntimeException("Email sending failed via Resend: " + e.getMessage());
+                        throw new RuntimeException("Email sending failed: " + e.getMessage());
                 }
         }
 
