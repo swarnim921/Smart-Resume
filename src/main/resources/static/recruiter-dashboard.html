@@ -127,6 +127,39 @@
             border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        .sidebar-profile {
+            display: none;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            margin-bottom: 32px;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-profile .avatar {
+            box-shadow: none;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar-profile .user-info-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-profile .user-name {
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .sidebar-profile .user-role {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 11px;
+            font-weight: 500;
+        }
+
         .logout-btn {
             width: 100%;
             padding: 12px 16px;
@@ -140,6 +173,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
             transition: all 0.2s;
         }
@@ -915,8 +949,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.4);
             z-index: 998;
             opacity: 0;
             transition: opacity 0.3s;
@@ -972,7 +1005,8 @@
             }
 
             .topbar {
-                padding: 0 20px;
+                padding: 0 16px;
+                height: 72px; /* Fixed height for mobile topbar */
             }
 
             .search-box {
@@ -983,8 +1017,17 @@
                 display: none; /* Hide recruiter name on mobile */
             }
 
+            .sidebar-profile {
+                display: flex; /* Show in sidebar on mobile */
+            }
+
             .welcome-section {
-                padding: 24px 0;
+                padding: 12px 0 24px;
+            }
+
+            .welcome-title {
+                font-size: 22px;
+                line-height: 1.3;
             }
 
             .dashboard-grid {
@@ -1030,6 +1073,14 @@
         <div class="sidebar-brand">
             <i data-lucide="zap"></i>
             <span>TalentSync</span>
+        </div>
+
+        <div class="sidebar-profile">
+            <div class="avatar side-av">R</div>
+            <div class="user-info-text">
+                <div class="user-name side-name">Recruiter</div>
+                <div class="user-role">Hiring Manager</div>
+            </div>
         </div>
 
         <div class="nav-group">
@@ -1344,6 +1395,11 @@
         const initial = (user.name || 'R').charAt(0).toUpperCase();
         document.getElementById('avatarInitial').textContent = initial;
         document.getElementById('userNameDisplay').textContent = user.name || 'Recruiter';
+        document.getElementById('recruiterNameHeader').textContent = user.name || 'Recruiter';
+        
+        // Mobile Sidebar Profile
+        if(document.querySelector('.side-av')) document.querySelector('.side-av').textContent = initial;
+        if(document.querySelector('.side-name')) document.querySelector('.side-name').textContent = user.name || 'Recruiter';
 
         function logout() { sessionStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
