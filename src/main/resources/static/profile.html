@@ -1250,6 +1250,8 @@
                     })
                 });
                 if (!r.ok) throw new Error('Update failed');
+                
+                // Construct complete profile object from form for session persistence
                 const profileObj = {
                     name: document.getElementById('pName').value,
                     bio: document.getElementById('pBio').value,
@@ -1258,15 +1260,17 @@
                     location: document.getElementById('pLocation').value,
                     yearsOfExperience: parseInt(document.getElementById('pExp').value) || 0,
                     availability: document.getElementById('pAvailability').value,
-                    skills,
-                    education,
+                    skills: skills,
+                    education: education,
                     projects: projectsList,
-                    experienceList,
-                    certifications,
-                    achievements,
-                    preferredRoles,
-                    preferredLocations,
-                    languages
+                    experienceList: experienceList,
+                    certifications: certifications,
+                    achievements: achievements,
+                    preferredRoles: preferredRoles,
+                    preferredLocations: preferredLocations,
+                    languages: languages,
+                    // Use flag from current state
+                    resumeUploaded: sessionStorage.getItem("profileComplete") === "true"
                 };
                 sessionStorage.setItem('profileData', JSON.stringify(profileObj));
                 showToast('Success! Your profile is up to date.');

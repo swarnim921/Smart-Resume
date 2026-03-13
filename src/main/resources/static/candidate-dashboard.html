@@ -1344,26 +1344,27 @@
         function calculateProfileStrength(profile) {
             if (!profile) return 0;
             let score = 0;
-            // Logical interpretation of profile object for strength:
-            // Basic Info (25%) - name, bio, location
-            if (profile.name && profile.bio && profile.location) score += 25;
-            else if (profile.name) score += 10;
             
-            // Skills (20%)
+            // 25%: Basic Info (Strict check: name, bio length, and location)
+            if (profile.name && profile.bio && profile.bio.length >= 20 && profile.location) {
+                score += 25;
+            } else if (profile.name) {
+                score += 10;
+            }
+            
+            // 20%: Skills
             if (profile.skills && profile.skills.length > 0) score += 20;
             
-            // Education (20%)
+            // 20%: Education
             if (profile.education && profile.education.length > 0) score += 20;
             
-            // Experience (15%)
-            if (profile.experienceList && profile.experienceList.length > 0) score += 15;
+            // 15%: Experience
+            if ((profile.experienceList && profile.experienceList.length > 0) || (profile.yearsOfExperience > 0)) {
+                score += 15;
+            }
             
-            // Resume Uploaded (20%)
-            // We can infer this if they hit 100% or if they have a match score in applications.
-            // Better yet, just check the session storage flag we added in profile.html
-            // But let's look for evidence of resume processing.
-            const resumeUploaded = sessionStorage.getItem("profileComplete") === "true";
-            if (resumeUploaded) score += 20;
+            // 20%: Resume Uploaded (Direct flag from session)
+            if (profile.resumeUploaded === true) score += 20;
 
             return Math.min(score, 100);
         }
@@ -1433,7 +1434,12 @@
                         maintainAspectRatio: false,
                         plugins: { 
                             legend: { display: false },
-                            tooltip: { callbacks: { label: (ctx) => `Applications: ${ctx.raw}` } }
+                            tooltip: { 
+                                callbacks: { 
+                                    title: (ctx) => `Date: ${labels[ctx[0].dataIndex]}`,
+                                    label: (ctx) => `Applications: ${ctx.raw}` 
+                                } 
+                            }
                         },
                         scales: {
                             y: { 
@@ -1444,6 +1450,11 @@
                             x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
                         }
                     }
+                });
+                
+                // Add window resize listener to ensure responsiveness
+                window.addEventListener('resize', () => {
+                    if (analyticsChart) analyticsChart.resize();
                 });
             } catch (e) {
                 console.error("Analytics load failed:", e);
@@ -1656,9 +1667,10 @@
                 const r = await fetch(`${API}/api/applications/my-applications`, { headers: { 'Authorization': `Bearer ${token}` } });
                 const apps = await r.json();
 
+                // Standardized counts based on Recruiter status mappings
                 document.getElementById('totalApplied').textContent = apps.length;
                 document.getElementById('shortlisted').textContent = apps.filter(a => a.status === 'SHORTLISTED').length;
-                document.getElementById('inReview').textContent = apps.filter(a => ['UNDER_REVIEW', 'PENDING'].includes(a.status)).length;
+                document.getElementById('inReview').textContent = apps.filter(a => ['UNDER_REVIEW', 'PENDING', 'INTERVIEW'].includes(a.status)).length;
                 document.getElementById('offers').textContent = apps.filter(a => a.status === 'OFFERED').length;
             } catch (e) {
                 console.error("Stats load failed:", e);
