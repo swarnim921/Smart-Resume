@@ -1211,6 +1211,7 @@
                 renderList('proj');
                 renderList('exp');
                 ['certs', 'achs', 'roles', 'locs', 'langs'].forEach(renderChips);
+                sessionStorage.setItem('profileData', JSON.stringify(d));
                 updateCompleteness();
             } catch (e) {
                 console.error('Failed to load profile', e);
@@ -1249,6 +1250,25 @@
                     })
                 });
                 if (!r.ok) throw new Error('Update failed');
+                const profileObj = {
+                    name: document.getElementById('pName').value,
+                    bio: document.getElementById('pBio').value,
+                    linkedinUrl: document.getElementById('pLinkedin').value,
+                    githubUrl: document.getElementById('pGithub').value,
+                    location: document.getElementById('pLocation').value,
+                    yearsOfExperience: parseInt(document.getElementById('pExp').value) || 0,
+                    availability: document.getElementById('pAvailability').value,
+                    skills,
+                    education,
+                    projects: projectsList,
+                    experienceList,
+                    certifications,
+                    achievements,
+                    preferredRoles,
+                    preferredLocations,
+                    languages
+                };
+                sessionStorage.setItem('profileData', JSON.stringify(profileObj));
                 showToast('Success! Your profile is up to date.');
             } catch (err) {
                 showToast(err.message, true);

@@ -1085,7 +1085,7 @@
         <!-- Content -->
         <div class="content">
             <div class="welcome-section">
-                <h1 class="welcome-title">Welcome back, <span id="welcomeName">User</span> 👋</h1>
+                <h1 class="welcome-title">Welcome back, <span id="welcomeUser">User</span> 👋</h1>
                 <p class="welcome-subtitle">Here's what's happening with your job applications today.</p>
             </div>
 
@@ -1097,28 +1097,28 @@
                         <div class="col-3 metric-card">
                             <div class="metric-icon blue"><i data-lucide="send"></i></div>
                             <div class="metric-info">
-                                <span class="metric-value" id="ov-total">0</span>
+                                <span class="metric-value" id="totalApplied">0</span>
                                 <span class="metric-label">Total Applied</span>
                             </div>
                         </div>
                         <div class="col-3 metric-card">
                             <div class="metric-icon green"><i data-lucide="check-circle-2"></i></div>
                             <div class="metric-info">
-                                <span class="metric-value" id="ov-short">0</span>
+                                <span class="metric-value" id="shortlisted">0</span>
                                 <span class="metric-label">Shortlisted</span>
                             </div>
                         </div>
                         <div class="col-3 metric-card">
                             <div class="metric-icon amber"><i data-lucide="clock"></i></div>
                             <div class="metric-info">
-                                <span class="metric-value" id="ov-review">0</span>
+                                <span class="metric-value" id="inReview">0</span>
                                 <span class="metric-label">In Review</span>
                             </div>
                         </div>
                         <div class="col-3 metric-card">
                             <div class="metric-icon purple"><i data-lucide="award"></i></div>
                             <div class="metric-info">
-                                <span class="metric-value" id="ov-offer">0</span>
+                                <span class="metric-value" id="offers">0</span>
                                 <span class="metric-label">Offers Received</span>
                             </div>
                         </div>
@@ -1134,7 +1134,7 @@
                             <div class="score-container">
                                 <div id="scoreCircle"></div>
                                 <div class="score-value">
-                                    <span class="score-number" id="scoreNum">0</span>
+                                    <span class="score-number" id="profileScore">0</span>
                                     <span class="score-label">Score</span>
                                 </div>
                             </div>
@@ -1195,6 +1195,10 @@
                             </div>
                             <div class="analytics-chart-container" style="height: 240px; position: relative;">
                                 <canvas id="analyticsChart"></canvas>
+                                <div id="analyticsEmpty" style="display:none; text-align:center; padding: 60px 20px; color: var(--muted);">
+                                    <i data-lucide="bar-chart" style="width:40px; height:40px; margin-bottom:12px; opacity:0.3;"></i>
+                                    <p style="font-size:14px; font-weight:600;">No application activity yet. Start applying to jobs to see analytics.</p>
+                                </div>
                             </div>
                         </div>
 
@@ -1292,7 +1296,7 @@
             const initial = (user.name || 'U').charAt(0).toUpperCase();
             document.getElementById('avatarInitial').textContent = initial;
             document.getElementById('userNameDisplay').textContent = user.name || 'User';
-            document.getElementById('welcomeName').textContent = user.name || 'User';
+            document.getElementById('welcomeUser').textContent = user.name || 'User';
         }
 
         function logout() {
@@ -1334,78 +1338,116 @@
             }
             const val = (score || 0) / 100;
             scoreBar.animate(val);
-            document.getElementById('scoreNum').textContent = score ? Math.round(score) : '0';
+            document.getElementById('profileScore').textContent = score ? Math.round(score) : '0';
+        }
+
+        function calculateProfileStrength(profile) {
+            if (!profile) return 0;
+            let score = 0;
+            // Logical interpretation of profile object for strength:
+            // Basic Info (25%) - name, bio, location
+            if (profile.name && profile.bio && profile.location) score += 25;
+            else if (profile.name) score += 10;
+            
+            // Skills (20%)
+            if (profile.skills && profile.skills.length > 0) score += 20;
+            
+            // Education (20%)
+            if (profile.education && profile.education.length > 0) score += 20;
+            
+            // Experience (15%)
+            if (profile.experienceList && profile.experienceList.length > 0) score += 15;
+            
+            // Resume Uploaded (20%)
+            // We can infer this if they hit 100% or if they have a match score in applications.
+            // Better yet, just check the session storage flag we added in profile.html
+            // But let's look for evidence of resume processing.
+            const resumeUploaded = sessionStorage.getItem("profileComplete") === "true";
+            if (resumeUploaded) score += 20;
+
+            return Math.min(score, 100);
         }
 
         // ── Analytics Chart ───────────────────────────────────────
         let analyticsChart;
-        function drawAnalyticsChart(apps = []) {
-            const ctx = document.getElementById('analyticsChart').getContext('2d');
-            if (analyticsChart) analyticsChart.destroy();
+        async function loadAnalytics() {
+            try {
+                const r = await fetch(`${API}/api/applications/my-applications`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const apps = await r.json();
+                
+                const canvas = document.getElementById('analyticsChart');
+                const emptyState = document.getElementById('analyticsEmpty');
 
-            // Calculate real data for the last 7 days
-            const labels = [];
-            const data = [];
-            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const today = new Date();
-
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(today.getDate() - i);
-                const dayLabel = dayNames[d.getDay()];
-                labels.push(i === 0 ? 'Today' : dayLabel);
-
-                const count = apps.filter(a => {
-                    if (!a.appliedAt) return false;
-                    const ad = new Date(a.appliedAt);
-                    return ad.toDateString() === d.toDateString();
-                }).length;
-                data.push(count);
-            }
-
-            analyticsChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Applications',
-                        data: data,
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#2563eb',
-                        pointBorderWidth: 2,
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: (ctx) => `Applications: ${ctx.raw}`
-                            }
-                        }
-                    },
-                    scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            grid: { color: '#f1f5f9' }, 
-                            ticks: { stepSize: 1, color: '#64748b', font: { size: 10 } } 
-                        },
-                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
-                    }
+                if (!apps || apps.length === 0) {
+                    canvas.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    lucide.createIcons();
+                    return;
                 }
-            });
 
-            window.addEventListener('resize', () => {
-                if (analyticsChart) analyticsChart.resize();
-            });
+                canvas.style.display = 'block';
+                emptyState.style.display = 'none';
+
+                const ctx = canvas.getContext('2d');
+                if (analyticsChart) analyticsChart.destroy();
+
+                // Advanced Last 7 Days Logic
+                const today = new Date();
+                const labels = [];
+                const data = [];
+                const dayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(today.getDate() - i);
+                    labels.push(i === 0 ? 'Today' : dayShort[d.getDay()]);
+
+                    const count = apps.filter(a => {
+                        if (!a.appliedAt) return false;
+                        const ad = new Date(a.appliedAt);
+                        return ad.toDateString() === d.toDateString();
+                    }).length;
+                    data.push(count);
+                }
+
+                analyticsChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Applications',
+                            data: data,
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#2563eb',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { 
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: (ctx) => `Applications: ${ctx.raw}` } }
+                        },
+                        scales: {
+                            y: { 
+                                beginAtZero: true, 
+                                grid: { color: '#f1f5f9' }, 
+                                ticks: { stepSize: 1, color: '#64748b', font: { size: 10 } } 
+                            },
+                            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error("Analytics load failed:", e);
+            }
         }
 
         // ── Helpers ───────────────────────────────────────────────
@@ -1535,49 +1577,35 @@
         // ── Overview ──────────────────────────────────────────────
         async function loadOverview() {
             try {
+                // Load Statistics
+                await loadDashboardStats();
+                
+                // Load Analytics
+                await loadAnalytics();
+
+                // Dynamic Profile Strength
+                const profile = JSON.parse(sessionStorage.getItem("profileData") || "{}");
+                const strength = calculateProfileStrength(profile);
+                updateScoreBar(strength);
+
+                // Additional UI polish
+                document.querySelector('.score-label').textContent = 'Profile Strength';
+                document.querySelector('.score-label').style.color = 'var(--accent2)';
+
+                // Fetch applications for matched job checking
                 const r = await fetch(`${API}/api/applications/my-applications`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!r.ok) return;
                 const apps = await r.json();
                 appliedJobIds = new Set(apps.map(a => a.jobId));
 
-                document.getElementById('ov-total').textContent = apps.length;
-                document.getElementById('ov-short').textContent = apps.filter(a => a.status === 'SHORTLISTED').length;
-                document.getElementById('ov-review').textContent = apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
-                document.getElementById('ov-offer').textContent = apps.filter(a => a.status === 'OFFERED').length;
-
-                const scored = apps.filter(a => a.matchScore != null);
-                let avgScore = scored.length ? scored.reduce((s, a) => s + a.matchScore, 0) / scored.length : 0;
-
-                // Fallback to Profile Strength if no applications yet
-                if (avgScore === 0) {
-                    let pScore = 45; // Base score for having an account
-                    if (user.bio && user.bio.length > 20) pScore += 15;
-                    if (user.skills && user.skills.length > 0) pScore += 20;
-                    if (user.yearsOfExperience > 0) pScore += 10;
-                    if (user.linkedinUrl || user.githubUrl) pScore += 10;
-                    avgScore = Math.min(pScore, 92);
-                    
-                    document.querySelector('.score-label').textContent = 'Profile Strength';
-                    document.querySelector('.score-label').style.color = 'var(--accent2)';
-                } else {
-                    document.querySelector('.score-label').textContent = 'ATS Score';
-                    document.querySelector('.score-label').style.color = 'var(--muted)';
+                // AI Insights (Strengths from profile)
+                if (user.skills && user.skills.length) {
+                    document.getElementById('ai-strengths').innerHTML = user.skills.slice(0, 5).map(s =>
+                        `<span class="skill-tag" style="background:#f0fdf4; color:#166534; border:1px solid #dcfce7">${s}</span>`
+                    ).join('');
                 }
 
-                // Animate score from 0
-                updateScoreBar(avgScore);
-
-                // Update AI Insights & Suggestions
                 if (apps.length > 0) {
                     const topApp = apps[0];
-                    // Strengths from profile
-                    if (user.skills && user.skills.length) {
-                        document.getElementById('ai-strengths').innerHTML = user.skills.slice(0, 5).map(s =>
-                            `<span class="skill-tag" style="background:#f0fdf4; color:#166534; border:1px solid #dcfce7">${s}</span>`
-                        ).join('');
-                    }
-
-                    // Weaknesses from latest application
                     if (topApp.skillsGap && topApp.skillsGap.length) {
                         document.getElementById('ai-weaknesses').innerHTML = topApp.skillsGap.map(s =>
                             `<span class="skill-tag" style="background:#fffbeb; color:#92400e">${s}</span>`
@@ -1596,23 +1624,12 @@
                             </div>
                         `).join('');
                         lucide.createIcons();
-                    } else if (topApp.matchScore === 0) {
-                        document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--muted); font-style:italic">AI is analyzing your application...</span>';
                     } else {
-                         document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--success); font-weight:700">Perfect Match! No skills gap found.</span>';
+                        document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--success); font-weight:700">Perfect Match! No gaps found.</span>';
                     }
                 } else {
-                    // Profile-based insights when no applications exist
-                    if (user.skills && user.skills.length) {
-                        document.getElementById('ai-strengths').innerHTML = user.skills.slice(0, 5).map(s =>
-                            `<span class="skill-tag" style="background:#f0fdf4; color:#166534; border:1px solid #dcfce7">${s}</span>`
-                        ).join('');
-                        document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--muted)">Apply to a job for gap analysis</span>';
-                    } else {
-                        document.getElementById('ai-strengths').innerHTML = '<span style="font-size:12px; color:var(--muted)">Add skills to your profile</span>';
-                        document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--muted)">Upload resume for analysis</span>';
-                    }
-
+                    document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--muted)">Apply to a job for gap analysis</span>';
+                    
                     const profileSuggestions = [];
                     if (!user.skills || !user.skills.length) profileSuggestions.push({ t: 'Add skills to your profile', i: '+25%' });
                     if (!user.bio || user.bio.length < 20) profileSuggestions.push({ t: 'Write a professional bio', i: '+15%' });
@@ -1627,13 +1644,25 @@
                     `).join('');
                     lucide.createIcons();
                 }
-
-                drawAnalyticsChart(apps);
             } catch (e) {
                 console.error("Overview load failed:", e);
                 updateScoreBar(0);
             }
             loadRecJobs();
+        }
+
+        async function loadDashboardStats() {
+            try {
+                const r = await fetch(`${API}/api/applications/my-applications`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const apps = await r.json();
+
+                document.getElementById('totalApplied').textContent = apps.length;
+                document.getElementById('shortlisted').textContent = apps.filter(a => a.status === 'SHORTLISTED').length;
+                document.getElementById('inReview').textContent = apps.filter(a => ['UNDER_REVIEW', 'PENDING'].includes(a.status)).length;
+                document.getElementById('offers').textContent = apps.filter(a => a.status === 'OFFERED').length;
+            } catch (e) {
+                console.error("Stats load failed:", e);
+            }
         }
 
         async function loadRecJobs() {
