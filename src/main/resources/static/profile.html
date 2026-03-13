@@ -809,19 +809,24 @@
             </div>
 
             <!-- Resume -->
-            <div class="card">
+            <div class="card" id="resumeSection">
                 <div class="section-header">
                     <div class="section-icon"><i data-lucide="file-text"></i></div>
                     <div class="section-title">Resume Management</div>
+                    <div id="resumeLockBadge" style="margin-left:auto; display:flex; align-items:center; gap:6px; font-size:12px; color:var(--warning); font-weight:700;">
+                        <i data-lucide="lock" style="width:14px"></i> Locked
+                    </div>
+                </div>
+                <div id="resumeLockMsg" style="margin-bottom:16px; font-size:12px; color:var(--muted); line-height:1.4;">
+                    Complete your profile details (Education, Skills, Experience) to unlock resume upload.
                 </div>
                 <input type="file" id="resumeUpload" accept=".pdf" style="display: none;"
                     onchange="handleResumeSelect(event)">
-                <div class="dropzone" id="dropZone" onclick="document.getElementById('resumeUpload').click()">
+                <div class="dropzone disabled" id="dropZone" onclick="handleGatedResumeClick()" style="opacity: 0.6; cursor: not-allowed;">
                     <i data-lucide="upload-cloud" style="width: 40px; height: 40px;"></i>
                     <div>
-                        <div style="font-weight: 700; font-size: 15px;">Click to upload your resume</div>
-                        <div style="color: var(--muted); font-size: 12px; margin-top: 4px;">PDF format only (Max 5MB)
-                        </div>
+                        <div style="font-weight: 700; font-size: 15px;" id="dropZoneTitle">Profile Incomplete</div>
+                        <div style="color: var(--muted); font-size: 12px; margin-top: 4px;" id="dropZoneSub">Finish other sections first</div>
                     </div>
                 </div>
                 <div id="resumeStatus"></div>
@@ -1001,6 +1006,7 @@
         function updateCompleteness() {
             // LinkedIn-style Weighted Scores
             let score = 0;
+            const resumeUploaded = document.getElementById('resumeStatus').innerText.includes('Successfully');
             
             // Basic Info (15%)
             if (document.getElementById('pName').value) score += 5;
@@ -1019,14 +1025,16 @@
             // Experience (10%)
             if (experienceList.length > 0) score += 10;
             
-            // Resume (10%)
-            if (document.getElementById('resumeStatus').innerText.includes('Successfully')) score += 10;
-            
             // Links (5%)
             if (document.getElementById('pLinkedin').value || document.getElementById('pGithub').value) score += 5;
             
             // Certs/Achievements (5%)
             if (certifications.length > 0 || achievements.length > 0) score += 5;
+            
+            const subtotal = score; // Cap at 90
+            
+            // Resume (10%) - Only if subtotal is high enough to unlock
+            if (resumeUploaded) score += 10;
 
             const pct = Math.min(score, 100);
             const pctEl = document.getElementById('compPct');
@@ -1036,15 +1044,62 @@
             pctEl.textContent = pct + '%';
             barEl.style.width = pct + '%';
 
+            // Gating Logic
+            const dropZone = document.getElementById('dropZone');
+            const lockBadge = document.getElementById('resumeLockBadge');
+            const lockMsg = document.getElementById('resumeLockMsg');
+            const dzTitle = document.getElementById('dropZoneTitle');
+            const dzSub = document.getElementById('dropZoneSub');
+
+            if (subtotal >= 80) {
+                // Unlock Resume
+                dropZone.classList.remove('disabled');
+                dropZone.style.opacity = '1';
+                dropZone.style.cursor = 'pointer';
+                lockBadge.innerHTML = '<i data-lucide="unlock" style="width:14px"></i> Unlocked';
+                lockBadge.style.color = 'var(--success)';
+                lockMsg.textContent = 'Profile details complete! You can now upload your resume to reach 100%.';
+                dzTitle.textContent = 'Click to upload your resume';
+                dzSub.textContent = 'PDF format only (Max 5MB)';
+            } else {
+                // Lock Resume
+                dropZone.classList.add('disabled');
+                dropZone.style.opacity = '0.6';
+                dropZone.style.cursor = 'not-allowed';
+                lockBadge.innerHTML = '<i data-lucide="lock" style="width:14px"></i> Locked';
+                lockBadge.style.color = 'var(--warning)';
+                lockMsg.textContent = 'Complete your profile details (Education, Skills, Experience) to unlock resume upload.';
+                dzTitle.textContent = 'Profile Incomplete';
+                dzSub.textContent = 'Finish other sections first';
+            }
+            lucide.createIcons();
+
+            // Session Storage Flag
+            if (pct === 100) {
+                sessionStorage.setItem("profileComplete", "true");
+            } else {
+                sessionStorage.removeItem("profileComplete");
+            }
+
             const hints = [
+                'Add basic info and location to start.',
                 'Complete your education to boost profile strength.',
                 'Add projects to showcase your practical skills.',
                 'Listing certifications makes you 5x more discoverable.',
-                'Great profile! Recruiters love seeing detailed experience.',
+                'Almost there! Upload your resume to reach 100% completion.',
                 'Premium Profile! Your completeness score is elite. 🔥'
             ];
-            const hi = Math.min(Math.floor(pct / 21), hints.length - 1);
+            const hi = Math.min(Math.floor(pct / 20), hints.length - 1);
             hintEl.textContent = hints[hi];
+        }
+
+        function handleGatedResumeClick() {
+            const dropZone = document.getElementById('dropZone');
+            if (dropZone.classList.contains('disabled')) {
+                showToast('Please complete other sections to unlock resume upload', true);
+            } else {
+                document.getElementById('resumeUpload').click();
+            }
         }
 
         function openModal(type) {
@@ -1252,6 +1307,10 @@
         }));
         dz.addEventListener('drop', (e) => {
             e.preventDefault();
+            if (dz.classList.contains('disabled')) {
+                showToast('Resume upload is locked', true);
+                return;
+            }
             const files = e.dataTransfer.files;
             if (files.length) handleResumeSelect({ target: { files } });
         });

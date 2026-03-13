@@ -1180,30 +1180,7 @@
                             </div>
                         </div>
 
-                        <!-- Resume Upload -->
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title"><i data-lucide="upload-cloud"></i> Upload Resume</div>
-                            </div>
-                            <p class="welcome-subtitle" style="font-size:12px; margin-bottom:16px">Update your resume
-                                for a fresh AI scan.</p>
-                            <input type="file" id="resumeUploadDb" accept=".pdf" style="display: none;"
-                                onchange="handleResumeDashboard(event)">
-                            <div id="dropZoneDb" onclick="document.getElementById('resumeUploadDb').click()"
-                                style="border: 2px dashed var(--border); border-radius: 16px; padding: 32px 16px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f8fafc; display:flex; flex-direction:column; align-items:center; gap:12px;">
-                                <i data-lucide="file-up" style="width:32px; height:32px; color:var(--accent)"></i>
-                                <div>
-                                    <div style="font-size: 14px; font-weight: 700; color: var(--text);">Drop your PDF
-                                        here</div>
-                                    <div style="font-size: 12px; color: var(--muted); margin-top:4px;">or click to
-                                        browse files</div>
-                                </div>
-                            </div>
-                            <div id="resumeStatusDb"
-                                style="margin-top: 16px; font-size: 13px; font-weight: 600; display: none; align-items: center; gap: 8px; color: var(--accent2)">
-                                <i data-lucide="check-circle" style="width:16px"></i> Uploaded Successfully
-                            </div>
-                        </div>
+
                     </div>
 
                     <!-- Right Column: Graphs & Jobs -->
@@ -1672,10 +1649,9 @@
                         <div class="empty-jobs">
                             <div class="empty-icon">💼</div>
                             <h3>No job matches yet</h3>
-                            <p>No job matches yet. Upload your resume or update skills to improve recommendations.</p>
+                            <p>Complete your profile and upload your resume to receive AI-powered job recommendations.</p>
                             <div class="empty-actions">
-                                <button onclick="document.getElementById('nav-profile').click()" class="btn-primary">Update Profile</button>
-                                <button onclick="document.getElementById('dropZoneDb').scrollIntoView({behavior:'smooth'})" class="btn-secondary">Upload Resume</button>
+                                <a href="/profile.html" class="btn-primary">Update Profile</a>
                             </div>
                         </div>`;
                     return;
@@ -1842,6 +1818,14 @@
 
         // ── Actions ───────────────────────────────────────────────
         async function applyToJob(jobId, btn) {
+            const profileComplete = sessionStorage.getItem("profileComplete");
+
+            if (profileComplete !== "true") {
+                alert("Please complete your profile and upload your resume before applying.");
+                window.location.href = "/profile.html";
+                return;
+            }
+
             btn.textContent = 'Applying...'; btn.disabled = true;
             try {
                 const r = await fetch(`${API}/api/applications`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ jobId }) });
@@ -1879,37 +1863,7 @@
             }
         }
 
-        // ── Resume Upload ─────────────────────────────────────────
-        async function handleResumeDashboard(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const statusEl = document.getElementById('resumeStatusDb');
-            const dropZone = document.getElementById('dropZoneDb');
 
-            statusEl.style.display = 'flex';
-            statusEl.innerHTML = `<i data-lucide="loader-2" class="spin"></i> Uploading...`;
-            lucide.createIcons();
-
-            const formData = new FormData();
-            formData.append('file', file);
-
-            try {
-                const response = await fetch(`${API}/api/resumes/upload`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
-                });
-                if (!response.ok) throw new Error('Upload failed');
-                addNotif('success', 'Resume Analyzed!', 'Your profile has been updated with new skills and experience detected by AI.');
-                statusEl.innerHTML = `<i data-lucide="check-circle"></i> Profile Updated!`;
-                lucide.createIcons();
-                loadOverview();
-            } catch (error) {
-                addNotif('warn', 'Upload Failed', 'There was an issue processing your resume. Please try again.');
-                statusEl.innerHTML = `<i data-lucide="x-circle"></i> Error`;
-                lucide.createIcons();
-            }
-        }
     </script>
 </body>
 
