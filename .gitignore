@@ -38,7 +38,12 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.venv/
 .ipynb_checkpoints/
 *.egg-info/
 dist/
 build/
+
+# Tools & Documentation
+*.resolved
+.antigravityignore
