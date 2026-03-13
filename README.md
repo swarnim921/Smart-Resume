@@ -9,6 +9,27 @@ Check out the live platform: [talentsynctech.in](https://www.talentsynctech.in)
 
 ---
 
+## 📊 Project Highlights
+
+- **Scalable AI Infrastructure**: Built using a microservice architecture (Spring Boot + Flask) for decoupled scalability.
+- **Deep Semantic Search**: Leverages SentenceTransformers (`all-MiniLM-L6-v2`) to achieve high-accuracy matching beyond simple keyword searches.
+- **Production-Ready Security**: Implemented full JWT authentication, OAuth2 (Google/LinkedIn), and robust Role-Based Access Control (RBAC).
+- **Automated Resume Processing**: Handles complex resume parsing and match scoring in real-time using asynchronous processing principles.
+- **Verified Deployment**: Fully functional, live platform deployed using Docker and Render.
+
+---
+
+## 🔄 How TalentSync Works
+
+1.  **Resume Ingestion**: Candidate uploads a PDF resume, which is stored securely in **MongoDB GridFS**.
+2.  **Text Extraction**: The backend extracts clean text and passes it to the **Python ML Microservice**.
+3.  **Embedding Generation**: The ML service uses a **SentenceTransformer** model to generate 384-dimensional semantic embeddings.
+4.  **Semantic Match**: The system calculates **Cosine Similarity** between the resume and job description embeddings.
+5.  **Skill Gap Analysis**: AI identifies missing technical and soft skills by comparing extracted entities.
+6.  **Ranking & Insights**: Recruiter dashboard automatically ranks candidates and provides detailed matching insights.
+
+---
+
 ## 📸 Screenshots
 
 ### Sign-In Portal
@@ -65,6 +86,41 @@ Check out the live platform: [talentsynctech.in](https://www.talentsynctech.in)
 | **Database** | MongoDB Atlas (GridFS for resume storage, Mongo Sync for metadata) |
 | **Frontend** | HTML5, CSS3 (Glassmorphism), Vanilla JavaScript, Google Fonts |
 | **Infrastructure** | Docker, Jenkins/Render/Vercel Support, Resend (Email API) |
+
+---
+
+## 🤖 Machine Learning Pipeline
+
+TalentSync utilizes a SOTA (State-of-The-Art) NLP pipeline to ensure deep semantic understanding of professional profiles.
+
+**Model:** `all-MiniLM-L6-v2` (Sentence-Transformers)
+
+1.  **Preprocessing**: Text cleaning, lemmatization, and role-specific tokenization.
+2.  **Embedding Distribution**: Map resumes into a high-dimensional vector space.
+3.  **Similarity Analysis**: Mathematical comparison using Cosine Similarity for context-aware matching.
+4.  **Entity Extraction**: Identifying skills, experience levels, and certifications using custom NLP heuristics.
+
+### Example API Request
+
+**`POST /api/ml/analyze`**
+
+```json
+{
+  "resumeText": "... Senior Java Developer with knowledge of Spring Boot and Docker ...",
+  "jobDescription": "Looking for a cloud-native engineer expert in Kubernetes and Java"
+}
+```
+
+**Response**
+
+```json
+{
+  "matchScore": 78.5,
+  "detectedSkills": ["Java", "Spring Boot", "Docker"],
+  "skillsGap": ["Kubernetes", "Cloud Infrastructure"],
+  "recommendedRoles": ["Backend Engineer", "DevOps Trainee"]
+}
+```
 
 ---
 
@@ -141,6 +197,12 @@ mvn clean package
 mvn spring-boot:run
 ```
 
+### 3. Run with Docker (Production Grade)
+```bash
+# Build and run the entire stack
+docker-compose up --build
+```
+
 ---
 
 ## 🔐 Security
@@ -188,6 +250,16 @@ B.Tech — Artificial Intelligence & Machine Learning
 Netaji Subhash Engineering College
 
 [LinkedIn](https://linkedin.com/in/singhswarnim) | [GitHub](https://github.com/swarnim921)
+
+---
+
+## ❤️ Acknowledgments
+
+Special thanks to the following communities and tools:
+- **Sentence-Transformers (UKPLab)** for the embedding models.
+- **Hugging Face** for the model ecosystem.
+- **Spring & Flask Communities** for the robust frameworks.
+- **MongoDB** for the excellent GridFS support.
 
 ---
 
