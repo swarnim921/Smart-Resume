@@ -31,7 +31,8 @@
             --gradient: linear-gradient(135deg, #2563eb 0%, #6366f1 100%);
         }
 
-        html, body {
+        html,
+        body {
             max-width: 100%;
             overflow-x: hidden;
         }
@@ -40,7 +41,7 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg);
             color: var(--text);
-            min-height: 100vh;
+            min-height: 100dvh;
         }
 
         /* Topbar */
@@ -509,13 +510,20 @@
             width: 100%;
             max-width: 500px;
             padding: 32px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
             animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
 
         .modal-header {
@@ -539,11 +547,13 @@
             transition: color 0.2s;
         }
 
-        .btn-close:hover { color: var(--text); }
+        .btn-close:hover {
+            color: var(--text);
+        }
 
         /* List Items */
         .list-item {
-            background: rgba(255,255,255,0.4);
+            background: rgba(255, 255, 255, 0.4);
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 16px;
@@ -553,13 +563,29 @@
             align-items: flex-start;
             transition: all 0.2s;
         }
+
         .list-item:hover {
             border-color: var(--accent);
             background: var(--white);
         }
-        .item-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-        .item-info p { font-size: 13px; color: var(--muted); line-height: 1.4; }
-        .item-actions { display: flex; gap: 8px; }
+
+        .item-info h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .item-info p {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
         .btn-action-sm {
             padding: 6px;
             border-radius: 8px;
@@ -580,21 +606,44 @@
 
 <body>
     <!-- Dynamic Background Blobs -->
-    <div style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; overflow:hidden; pointer-events:none;">
-        <div style="position:absolute; top:-10%; left:-10%; width:40%; height:40%; background:rgba(37,99,235,0.08); filter:blur(100px); border-radius:50%; animation: float 20s infinite alternate;"></div>
-        <div style="position:absolute; bottom:-10%; right:-10%; width:50%; height:50%; background:rgba(99,102,241,0.08); filter:blur(120px); border-radius:50%; animation: float 25s infinite alternate-reverse;"></div>
-        <div style="position:absolute; top:30%; right:10%; width:30%; height:30%; background:rgba(16,185,129,0.05); filter:blur(80px); border-radius:50%; animation: float 18s infinite alternate;"></div>
+    <div
+        style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; overflow:hidden; pointer-events:none;">
+        <div
+            style="position:absolute; top:-10%; left:-10%; width:40%; height:40%; background:rgba(37,99,235,0.08); filter:blur(100px); border-radius:50%; animation: float 20s infinite alternate;">
+        </div>
+        <div
+            style="position:absolute; bottom:-10%; right:-10%; width:50%; height:50%; background:rgba(99,102,241,0.08); filter:blur(120px); border-radius:50%; animation: float 25s infinite alternate-reverse;">
+        </div>
+        <div
+            style="position:absolute; top:30%; right:10%; width:30%; height:30%; background:rgba(16,185,129,0.05); filter:blur(80px); border-radius:50%; animation: float 18s infinite alternate;">
+        </div>
     </div>
 
     <style>
         @keyframes float {
-            0% { transform: translate(0,0) rotate(0deg); }
-            100% { transform: translate(50px, 100px) rotate(10deg); }
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(50px, 100px) rotate(10deg);
+            }
         }
-        .main { animation: fadeInUp 0.8s ease-out; }
+
+        .main {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 
@@ -667,7 +716,8 @@
                     <div class="section-title">Education</div>
                 </div>
                 <div id="educationList"></div>
-                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;" onclick="openModal('edu')">
+                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;"
+                    onclick="openModal('edu')">
                     <i data-lucide="plus"></i> Add Education History
                 </button>
             </div>
@@ -697,7 +747,8 @@
                     <div class="section-title">Projects</div>
                 </div>
                 <div id="projectsList"></div>
-                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;" onclick="openModal('proj')">
+                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;"
+                    onclick="openModal('proj')">
                     <i data-lucide="plus"></i> Add Major Project
                 </button>
             </div>
@@ -709,7 +760,8 @@
                     <div class="section-title">Professional Experience</div>
                 </div>
                 <div id="expList"></div>
-                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;" onclick="openModal('exp')">
+                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;"
+                    onclick="openModal('exp')">
                     <i data-lucide="plus"></i> Add Experience/Internship
                 </button>
             </div>
@@ -736,14 +788,16 @@
                 <label class="form-label">Certifications (e.g. AWS, Meta Front-End)</label>
                 <div class="skills-area" id="certsArea"></div>
                 <div class="skill-row" style="margin-bottom: 24px;">
-                    <input type="text" id="certInput" class="form-input" placeholder="Add certification..." onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('certs')}">
+                    <input type="text" id="certInput" class="form-input" placeholder="Add certification..."
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('certs')}">
                     <button type="button" class="btn-add-skill" onclick="addItem('certs')">Add</button>
                 </div>
 
                 <label class="form-label">Key Achievements (e.g. NCC, Hackathon Winner)</label>
                 <div class="skills-area" id="achsArea"></div>
                 <div class="skill-row">
-                    <input type="text" id="achInput" class="form-input" placeholder="Add achievement..." onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('achs')}">
+                    <input type="text" id="achInput" class="form-input" placeholder="Add achievement..."
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('achs')}">
                     <button type="button" class="btn-add-skill" onclick="addItem('achs')">Add</button>
                 </div>
             </div>
@@ -759,7 +813,8 @@
                         <label class="form-label">Preferred Roles</label>
                         <div class="skills-area" id="rolesArea"></div>
                         <div class="skill-row">
-                            <input type="text" id="roleInput" class="form-input" placeholder="e.g. SDE, AI Engineer" onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('roles')}">
+                            <input type="text" id="roleInput" class="form-input" placeholder="e.g. SDE, AI Engineer"
+                                onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('roles')}">
                             <button type="button" class="btn-add-skill" onclick="addItem('roles')">Add</button>
                         </div>
                     </div>
@@ -767,7 +822,8 @@
                         <label class="form-label">Preferred Locations</label>
                         <div class="skills-area" id="locsArea"></div>
                         <div class="skill-row">
-                            <input type="text" id="locInput" class="form-input" placeholder="e.g. Remote, Bangalore" onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('locs')}">
+                            <input type="text" id="locInput" class="form-input" placeholder="e.g. Remote, Bangalore"
+                                onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('locs')}">
                             <button type="button" class="btn-add-skill" onclick="addItem('locs')">Add</button>
                         </div>
                     </div>
@@ -777,7 +833,8 @@
                         <label class="form-label">Languages</label>
                         <div class="skills-area" id="langsArea"></div>
                         <div class="skill-row">
-                            <input type="text" id="langInput" class="form-input" placeholder="e.g. English, Hindi" onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('langs')}">
+                            <input type="text" id="langInput" class="form-input" placeholder="e.g. English, Hindi"
+                                onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('langs')}">
                             <button type="button" class="btn-add-skill" onclick="addItem('langs')">Add</button>
                         </div>
                     </div>
@@ -809,20 +866,24 @@
                 <div class="section-header">
                     <div class="section-icon"><i data-lucide="file-text"></i></div>
                     <div class="section-title">Resume Management</div>
-                    <div id="resumeLockBadge" style="margin-left:auto; display:flex; align-items:center; gap:6px; font-size:12px; color:var(--warning); font-weight:700;">
+                    <div id="resumeLockBadge"
+                        style="margin-left:auto; display:flex; align-items:center; gap:6px; font-size:12px; color:var(--warning); font-weight:700;">
                         <i data-lucide="lock" style="width:14px"></i> Locked
                     </div>
                 </div>
-                <div id="resumeLockMsg" style="margin-bottom:16px; font-size:12px; color:var(--muted); line-height:1.4;">
+                <div id="resumeLockMsg"
+                    style="margin-bottom:16px; font-size:12px; color:var(--muted); line-height:1.4;">
                     Complete your profile details (Education, Skills, Experience) to unlock resume upload.
                 </div>
                 <input type="file" id="resumeUpload" accept=".pdf" style="display: none;"
                     onchange="handleResumeSelect(event)">
-                <div class="dropzone disabled" id="dropZone" onclick="handleGatedResumeClick()" style="opacity: 0.6; cursor: not-allowed;">
+                <div class="dropzone disabled" id="dropZone" onclick="handleGatedResumeClick()"
+                    style="opacity: 0.6; cursor: not-allowed;">
                     <i data-lucide="upload-cloud" style="width: 40px; height: 40px;"></i>
                     <div>
                         <div style="font-weight: 700; font-size: 15px;" id="dropZoneTitle">Profile Incomplete</div>
-                        <div style="color: var(--muted); font-size: 12px; margin-top: 4px;" id="dropZoneSub">Finish other sections first</div>
+                        <div style="color: var(--muted); font-size: 12px; margin-top: 4px;" id="dropZoneSub">Finish
+                            other sections first</div>
                     </div>
                 </div>
                 <div id="resumeStatus"></div>
@@ -841,11 +902,15 @@
                 <h3 class="modal-title">Add Education</h3>
                 <button onclick="closeModal('edu')" class="btn-close"><i data-lucide="x"></i></button>
             </div>
-            <div class="form-group"><label class="form-label">Degree</label><input type="text" id="eduDegree" class="form-input" placeholder="e.g. B.Tech AIML"></div>
-            <div class="form-group"><label class="form-label">Institution</label><input type="text" id="eduInst" class="form-input" placeholder="e.g. NSEC"></div>
+            <div class="form-group"><label class="form-label">Degree</label><input type="text" id="eduDegree"
+                    class="form-input" placeholder="e.g. B.Tech AIML"></div>
+            <div class="form-group"><label class="form-label">Institution</label><input type="text" id="eduInst"
+                    class="form-input" placeholder="e.g. NSEC"></div>
             <div class="grid-2">
-                <div class="form-group"><label class="form-label">Graduation Year</label><input type="number" id="eduYear" class="form-input" placeholder="2026"></div>
-                <div class="form-group"><label class="form-label">CGPA / %</label><input type="text" id="eduGpa" class="form-input" placeholder="9.0"></div>
+                <div class="form-group"><label class="form-label">Graduation Year</label><input type="number"
+                        id="eduYear" class="form-input" placeholder="2026"></div>
+                <div class="form-group"><label class="form-label">CGPA / %</label><input type="text" id="eduGpa"
+                        class="form-input" placeholder="9.0"></div>
             </div>
             <button onclick="saveItem('edu')" class="btn-save">Add Education</button>
         </div>
@@ -857,10 +922,14 @@
                 <h3 class="modal-title">Add Project</h3>
                 <button onclick="closeModal('proj')" class="btn-close"><i data-lucide="x"></i></button>
             </div>
-            <div class="form-group"><label class="form-label">Project Title</label><input type="text" id="projTitle" class="form-input"></div>
-            <div class="form-group"><label class="form-label">Tech Stack</label><input type="text" id="projTech" class="form-input" placeholder="e.g. Python, TensorFlow"></div>
-            <div class="form-group"><label class="form-label">Description</label><textarea id="projDesc" class="form-input"></textarea></div>
-            <div class="form-group"><label class="form-label">GitHub Link</label><input type="url" id="projLink" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Project Title</label><input type="text" id="projTitle"
+                    class="form-input"></div>
+            <div class="form-group"><label class="form-label">Tech Stack</label><input type="text" id="projTech"
+                    class="form-input" placeholder="e.g. Python, TensorFlow"></div>
+            <div class="form-group"><label class="form-label">Description</label><textarea id="projDesc"
+                    class="form-input"></textarea></div>
+            <div class="form-group"><label class="form-label">GitHub Link</label><input type="url" id="projLink"
+                    class="form-input"></div>
             <button onclick="saveItem('proj')" class="btn-save">Add Project</button>
         </div>
     </div>
@@ -871,11 +940,15 @@
                 <h3 class="modal-title">Add Experience</h3>
                 <button onclick="closeModal('exp')" class="btn-close"><i data-lucide="x"></i></button>
             </div>
-            <div class="form-group"><label class="form-label">Role</label><input type="text" id="expRole" class="form-input"></div>
-            <div class="form-group"><label class="form-label">Company</label><input type="text" id="expComp" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Role</label><input type="text" id="expRole"
+                    class="form-input"></div>
+            <div class="form-group"><label class="form-label">Company</label><input type="text" id="expComp"
+                    class="form-input"></div>
             <div class="grid-2">
-                <div class="form-group"><label class="form-label">Start Date</label><input type="text" id="expStart" class="form-input" placeholder="Jan 2025"></div>
-                <div class="form-group"><label class="form-label">End Date</label><input type="text" id="expEnd" class="form-input" placeholder="Present"></div>
+                <div class="form-group"><label class="form-label">Start Date</label><input type="text" id="expStart"
+                        class="form-input" placeholder="Jan 2025"></div>
+                <div class="form-group"><label class="form-label">End Date</label><input type="text" id="expEnd"
+                        class="form-input" placeholder="Present"></div>
             </div>
             <button onclick="saveItem('exp')" class="btn-save">Add Experience</button>
         </div>
@@ -976,7 +1049,7 @@
             if (!list) return;
             const idx = list.indexOf(val);
             if (idx > -1) list.splice(idx, 1);
-            
+
             if (type === 'skills') renderSkills();
             else renderChips(type);
             updateCompleteness();
@@ -1003,32 +1076,32 @@
             // LinkedIn-style Weighted Scores
             let score = 0;
             const resumeUploaded = document.getElementById('resumeStatus').innerText.includes('Successfully');
-            
+
             // Basic Info (15%)
             if (document.getElementById('pName').value) score += 5;
             if (document.getElementById('pBio').value) score += 5;
             if (document.getElementById('pLocation').value) score += 5;
-            
+
             // Skills (20%)
             if (skills.length > 0) score += 20;
-            
+
             // Education (15%)
             if (education.length > 0) score += 15;
-            
+
             // Projects (20%)
             if (projectsList.length > 0) score += 20;
-            
+
             // Experience (10%)
             if (experienceList.length > 0) score += 10;
-            
+
             // Links (5%)
             if (document.getElementById('pLinkedin').value || document.getElementById('pGithub').value) score += 5;
-            
+
             // Certs/Achievements (5%)
             if (certifications.length > 0 || achievements.length > 0) score += 5;
-            
+
             const subtotal = score; // Cap at 90
-            
+
             // Resume (10%) - Only if subtotal is high enough to unlock
             if (resumeUploaded) score += 10;
 
@@ -1246,7 +1319,7 @@
                     })
                 });
                 if (!r.ok) throw new Error('Update failed');
-                
+
                 // Construct complete profile object from form for session persistence
                 const profileObj = {
                     name: document.getElementById('pName').value,

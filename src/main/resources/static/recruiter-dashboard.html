@@ -16,6 +16,8 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         :root {
@@ -35,32 +37,50 @@
             --premium-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
-        html, body {
+        html,
+        body {
             max-width: 100%;
             overflow-x: hidden;
+        }
+
+        body.sidebar-open {
+            overflow: hidden;
+            touch-action: none;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg);
-            height: 100vh;
+            min-height: 100dvh;
             color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .layout {
             display: flex;
-            overflow: hidden;
+            min-height: 100dvh;
         }
 
         /* Sidebar */
         .sidebar {
             width: 240px;
-            min-height: 100vh;
+            height: 100dvh;
+
             background: linear-gradient(180deg, #4F7DF3, #6C63FF);
+
             display: flex;
             flex-direction: column;
             padding: 32px 20px;
-            border-right: none;
             flex-shrink: 0;
-            transition: all 0.3s ease;
-            z-index: 100;
+
+            z-index: 2000;
+
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+            backface-visibility: hidden;
+            contain: layout paint;
+
+            transition: transform .3s cubic-bezier(.4, 0, .2, 1);
         }
 
         .sidebar-brand {
@@ -75,7 +95,8 @@
         }
 
         .sidebar-brand i {
-            color: var(--white); /* Ensure brand icon is bright white */
+            color: var(--white);
+            /* Ensure brand icon is bright white */
         }
 
         .nav-group {
@@ -92,7 +113,8 @@
             border-radius: 12px;
             font-size: 14px;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.9); /* Increased opacity for better visibility */
+            color: rgba(255, 255, 255, 0.9);
+            /* Increased opacity for better visibility */
             cursor: pointer;
             border: none;
             background: none;
@@ -105,7 +127,8 @@
         .nav-item i {
             width: 18px;
             height: 18px;
-            opacity: 1; /* Keep icons crisp */
+            opacity: 1;
+            /* Keep icons crisp */
         }
 
         .nav-item:hover {
@@ -230,9 +253,8 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            min-height: 100dvh;
             overflow-y: auto;
-            max-width: calc(100% - 240px);
         }
 
         .topbar {
@@ -380,7 +402,7 @@
 
         /* Cards */
         .card {
-            background: var(--card-bg);
+            background: var(--white);
             border: 1px solid var(--border);
             border-radius: 20px;
             padding: 24px;
@@ -650,7 +672,7 @@
             background: white;
             border: 1px solid var(--border);
             border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             display: none;
             flex-direction: column;
             z-index: 1100;
@@ -663,8 +685,15 @@
         }
 
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .notif-header {
@@ -849,7 +878,7 @@
             transition: all 0.3s;
         }
 
-        .modal.active ~ .floating-back {
+        .modal.active~.floating-back {
             display: flex;
         }
 
@@ -943,49 +972,56 @@
         }
 
         .sidebar-overlay {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.4);
-            z-index: 998;
+
+            background: rgba(15, 23, 42, .45);
+
+            z-index: 1500;
+
             opacity: 0;
-            transition: opacity 0.3s;
+            visibility: hidden;
+            pointer-events: none;
+
+            transition: opacity .3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
         }
 
         @media (max-width: 768px) {
             body {
-                overflow-y: auto;
-                height: auto;
-                display: block;
+                min-height: 100dvh;
+                overflow-x: hidden;
             }
 
             .page-container {
-                overflow-y: visible;
-                height: auto;
-                display: block;
-                min-height: 100vh;
-                max-width: 100%; /* Reset max-width for mobile */
+                width: 100%;
             }
 
-            .topbar {
-                z-index: 1000;
-                padding: 0 16px;
+            .menu-btn {
+                display: block;
             }
 
             .sidebar {
                 position: fixed;
-                left: -280px;
+                top: 0;
+                left: 0;
                 width: 280px;
-                height: 100vh;
-                z-index: 1200; /* Sidebar must be higher than topbar */
-                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                height: 100dvh;
+
+                transform: translateX(-100%);
+                transition: transform .3s cubic-bezier(.4, 0, .2, 1);
             }
 
             .sidebar.active {
-                left: 0;
+                transform: translateX(0);
             }
 
             .sidebar-brand span,
@@ -998,15 +1034,20 @@
                 padding: 12px 20px;
             }
 
+            .sidebar-profile {
+                display: flex;
+            }
+
             .sidebar-overlay.active {
-                display: block;
                 opacity: 1;
-                z-index: 1100;
+                visibility: visible;
+                pointer-events: auto;
             }
 
             .topbar {
                 padding: 0 16px;
-                height: 72px; /* Fixed height for mobile topbar */
+                height: 72px;
+                z-index: 1000;
             }
 
             .search-box {
@@ -1014,11 +1055,7 @@
             }
 
             .user-info {
-                display: none; /* Hide recruiter name on mobile */
-            }
-
-            .sidebar-profile {
-                display: flex; /* Show in sidebar on mobile */
+                display: none;
             }
 
             .welcome-section {
@@ -1031,8 +1068,8 @@
             }
 
             .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 12px !important;
+                grid-template-columns: 1fr;
+                gap: 12px;
             }
 
             .col-3,
@@ -1041,9 +1078,9 @@
             .col-8 {
                 grid-column: span 12;
             }
-            
+
             .col-12.dashboard-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
+                grid-template-columns: 1fr;
             }
 
             .metric-card {
@@ -1068,52 +1105,53 @@
 </head>
 
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-brand">
-            <i data-lucide="zap"></i>
-            <span>TalentSync</span>
-        </div>
-
-        <div class="sidebar-profile">
-            <div class="avatar side-av">R</div>
-            <div class="user-info-text">
-                <div class="user-name side-name">Recruiter</div>
-                <div class="user-role">Hiring Manager</div>
-            </div>
-        </div>
-
-        <div class="nav-group">
-            <button class="nav-item active" id="nav-overview" onclick="showSection('overview')">
-                <i data-lucide="layout-dashboard"></i> <span>Dashboard</span>
-            </button>
-            <button class="nav-item" id="nav-post" onclick="showSection('post')">
-                <i data-lucide="plus-circle"></i> <span>Post New Job</span>
-            </button>
-            <button class="nav-item" id="nav-jobs" onclick="showSection('jobs')">
-                <i data-lucide="briefcase"></i> <span>My Jobs</span>
-            </button>
-            <button class="nav-item" id="nav-panels" onclick="showSection('panels')">
-                <i data-lucide="calendar"></i> <span>Interview Panels</span>
-            </button>
-            <button class="nav-item" id="nav-analytics" onclick="showSection('analytics')">
-                <i data-lucide="bar-chart-3"></i> <span>Analytics</span>
-            </button>
-        </div>
-
-        <div class="sidebar-footer">
-            <button class="logout-btn" onclick="logout()">
-                <i data-lucide="log-out"></i>
-                <span>Sign Out</span>
-            </button>
-        </div>
-    </div>
-
     <!-- Mobile Overlay -->
     <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- Main Content -->
-    <div class="page-container">
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <i data-lucide="zap"></i>
+                <span>TalentSync</span>
+            </div>
+
+            <div class="sidebar-profile">
+                <div class="avatar side-av">R</div>
+                <div class="user-info-text">
+                    <div class="user-name side-name">Recruiter</div>
+                    <div class="user-role">Hiring Manager</div>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-item active" id="nav-overview" onclick="showSection('overview')">
+                    <i data-lucide="layout-dashboard"></i> <span>Dashboard</span>
+                </button>
+                <button class="nav-item" id="nav-post" onclick="showSection('post')">
+                    <i data-lucide="plus-circle"></i> <span>Post New Job</span>
+                </button>
+                <button class="nav-item" id="nav-jobs" onclick="showSection('jobs')">
+                    <i data-lucide="briefcase"></i> <span>My Jobs</span>
+                </button>
+                <button class="nav-item" id="nav-panels" onclick="showSection('panels')">
+                    <i data-lucide="calendar"></i> <span>Interview Panels</span>
+                </button>
+                <button class="nav-item" id="nav-analytics" onclick="showSection('analytics')">
+                    <i data-lucide="bar-chart-3"></i> <span>Analytics</span>
+                </button>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <i data-lucide="log-out"></i>
+                    <span>Sign Out</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="page-container">
         <!-- Topbar -->
         <div class="topbar">
             <div style="display:flex; align-items:center">
@@ -1154,7 +1192,8 @@
         <div class="content">
             <!-- Overview Section -->
             <div id="sec-overview">
-                <div class="welcome-section" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div class="welcome-section"
+                    style="display:flex; justify-content:space-between; align-items:flex-start;">
                     <div>
                         <h1 class="welcome-title">Welcome back, <span id="recruiterNameHeader">Recruiter</span> 👋</h1>
                         <p class="welcome-subtitle">Overview of your active hiring pipelines and team performance.</p>
@@ -1208,13 +1247,17 @@
 
             <!-- Post Job Section -->
             <div id="sec-post" style="display:none">
-                <div class="welcome-section" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div class="welcome-section"
+                    style="display:flex; justify-content:space-between; align-items:flex-start;">
                     <div>
                         <h1 class="welcome-title">Post New Job</h1>
                         <p class="welcome-subtitle">Create a job posting and define your custom hiring pipeline.</p>
                     </div>
-                    <button type="button" class="apply-btn" style="padding:10px 24px;" onclick="document.querySelector('#post-form-submit').click()">
-                        <i data-lucide="send" style="width:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Post Job
+                    <button type="button" class="apply-btn" style="padding:10px 24px;"
+                        onclick="document.querySelector('#post-form-submit').click()">
+                        <i data-lucide="send"
+                            style="width:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Post
+                        Job
                     </button>
                 </div>
                 <div class="card">
@@ -1254,7 +1297,8 @@
                             </div>
 
                             <!-- Custom Hiring Pipeline -->
-                            <div class="col-12" style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 24px;">
+                            <div class="col-12"
+                                style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 24px;">
                                 <div class="card-title" style="margin-bottom: 8px;"><i data-lucide="git-branch"></i>
                                     Custom Hiring Pipeline</div>
                                 <p style="font-size: 13px; color: var(--muted); margin-bottom: 20px;">Add stages like
@@ -1267,7 +1311,8 @@
 
                             <!-- Submit Button -->
                             <div class="col-12" style="margin-top: 12px; padding-bottom: 20px;">
-                                <button type="submit" id="post-form-submit" class="apply-btn" style="width: 100%; height: 52px; font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">
+                                <button type="submit" id="post-form-submit" class="apply-btn"
+                                    style="width: 100%; height: 52px; font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">
                                     Publish Job Vacancy Now
                                 </button>
                             </div>
@@ -1319,8 +1364,9 @@
                     <div id="panels-list" class="dashboard-grid"></div>
                 </div>
             </div>
-         </div>
+        </div>
     </div>
+
 
     <!-- Applications Modal -->
     <div id="appsModal" class="modal">
@@ -1328,7 +1374,9 @@
             <div class="modal-header">
                 <div class="modal-title" id="modalTitle">Applications</div>
                 <div style="display:flex;gap:0.75rem;align-items:center">
-                    <button class="btn btn-o" style="font-size:12px;padding:0.5rem 1rem;height:40px;display:flex;align-items:center;gap:6px" onclick="exportCsv()">
+                    <button class="btn btn-o"
+                        style="font-size:12px;padding:0.5rem 1rem;height:40px;display:flex;align-items:center;gap:6px"
+                        onclick="exportCsv()">
                         <i data-lucide="download" style="width:14px"></i> Export CSV
                     </button>
                     <button class="close-btn" onclick="closeModal()">
@@ -1396,10 +1444,10 @@
         document.getElementById('avatarInitial').textContent = initial;
         document.getElementById('userNameDisplay').textContent = user.name || 'Recruiter';
         document.getElementById('recruiterNameHeader').textContent = user.name || 'Recruiter';
-        
+
         // Mobile Sidebar Profile
-        if(document.querySelector('.side-av')) document.querySelector('.side-av').textContent = initial;
-        if(document.querySelector('.side-name')) document.querySelector('.side-name').textContent = user.name || 'Recruiter';
+        if (document.querySelector('.side-av')) document.querySelector('.side-av').textContent = initial;
+        if (document.querySelector('.side-name')) document.querySelector('.side-name').textContent = user.name || 'Recruiter';
 
         function logout() { sessionStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
@@ -1420,7 +1468,27 @@
 
             // Re-init icons for new section
             lucide.createIcons();
+
+            // Auto close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                document.querySelector('.sidebar').classList.remove('active');
+                document.querySelector('.sidebar-overlay').classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            }
         }
+
+        // Sidebar Swipe Gesture
+        let touchStart = 0;
+        document.addEventListener('touchstart', e => { touchStart = e.touches[0].clientX; });
+        document.addEventListener('touchend', e => {
+            const touchEnd = e.changedTouches[0].clientX;
+            const diff = touchEnd - touchStart;
+            const sidebar = document.querySelector('.sidebar');
+            if (window.innerWidth <= 768) {
+                if (diff > 100 && touchStart < 50 && !sidebar.classList.contains('active')) toggleSidebar();
+                else if (diff < -100 && sidebar.classList.contains('active')) toggleSidebar();
+            }
+        });
 
         // ===================== JOBS =====================
         async function loadJobs(section) {
@@ -1545,7 +1613,7 @@
         }
 
         function getNotifIcon(type) {
-            switch(type) {
+            switch (type) {
                 case 'success': return 'check-circle';
                 case 'info': return 'info';
                 case 'warn': return 'alert-triangle';
@@ -1595,8 +1663,8 @@
         function formatTime(ms) {
             const diff = new Date().getTime() - ms;
             if (diff < 60000) return 'Just now';
-            if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
-            if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
             return new Date(ms).toLocaleDateString();
         }
 
@@ -1683,21 +1751,21 @@
                                         <div>
                                             <p style="font-size:10px; font-weight:700; color:var(--success); margin-bottom:8px">CANDIDATE SKILLS</p>
                                             <div style="display:flex; gap:6px; flex-wrap:wrap">
-                                                ${a.candidateSkills && a.candidateSkills.length ? 
-                                                    a.candidateSkills.map(s => `<span class="badge bc" style="font-size:10px">${s}</span>`).join('') :
-                                                    '<span style="font-size:10px; color:var(--muted)">No skills listed</span>'
-                                                }
+                                                ${a.candidateSkills && a.candidateSkills.length ?
+                        a.candidateSkills.map(s => `<span class="badge bc" style="font-size:10px">${s}</span>`).join('') :
+                        '<span style="font-size:10px; color:var(--muted)">No skills listed</span>'
+                    }
                                             </div>
                                         </div>
                                         <div>
                                             <p style="font-size:10px; font-weight:700; color:var(--danger); margin-bottom:8px">SKILLS GAP (AI ANALYSIS)</p>
                                             <div style="display:flex; gap:6px; flex-wrap:wrap">
                                                 ${a.skillsGap && a.skillsGap.length ?
-                                                    a.skillsGap.map(s => `<span class="badge bd" style="font-size:10px">${s}</span>`).join('') :
-                                                    (a.matchScore > 0 ? 
-                                                        '<span style="font-size:10px; color:var(--success); font-weight:700">Perfect Match / No Gap</span>' :
-                                                        '<span style="font-size:10px; color:var(--muted); font-style:italic">Awaiting AI Analysis...</span>')
-                                                }
+                        a.skillsGap.map(s => `<span class="badge bd" style="font-size:10px">${s}</span>`).join('') :
+                        (a.matchScore > 0 ?
+                            '<span style="font-size:10px; color:var(--success); font-weight:700">Perfect Match / No Gap</span>' :
+                            '<span style="font-size:10px; color:var(--muted); font-style:italic">Awaiting AI Analysis...</span>')
+                    }
                                             </div>
                                         </div>
                                     </div>
@@ -1796,7 +1864,7 @@
         // Pipeline Buttons
         function getPipelineButtons(appId, status, pipeline) {
             let btns = '';
-            
+
             // 1. Move Forward (Primary action)
             if (pipeline && pipeline.length) {
                 const keys = pipeline.map(s => s.stageKey);
@@ -1976,9 +2044,9 @@
                     document.getElementById('stages-container').innerHTML = '';
                     showSection('jobs');
                 }
-            } catch (e) { 
+            } catch (e) {
                 addNotif('warn', 'Post Job Failed', 'There was an issue creating the job listing.');
-                alert('Failed to post job'); 
+                alert('Failed to post job');
             }
             btn.innerHTML = orig;
             lucide.createIcons();
@@ -2107,10 +2175,10 @@
                                 backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ef4444']
                             }]
                         },
-                        options: { 
+                        options: {
                             responsive: true,
-                            maintainAspectRatio: false, 
-                            plugins: { legend: { position: 'bottom' } } 
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom' } }
                         }
                     });
                 });
@@ -2119,8 +2187,17 @@
 
         // Toggle Sidebar
         function toggleSidebar() {
-            document.querySelector('.sidebar').classList.toggle('active');
-            document.querySelector('.sidebar-overlay').classList.toggle('active');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            const isOpen = sidebar.classList.toggle('active');
+            overlay.classList.toggle('active', isOpen);
+
+            if (isOpen) {
+                document.body.classList.add('sidebar-open');
+            } else {
+                document.body.classList.remove('sidebar-open');
+            }
         }
 
         // Initialize UI
@@ -2136,14 +2213,9 @@
         lucide.createIcons();
         loadJobs('overview');
     </script>
-    </div>
-    </div>
     <!-- Fail-safe Go Back Button -->
     <button class="floating-back" onclick="closeModal()">
         <i data-lucide="arrow-left"></i> <span>Back to Dashboard</span>
     </button>
 </body>
-
-</html>
-
 </html>
