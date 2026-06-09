@@ -49,7 +49,7 @@ public class Application {
     private List<Education> candidateEducation;
     private List<Project> candidateProjects;
     private List<Experience> candidateExperienceList;
-    private List<String> candidateCertifications;
+    private List<Certification> candidateCertifications;
     private List<String> candidateAchievements;
     private List<String> candidatePreferredRoles;
     private List<String> candidatePreferredLocations;

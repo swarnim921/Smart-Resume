@@ -24,6 +24,10 @@ public class ResumeService {
     private final GridFsTemplate gridFsTemplate;
 
     public ResumeMeta store(MultipartFile file, User owner) throws IOException {
+        return store(file, owner, "RESUME");
+    }
+
+    public ResumeMeta store(MultipartFile file, User owner, String fileType) throws IOException {
         ObjectId gridId;
         try {
             gridId = gridFsTemplate.store(file.getInputStream(), file.getOriginalFilename(), file.getContentType());
@@ -37,6 +41,7 @@ public class ResumeService {
         meta.setGridFsId(gridId.toHexString());
         meta.setOwnerId(owner.getId());
         meta.setExtractedText(null); // Text will be extracted by ML service later if needed, saving huge memory
+        meta.setFileType(fileType != null ? fileType : "RESUME");
         return resumeRepository.save(meta);
     }
 

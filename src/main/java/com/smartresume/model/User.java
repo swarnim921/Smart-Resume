@@ -15,6 +15,7 @@ public class User {
     @Id
     private String id;
     private String name;
+    @org.springframework.data.mongodb.core.index.Indexed(unique = true)
     private String email;
     private String password;
     private String role;
@@ -37,8 +38,10 @@ public class User {
     private List<Education> education;
     private List<Project> projects;
     private List<Experience> experienceList;
-    private List<String> certifications;
+    private List<Certification> certifications;
     private List<String> achievements;
+    private Boolean hasCertifications;  // null = not answered, true = yes, false = no
+    private Boolean hasAchievements;    // null = not answered, true = yes, false = no
     private List<String> preferredRoles;
     private List<String> preferredLocations;
     private String availability;

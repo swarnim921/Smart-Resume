@@ -3,6 +3,7 @@ package com.smartresume.controller;
 import com.smartresume.model.ResumeMeta;
 import com.smartresume.model.User;
 import com.smartresume.repository.UserRepository;
+import com.smartresume.service.MLIntegrationService;
 import com.smartresume.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -14,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -23,13 +25,36 @@ import java.util.NoSuchElementException;
 public class ResumeController {
     private final ResumeService resumeService;
     private final UserRepository userRepository;
+    private final MLIntegrationService mlIntegrationService;
 
     @PostMapping("/upload")
-    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file, Authentication auth) throws Exception {
+    public ResponseEntity<?> upload(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "fileType", defaultValue = "RESUME") String fileType,
+            Authentication auth) throws Exception {
         String email = auth.getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        ResumeMeta meta = resumeService.store(file, user);
-        return ResponseEntity.ok(Map.of("resumeId", meta.getId(), "gridFsId", meta.getGridFsId()));
+        ResumeMeta meta = resumeService.store(file, user, fileType);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("resumeId", meta.getId());
+        response.put("gridFsId", meta.getGridFsId());
+        response.put("fileName", meta.getFilename());
+
+        if ("RESUME".equalsIgnoreCase(fileType)) {
+            try {
+                String resumeText = resumeService.extractTextFromResume(meta.getId());
+                Map<String, Object> mlData = mlIntegrationService.extractSkills(resumeText);
+                if (mlData != null) {
+                    response.put("extractedData", mlData);
+                }
+            } catch (Exception e) {
+                // Log and ignore to not fail the upload just because extraction failed
+                e.printStackTrace();
+            }
+        }
+        
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}/download")

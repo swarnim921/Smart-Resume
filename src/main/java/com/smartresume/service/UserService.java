@@ -3,26 +3,27 @@ package com.smartresume.service;
 import com.smartresume.model.User;
 import com.smartresume.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    // Injected Spring bean — shared singleton, BCrypt strength set once in SecurityConfig
+    private final PasswordEncoder passwordEncoder;
 
     public User register(User user) {
-        // Log incoming role
-        System.out.println("UserService.register: Received user with role=" + user.getRole());
+        log.debug("UserService.register: Received user with role={}", user.getRole());
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setAuthProvider("LOCAL");
         if (user.getRole() == null)
             user.setRole("ROLE_USER");
 
-        // Log final role before saving
-        System.out.println("UserService.register: Saving user with role=" + user.getRole());
+        log.debug("UserService.register: Saving user with role={}", user.getRole());
 
         // Generate verification code
         String code = String.valueOf((int) ((Math.random() * 900000) + 100000));
@@ -38,7 +39,7 @@ public class UserService {
      * OAuth users are pre-verified since email ownership is guaranteed by OAuth
      * provider.
      * This method MUST be used for OAuth flows to prevent TTL auto-deletion.
-     * 
+     *
      * @param email    User email from OAuth provider
      * @param name     User name from OAuth provider
      * @param role     User role (ROLE_USER or ROLE_RECRUITER)
@@ -49,32 +50,27 @@ public class UserService {
         User user = findByEmail(email);
         boolean isNewUser = (user == null);
 
-        System.out.println(
-                "🔍 createOrUpdateOAuthUser: email=" + email + ", isNewUser=" + isNewUser + ", requestedRole=" + role);
+        log.debug("createOrUpdateOAuthUser: email={}, isNewUser={}, requestedRole={}", email, isNewUser, role);
 
         if (isNewUser) {
-            // Create new OAuth user
             user = new User();
             user.setEmail(email);
-            user.setPassword(""); // OAuth users don't have passwords
+            user.setPassword("");
             user.setAuthProvider(provider);
-            user.setRole(role); // Set role ONLY for new users
-            System.out.println("✅ Creating NEW OAuth user with role: " + role);
+            user.setRole(role);
+            log.debug("Creating NEW OAuth user with role: {}", role);
         } else {
-            System.out.println("🔍 Existing user found with role: " + user.getRole());
+            log.debug("Existing user found with role: {}", user.getRole());
 
-            // CRITICAL FIX: Allow role updates for OAuth users
-            // Users can change their role selection when signing in with OAuth
-            // This is safe because OAuth sign-in requires explicit role selection each time
+            // Allow role updates for OAuth users
             if (!user.getRole().equals(role)) {
-                System.out.println("⚠️ Role mismatch! Updating from " + user.getRole() + " to " + role);
+                log.debug("Role mismatch — updating from {} to {}", user.getRole(), role);
                 user.setRole(role);
             } else {
-                System.out.println("✅ Role matches, no update needed: " + role);
+                log.debug("Role matches, no update needed: {}", role);
             }
         }
 
-        // Update user details (name can change)
         user.setName(name);
 
         // CRITICAL: OAuth users are pre-verified
@@ -83,7 +79,7 @@ public class UserService {
         user.setVerificationCodeExpiresAt(null); // No TTL - prevents auto-deletion
 
         User savedUser = userRepository.save(user);
-        System.out.println("💾 Saved OAuth user: email=" + savedUser.getEmail() + ", finalRole=" + savedUser.getRole());
+        log.debug("Saved OAuth user: email={}, finalRole={}", savedUser.getEmail(), savedUser.getRole());
 
         return savedUser;
     }

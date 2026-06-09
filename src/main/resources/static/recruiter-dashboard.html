@@ -1794,9 +1794,10 @@
                                         <div>
                                             <p style="font-size:10px; font-weight:700; color:var(--muted); margin-bottom:8px; text-transform:uppercase">Professional History</p>
                                             ${a.candidateExperienceList.map(exp => `
-                                                <div style="font-size:12px; margin-bottom:6px">
+                                                <div style="font-size:12px; margin-bottom:8px; padding:8px 10px; background:rgba(255,255,255,0.5); border-radius:10px; border:1px solid var(--border)">
                                                     <div style="font-weight:600">${exp.role} @ ${exp.company}</div>
-                                                    <div style="color:var(--muted)">${exp.startDate} - ${exp.endDate}</div>
+                                                    <div style="color:var(--muted); font-size:11px; margin-top:2px">${exp.startDate} - ${exp.endDate}</div>
+                                                    ${exp.description ? `<div style="margin-top:5px; font-size:11px; line-height:1.5; color:var(--text)">${exp.description}</div>` : ''}
                                                 </div>
                                             `).join('')}
                                         </div>` : ''}
@@ -1818,11 +1819,14 @@
                                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px">
                                             ${(a.candidateCertifications && a.candidateCertifications.length) || (a.candidateAchievements && a.candidateAchievements.length) ? `
                                             <div>
-                                                <p style="font-size:10px; font-weight:700; color:var(--muted); margin-bottom:8px; text-transform:uppercase">Certs & Achievements</p>
+                                                <p style="font-size:10px; font-weight:700; color:var(--muted); margin-bottom:8px; text-transform:uppercase">Certs &amp; Achievements</p>
                                                 <div style="display:flex; gap:6px; flex-wrap:wrap">
-                                                    ${[...(a.candidateCertifications || []), ...(a.candidateAchievements || [])].map(c => `
-                                                        <span class="badge bw" style="font-size:10px">${c}</span>
-                                                    `).join('')}
+                                                    ${(a.candidateCertifications || []).map(c => {
+                                                        const name = typeof c === 'string' ? c : c.name;
+                                                        const fileId = typeof c === 'object' ? c.fileId : null;
+                                                        return `<span class="badge bw" style="font-size:10px; display:inline-flex; align-items:center; gap:4px">${name}${fileId ? ` <a href="${API}/api/resumes/${fileId}/download" target="_blank" style="color:var(--accent);font-size:10px;" title="View Certificate">📎</a>` : ''}</span>`;
+                                                    }).join('')}
+                                                    ${(a.candidateAchievements || []).map(ach => `<span class="badge bw" style="font-size:10px">${ach}</span>`).join('')}
                                                 </div>
                                             </div>` : ''}
 

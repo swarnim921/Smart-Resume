@@ -4,6 +4,7 @@ import com.smartresume.model.User;
 import com.smartresume.security.JwtUtil;
 import com.smartresume.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
@@ -50,25 +52,14 @@ public class AuthController {
             user.setRole("ROLE_USER");
         }
 
-        // Log role for debugging
-        System.out.println("Signup: Creating user with email=" + user.getEmail() + " role=" + user.getRole());
+        log.debug("Signup: Creating user with email={} role={}", user.getEmail(), user.getRole());
 
         User saved = userService.register(user);
 
-        // Verify role was preserved
-        System.out.println("Signup: User saved with role=" + saved.getRole());
+        log.debug("Signup: User saved with role={}", saved.getRole());
 
-        // Send Verification Email - CRITICAL: Rollback if this fails
-        try {
-            emailService.sendVerificationEmail(saved.getEmail(), saved.getVerificationCode());
-        } catch (Exception e) {
-            // ROLLBACK: Delete the user we just created
-            userService.deleteUser(saved);
-            System.err.println("Failed to send verification email: " + e.getMessage());
-            return ResponseEntity.status(500).body(Map.of(
-                    "error", "Failed to send verification email. Please try again.",
-                    "details", e.getMessage()));
-        }
+        // Dispatch verification email asynchronously — does not block the HTTP response
+        emailService.sendVerificationEmail(saved.getEmail(), saved.getVerificationCode());
 
         return ResponseEntity.ok(Map.of(
                 "message", "Signup successful. Please verify your email.",

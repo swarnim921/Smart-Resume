@@ -602,6 +602,87 @@
             gap: 10px;
             margin-top: 8px;
         }
+
+        /* Yes/No toggle pills */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .toggle-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .toggle-pills {
+            display: flex;
+            gap: 8px;
+        }
+        .toggle-pill {
+            padding: 7px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 2px solid var(--border);
+            background: var(--white);
+            color: var(--muted);
+            transition: all 0.2s ease;
+        }
+        .toggle-pill.active-yes {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+        }
+        .toggle-pill.active-no {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border-color: #ef4444;
+            box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+        }
+        .toggle-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .toggle-content.visible {
+            display: block;
+        }
+
+        /* Certificate file upload area */
+        .cert-upload-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .cert-upload-btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px dashed var(--accent);
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .cert-upload-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+        .cert-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .cert-link:hover { text-decoration: underline; }
     </style>
 </head>
 
@@ -681,6 +762,23 @@
             </div>
             <p style="font-size: 13px; color: var(--muted);" id="compHint">Tell us more about yourself to get
                 prioritized matches.</p>
+        </div>
+
+        <!-- Auto-fill Banner -->
+        <div class="card" style="background: linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(16,185,129,0.05) 100%); border: 1px dashed var(--accent); display: flex; align-items: center; justify-content: space-between; padding: 20px;">
+            <div>
+                <h3 style="font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="sparkles" style="color: var(--accent); width: 18px; height: 18px;"></i>
+                    Save time! Auto-fill with your Resume
+                </h3>
+                <p style="font-size: 13px; color: var(--muted); margin-top: 4px;">We'll use AI to extract your skills and experience instantly.</p>
+            </div>
+            <div>
+                <input type="file" id="autofillUpload" accept=".pdf" style="display: none;" onchange="handleResumeSelect(event, true)">
+                <button type="button" class="btn" style="background: var(--white); color: var(--accent); border: 1px solid var(--accent); display: flex; align-items: center; gap: 8px; font-weight: 600;" onclick="document.getElementById('autofillUpload').click()">
+                    <i data-lucide="upload" style="width: 16px; height: 16px;"></i> Upload Resume
+                </button>
+            </div>
         </div>
 
         <form onsubmit="saveProfile(event)">
@@ -780,26 +878,57 @@
                 </div>
             </div>
 
-            <!-- Multi-chips -->
+            <!-- Certifications & Achievements -->
             <div class="card">
                 <div class="section-header">
                     <div class="section-icon"><i data-lucide="shield-check"></i></div>
-                    <div class="section-title">Certifications & Achievements</div>
-                </div>
-                <label class="form-label">Certifications (e.g. AWS, Meta Front-End)</label>
-                <div class="skills-area" id="certsArea"></div>
-                <div class="skill-row" style="margin-bottom: 24px;">
-                    <input type="text" id="certInput" class="form-input" placeholder="Add certification..."
-                        onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('certs')}">
-                    <button type="button" class="btn-add-skill" onclick="addItem('certs')">Add</button>
+                    <div class="section-title">Certifications &amp; Achievements</div>
                 </div>
 
-                <label class="form-label">Key Achievements (e.g. NCC, Hackathon Winner)</label>
-                <div class="skills-area" id="achsArea"></div>
-                <div class="skill-row">
-                    <input type="text" id="achInput" class="form-input" placeholder="Add achievement..."
-                        onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('achs')}">
-                    <button type="button" class="btn-add-skill" onclick="addItem('achs')">Add</button>
+                <!-- Certifications Toggle -->
+                <div class="toggle-group">
+                    <span class="toggle-label">Do you have any professional certifications?</span>
+                    <div class="toggle-pills">
+                        <button type="button" class="toggle-pill" id="certYesBtn" onclick="setCertToggle(true)">✓ Yes</button>
+                        <button type="button" class="toggle-pill" id="certNoBtn" onclick="setCertToggle(false)">✗ No</button>
+                    </div>
+                </div>
+
+                <div class="toggle-content" id="certContent">
+                    <label class="form-label">Certifications (e.g. AWS, Meta Front-End)</label>
+                    <div class="skills-area" id="certsArea"></div>
+                    <!-- hidden file input for cert upload -->
+                    <input type="file" id="certFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleCertFileSelected(event)">
+                    <div class="cert-upload-row" style="margin-bottom: 20px;">
+                        <input type="text" id="certInput" class="form-input" style="flex:1" placeholder="Certification name (e.g. AWS Cloud Practitioner)"
+                            onkeydown="if(event.key==='Enter'){event.preventDefault();}">
+                        <button type="button" class="cert-upload-btn" onclick="document.getElementById('certFileInput').click()">
+                            <i data-lucide="paperclip" style="width:12px;vertical-align:middle;margin-right:4px;"></i>Attach File (optional)
+                        </button>
+                        <button type="button" class="btn-add-skill" onclick="addCertification()">Add</button>
+                    </div>
+                    <div id="certUploadStatus" style="font-size:12px;color:var(--muted);margin-bottom:12px;display:none;"></div>
+                </div>
+
+                <div style="height:1px; background:var(--border); margin: 8px 0 20px;"></div>
+
+                <!-- Achievements Toggle -->
+                <div class="toggle-group">
+                    <span class="toggle-label">Do you have any key achievements?</span>
+                    <div class="toggle-pills">
+                        <button type="button" class="toggle-pill" id="achYesBtn" onclick="setAchToggle(true)">✓ Yes</button>
+                        <button type="button" class="toggle-pill" id="achNoBtn" onclick="setAchToggle(false)">✗ No</button>
+                    </div>
+                </div>
+
+                <div class="toggle-content" id="achContent">
+                    <label class="form-label">Key Achievements (e.g. NCC Cadet, Hackathon Winner)</label>
+                    <div class="skills-area" id="achsArea"></div>
+                    <div class="skill-row">
+                        <input type="text" id="achInput" class="form-input" placeholder="Add achievement..."
+                            onkeydown="if(event.key==='Enter'){event.preventDefault();addItem('achs')}">
+                        <button type="button" class="btn-add-skill" onclick="addItem('achs')">Add</button>
+                    </div>
                 </div>
             </div>
 
@@ -951,6 +1080,10 @@
                 <div class="form-group"><label class="form-label">End Date</label><input type="text" id="expEnd"
                         class="form-input" placeholder="Present"></div>
             </div>
+            <div class="form-group">
+                <label class="form-label">Role Description <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+                <textarea id="expDesc" class="form-input" placeholder="Briefly describe your key responsibilities, tools used, and impact..."></textarea>
+            </div>
             <button onclick="saveItem('exp')" class="btn-save">Add Experience</button>
         </div>
     </div>
@@ -969,11 +1102,14 @@
         let education = [];
         let projectsList = [];
         let experienceList = [];
-        let certifications = [];
+        let certifications = []; // Array of {name, fileId, fileName}
         let achievements = [];
         let preferredRoles = [];
         let preferredLocations = [];
         let languages = [];
+        let hasCertifications = null; // null=not answered, true=yes, false=no
+        let hasAchievements = null;
+        let pendingCertFile = null; // file selected but not yet uploaded
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
@@ -1020,7 +1156,6 @@
 
         function addItem(type) {
             const map = {
-                certs: { id: 'certInput', list: certifications, area: 'certsArea' },
                 achs: { id: 'achInput', list: achievements, area: 'achsArea' },
                 roles: { id: 'roleInput', list: preferredRoles, area: 'rolesArea' },
                 locs: { id: 'locInput', list: preferredLocations, area: 'locsArea' },
@@ -1038,9 +1173,14 @@
         }
 
         function removeItem(type, val) {
+            if (type === 'certs') {
+                certifications = certifications.filter(c => c.name !== val);
+                renderCertChips();
+                updateCompleteness();
+                return;
+            }
             const listMap = {
                 skills: skills,
-                certs: certifications,
                 achs: achievements,
                 roles: preferredRoles,
                 locs: preferredLocations,
@@ -1058,19 +1198,105 @@
 
         function renderChips(type) {
             const map = {
-                certs: { list: certifications, area: 'certsArea' },
                 achs: { list: achievements, area: 'achsArea' },
                 roles: { list: preferredRoles, area: 'rolesArea' },
                 locs: { list: preferredLocations, area: 'locsArea' },
                 langs: { list: languages, area: 'langsArea' }
             };
             const cfg = map[type];
+            if (!cfg) return;
             const area = document.getElementById(cfg.area);
             area.innerHTML = cfg.list.map(s => `
                 <div class="skill-chip" style="border-color: var(--accent2);">
                     ${s} <span onclick="removeItem('${type}', '${s}')">✕</span>
                 </div>
             `).join('');
+        }
+
+        function renderCertChips() {
+            const area = document.getElementById('certsArea');
+            if (!area) return;
+            area.innerHTML = certifications.map(c => `
+                <div class="skill-chip" style="background: linear-gradient(135deg,#6366f1,#8b5cf6); position:relative;">
+                    <span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.name}">${c.name}</span>
+                    ${c.fileId ? `<a class="cert-link" href="${API}/api/resumes/${c.fileId}/download" target="_blank" title="View Certificate">📎</a>` : ''}
+                    <span onclick="removeItem('certs','${c.name.replace(/'/g,"\\'")}')">✕</span>
+                </div>
+            `).join('');
+        }
+
+        // === Toggle Functions ===
+        function setCertToggle(val) {
+            hasCertifications = val;
+            document.getElementById('certYesBtn').className = 'toggle-pill' + (val === true ? ' active-yes' : '');
+            document.getElementById('certNoBtn').className = 'toggle-pill' + (val === false ? ' active-no' : '');
+            const content = document.getElementById('certContent');
+            if (val === true) content.classList.add('visible');
+            else content.classList.remove('visible');
+            updateCompleteness();
+        }
+
+        function setAchToggle(val) {
+            hasAchievements = val;
+            document.getElementById('achYesBtn').className = 'toggle-pill' + (val === true ? ' active-yes' : '');
+            document.getElementById('achNoBtn').className = 'toggle-pill' + (val === false ? ' active-no' : '');
+            const content = document.getElementById('achContent');
+            if (val === true) content.classList.add('visible');
+            else content.classList.remove('visible');
+            updateCompleteness();
+        }
+
+        // Cert file selected (staged, not uploaded yet)
+        function handleCertFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            pendingCertFile = file;
+            const statusEl = document.getElementById('certUploadStatus');
+            statusEl.style.display = 'block';
+            statusEl.innerHTML = `📎 <strong>${file.name}</strong> attached — will upload when you click Add.`;
+        }
+
+        // Add certification (with optional file upload)
+        async function addCertification() {
+            const nameInput = document.getElementById('certInput');
+            const name = nameInput.value.trim();
+            if (!name) { showToast('Please enter a certification name', true); return; }
+            if (certifications.find(c => c.name === name)) { showToast('Already added', true); return; }
+
+            const statusEl = document.getElementById('certUploadStatus');
+
+            if (pendingCertFile) {
+                // Upload file first
+                statusEl.style.display = 'block';
+                statusEl.innerHTML = `⏳ Uploading <strong>${pendingCertFile.name}</strong>...`;
+                try {
+                    const fd = new FormData();
+                    fd.append('file', pendingCertFile);
+                    fd.append('fileType', 'CERTIFICATE');
+                    const resp = await fetch(`${API}/api/resumes/upload`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        body: fd
+                    });
+                    if (!resp.ok) throw new Error('Upload failed');
+                    const data = await resp.json();
+                    certifications.push({ name, fileId: data.resumeId, fileName: data.fileName });
+                    statusEl.innerHTML = `✅ Certificate uploaded successfully.`;
+                    setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+                } catch (err) {
+                    statusEl.innerHTML = `❌ Upload failed. Adding without file.`;
+                    certifications.push({ name, fileId: null, fileName: null });
+                }
+                pendingCertFile = null;
+                document.getElementById('certFileInput').value = '';
+            } else {
+                certifications.push({ name, fileId: null, fileName: null });
+                statusEl.style.display = 'none';
+            }
+
+            nameInput.value = '';
+            renderCertChips();
+            updateCompleteness();
         }
 
         function updateCompleteness() {
@@ -1098,8 +1324,13 @@
             // Links (5%)
             if (document.getElementById('pLinkedin').value || document.getElementById('pGithub').value) score += 5;
 
-            // Certs/Achievements (5%)
-            if (certifications.length > 0 || achievements.length > 0) score += 5;
+            // Certs/Achievements (5%) — credited if answered Yes+items OR answered No
+            const certsAnswered = hasCertifications !== null;
+            const achsAnswered = hasAchievements !== null;
+            const certsDone = hasCertifications === false || (hasCertifications === true && certifications.length > 0);
+            const achsDone = hasAchievements === false || (hasAchievements === true && achievements.length > 0);
+            if (certsDone && achsDone) score += 5;
+            else if (certsAnswered || achsAnswered) score += 2; // partial credit for answering one
 
             const subtotal = score; // Cap at 90
 
@@ -1200,15 +1431,19 @@
                 projectsList.push(item);
                 renderList('proj');
             } else if (type === 'exp') {
+                const desc = document.getElementById('expDesc').value.trim();
                 const item = {
                     role: document.getElementById('expRole').value,
                     company: document.getElementById('expComp').value,
                     startDate: document.getElementById('expStart').value,
-                    endDate: document.getElementById('expEnd').value
+                    endDate: document.getElementById('expEnd').value,
+                    description: desc || null
                 };
                 experienceList.push(item);
                 renderList('exp');
             }
+            // Clear modal inputs
+            if (type === 'exp') document.getElementById('expDesc').value = '';
             closeModal(type);
             updateCompleteness();
         }
@@ -1244,6 +1479,7 @@
                         <div class="item-info">
                             <h4>${e.role} @ ${e.company}</h4>
                             <p>${e.startDate} - ${e.endDate}</p>
+                            ${e.description ? `<p style="margin-top:6px;font-size:12px;color:var(--text);line-height:1.5;">${e.description}</p>` : ''}
                         </div>
                         <button class="btn-action-sm" onclick="experienceList.splice(${i},1);renderList('exp');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
                     </div>
@@ -1270,17 +1506,31 @@
                 education = d.education || [];
                 projectsList = d.projects || [];
                 experienceList = d.experienceList || [];
-                certifications = d.certifications || [];
+                // certifications are now objects {name, fileId, fileName}
+                certifications = (d.certifications || []).map(c => typeof c === 'string' ? { name: c, fileId: null, fileName: null } : c);
                 achievements = d.achievements || [];
                 preferredRoles = d.preferredRoles || [];
                 preferredLocations = d.preferredLocations || [];
                 languages = d.languages || [];
 
+                // Restore toggle states
+                if (d.hasCertifications !== null && d.hasCertifications !== undefined) {
+                    setCertToggle(d.hasCertifications);
+                } else if (certifications.length > 0) {
+                    setCertToggle(true);
+                }
+                if (d.hasAchievements !== null && d.hasAchievements !== undefined) {
+                    setAchToggle(d.hasAchievements);
+                } else if (achievements.length > 0) {
+                    setAchToggle(true);
+                }
+
                 renderSkills();
                 renderList('edu');
                 renderList('proj');
                 renderList('exp');
-                ['certs', 'achs', 'roles', 'locs', 'langs'].forEach(renderChips);
+                renderCertChips();
+                ['achs', 'roles', 'locs', 'langs'].forEach(renderChips);
                 sessionStorage.setItem('profileData', JSON.stringify(d));
                 updateCompleteness();
             } catch (e) {
@@ -1313,7 +1563,9 @@
                         projects: projectsList,
                         experienceList,
                         certifications,
+                        hasCertifications,
                         achievements,
+                        hasAchievements,
                         preferredRoles,
                         preferredLocations,
                         languages
@@ -1335,7 +1587,9 @@
                     projects: projectsList,
                     experienceList: experienceList,
                     certifications: certifications,
+                    hasCertifications: hasCertifications,
                     achievements: achievements,
+                    hasAchievements: hasAchievements,
                     preferredRoles: preferredRoles,
                     preferredLocations: preferredLocations,
                     languages: languages,
@@ -1353,17 +1607,22 @@
             }
         }
 
-        async function handleResumeSelect(event) {
+        async function handleResumeSelect(event, isAutofill = false) {
             const file = event.target.files[0];
             if (!file) return;
 
             const statusEl = document.getElementById('resumeStatus');
             const dropZone = document.getElementById('dropZone');
 
-            statusEl.style.display = 'block';
-            statusEl.style.background = 'var(--accent-light)';
-            statusEl.style.color = 'var(--accent)';
-            statusEl.innerHTML = `Uploading ${file.name}... Our AI is processing the text.`;
+            // If triggered from bottom dropzone, update that UI. If from top button, show a toast.
+            if (!isAutofill) {
+                statusEl.style.display = 'block';
+                statusEl.style.background = 'var(--accent-light)';
+                statusEl.style.color = 'var(--accent)';
+                statusEl.innerHTML = `Uploading ${file.name}... Our AI is processing the text.`;
+            } else {
+                showToast(`Analyzing ${file.name} for auto-fill...`);
+            }
 
             const formData = new FormData();
             formData.append('file', file);
@@ -1376,15 +1635,56 @@
                 });
                 if (!response.ok) throw new Error('Upload failed');
 
+                const data = await response.json();
+
+                // If bottom zone, update its success state
+                statusEl.style.display = 'block';
                 statusEl.style.background = '#f0fdf4';
                 statusEl.style.color = '#166534';
                 statusEl.innerHTML = `✓ Successfully analyzed: ${file.name}`;
-                showToast('Resume analyzed successfully!');
+                dropZone.classList.remove('disabled'); // Ensure unlocked visually
+                document.getElementById('resumeLockBadge').innerHTML = '<span style="color:#10b981;font-size:12px;font-weight:700;">Uploaded</span>';
+
+                // AUTO-FILL Logic
+                if (data.extractedData) {
+                    let fieldsUpdated = [];
+                    
+                    // Populate Skills
+                    if (data.extractedData.skills && data.extractedData.skills.length > 0) {
+                        data.extractedData.skills.forEach(skill => {
+                            if (!skills.includes(skill)) {
+                                skills.push(skill);
+                            }
+                        });
+                        renderSkills();
+                        fieldsUpdated.push("Skills");
+                    }
+                    
+                    // Populate Experience
+                    if (data.extractedData.years_of_experience > 0) {
+                        document.getElementById('pExp').value = data.extractedData.years_of_experience;
+                        fieldsUpdated.push("Experience");
+                    }
+
+                    if (fieldsUpdated.length > 0) {
+                        showToast(`Auto-filled ${fieldsUpdated.join(" and ")} from resume!`);
+                    } else {
+                        showToast('Resume uploaded, but no auto-fill data found.');
+                    }
+                } else {
+                    showToast('Resume uploaded successfully!');
+                }
+                
+                // Automatically re-initialize lucide icons for the new badge
+                lucide.createIcons();
                 updateCompleteness();
             } catch (error) {
-                statusEl.style.background = '#fef2f2';
-                statusEl.style.color = '#991b1b';
-                statusEl.innerHTML = `✕ Upload failed. Please try again.`;
+                if (!isAutofill) {
+                    statusEl.style.display = 'block';
+                    statusEl.style.background = '#fef2f2';
+                    statusEl.style.color = '#991b1b';
+                    statusEl.innerHTML = `✕ Upload failed. Please try again.`;
+                }
                 showToast('Resume upload failed.', true);
             }
         }

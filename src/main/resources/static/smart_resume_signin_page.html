@@ -947,12 +947,12 @@
         window.addEventListener('load', () => {
             if (sessionStorage.getItem('token')) {
                 const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-                // Auto-redirect after a short delay for smooth UX
+                // Redirect immediately — no artificial delay needed
                 setTimeout(() => {
-                    if (sessionStorage.getItem('token')) { // Check again in case they clicked logout
+                    if (sessionStorage.getItem('token')) {
                         window.location.href = user.role === 'recruiter' ? '/recruiter-dashboard.html' : '/candidate-dashboard.html';
                     }
-                }, 1500);
+                }, 100);
 
                 // Show a non-intrusive banner instead of alert
                 const banner = document.createElement('div');

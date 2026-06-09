@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -100,14 +101,18 @@ public class EmailService {
                 sendViaResend(toEmail, subject, htmlBody, null);
         }
 
+        @Async
         public void sendVerificationEmail(String toEmail, String code) {
                 String subject = "Your TalentSync Verification Code";
                 String body = "Welcome to TalentSync!\n\n" +
                                 "Your verification code is: " + code + "\n\n" +
                                 "This code will expire in 15 minutes.\n\n" +
                                 "If you didn't request this code, please ignore this email.";
-
-                sendViaResend(toEmail, subject, body, null);
+                try {
+                        sendViaResend(toEmail, subject, body, null);
+                } catch (Exception e) {
+                        logger.error("Async email delivery failed for {}: {}", toEmail, e.getMessage());
+                }
         }
 
         public void sendStatusUpdateEmail(String toEmail, String candidateName, String jobTitle, String status,

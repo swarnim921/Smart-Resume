@@ -40,6 +40,8 @@ public class UserController {
                     profile.put("experienceList", u.getExperienceList() != null ? u.getExperienceList() : List.of());
                     profile.put("certifications", u.getCertifications() != null ? u.getCertifications() : List.of());
                     profile.put("achievements", u.getAchievements() != null ? u.getAchievements() : List.of());
+                    profile.put("hasCertifications", u.getHasCertifications());
+                    profile.put("hasAchievements", u.getHasAchievements());
                     profile.put("preferredRoles", u.getPreferredRoles() != null ? u.getPreferredRoles() : List.of());
                     profile.put("preferredLocations", u.getPreferredLocations() != null ? u.getPreferredLocations() : List.of());
                     profile.put("languages", u.getLanguages() != null ? u.getLanguages() : List.of());
@@ -66,14 +68,23 @@ public class UserController {
                 user.setYearsOfExperience(((Number) body.get("yearsOfExperience")).intValue());
             }
 
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+
             if (body.containsKey("skills")) user.setSkills(castToStringList(body.get("skills")));
-            if (body.containsKey("certifications")) user.setCertifications(castToStringList(body.get("certifications")));
+            if (body.containsKey("certifications")) {
+                user.setCertifications(mapper.convertValue(body.get("certifications"), new com.fasterxml.jackson.core.type.TypeReference<List<com.smartresume.model.Certification>>() {}));
+            }
             if (body.containsKey("achievements")) user.setAchievements(castToStringList(body.get("achievements")));
+            if (body.containsKey("hasCertifications") && body.get("hasCertifications") != null) {
+                user.setHasCertifications((Boolean) body.get("hasCertifications"));
+            }
+            if (body.containsKey("hasAchievements") && body.get("hasAchievements") != null) {
+                user.setHasAchievements((Boolean) body.get("hasAchievements"));
+            }
             if (body.containsKey("preferredRoles")) user.setPreferredRoles(castToStringList(body.get("preferredRoles")));
             if (body.containsKey("preferredLocations")) user.setPreferredLocations(castToStringList(body.get("preferredLocations")));
             if (body.containsKey("languages")) user.setLanguages(castToStringList(body.get("languages")));
 
-            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             if (body.containsKey("education")) {
                 user.setEducation(mapper.convertValue(body.get("education"), new com.fasterxml.jackson.core.type.TypeReference<List<com.smartresume.model.Education>>() {}));
             }

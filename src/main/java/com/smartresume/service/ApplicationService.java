@@ -57,7 +57,9 @@ public class ApplicationService {
         User user = userRepository.findByEmail(candidateEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<ResumeMeta> resumes = resumeRepository.findByOwnerId(user.getId());
+        List<ResumeMeta> resumes = resumeRepository.findByOwnerId(user.getId()).stream()
+                .filter(r -> r.getFileType() == null || "RESUME".equals(r.getFileType()))
+                .collect(java.util.stream.Collectors.toList());
         if (resumes.isEmpty()) {
             throw new RuntimeException("Please upload your resume before applying");
         }
@@ -238,7 +240,9 @@ public class ApplicationService {
         try {
             User user = userRepository.findByEmail(application.getCandidateEmail())
                     .orElseThrow(() -> new RuntimeException("Candidate not found"));
-            List<ResumeMeta> resumes = resumeRepository.findByOwnerId(user.getId());
+            List<ResumeMeta> resumes = resumeRepository.findByOwnerId(user.getId()).stream()
+                    .filter(r -> r.getFileType() == null || "RESUME".equals(r.getFileType()))
+                    .collect(java.util.stream.Collectors.toList());
             if (resumes.isEmpty())
                 throw new RuntimeException("No resume found");
 

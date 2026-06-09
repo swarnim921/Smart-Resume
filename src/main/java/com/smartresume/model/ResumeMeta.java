@@ -15,4 +15,5 @@ public class ResumeMeta {
     private String gridFsId;
     private String ownerId;
     private String extractedText;
+    private String fileType; // "RESUME" or "CERTIFICATE"
 }
