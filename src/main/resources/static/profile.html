@@ -1551,6 +1551,20 @@
 
         function saveItem(type) {
             if (type === 'edu') {
+                const degreeVal = document.getElementById('eduDegree').value.trim();
+                const instVal = document.getElementById('eduInst').value.trim();
+                
+                if (!degreeVal) {
+                    showToast('Degree is required', true);
+                    document.getElementById('eduDegree').focus();
+                    return;
+                }
+                if (!instVal) {
+                    showToast('Institution is required', true);
+                    document.getElementById('eduInst').focus();
+                    return;
+                }
+
                 const gpaRaw = document.getElementById('eduGpa').value;
                 const parsedGpa = parseFloat(gpaRaw);
                 const item = {
@@ -1564,9 +1578,16 @@
                 else education.push(item);
                 renderList('edu');
             } else if (type === 'proj') {
+                const titleVal = document.getElementById('projTitle').value.trim();
+                if (!titleVal) {
+                    showToast('Project Title is required', true);
+                    document.getElementById('projTitle').focus();
+                    return;
+                }
+                
                 const item = {
-                    title: document.getElementById('projTitle').value,
-                    technologies: document.getElementById('projTech').value.split(',').map(t => t.trim()),
+                    title: titleVal,
+                    technologies: document.getElementById('projTech').value.split(',').map(t => t.trim()).filter(t => t),
                     description: document.getElementById('projDesc').value,
                     githubLink: document.getElementById('projLink').value
                 };
@@ -1574,6 +1595,20 @@
                 else projectsList.push(item);
                 renderList('proj');
             } else if (type === 'exp') {
+                const roleVal = document.getElementById('expRole').value.trim();
+                const compVal = document.getElementById('expComp').value.trim();
+                
+                if (!roleVal) {
+                    showToast('Role is required', true);
+                    document.getElementById('expRole').focus();
+                    return;
+                }
+                if (!compVal) {
+                    showToast('Company is required', true);
+                    document.getElementById('expComp').focus();
+                    return;
+                }
+
                 const desc = document.getElementById('expDesc').value.trim();
                 const startRaw = document.getElementById('expStart').value;
                 const endRaw = document.getElementById('expEnd').value;
@@ -1586,8 +1621,8 @@
                 };
                 
                 const item = {
-                    role: document.getElementById('expRole').value,
-                    company: document.getElementById('expComp').value,
+                    role: roleVal,
+                    company: compVal,
                     startDate: formatMon(startRaw) || startRaw,
                     endDate: isCurrent ? "Present" : (formatMon(endRaw) || endRaw),
                     description: desc || null
@@ -1701,6 +1736,28 @@
 
         async function saveProfile(e) {
             e.preventDefault();
+            
+            // Validation
+            const pName = document.getElementById('pName').value.trim();
+            const pLoc = document.getElementById('pLocation').value.trim();
+            const pBio = document.getElementById('pBio').value.trim();
+            
+            if (!pName) {
+                showToast('Full Name is required', true);
+                document.getElementById('pName').focus();
+                return;
+            }
+            if (!pLoc) {
+                showToast('Location is required', true);
+                document.getElementById('pLocation').focus();
+                return;
+            }
+            if (!pBio || pBio.length < 20) {
+                showToast('Bio is required and must be at least 20 characters', true);
+                document.getElementById('pBio').focus();
+                return;
+            }
+
             const btn = e.target.querySelector('[type=submit]');
             const orig = btn.innerHTML;
             btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="animation: spin 1s linear infinite;"></i> Saving...';
