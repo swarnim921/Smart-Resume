@@ -1551,12 +1551,14 @@
 
         function saveItem(type) {
             if (type === 'edu') {
+                const gpaRaw = document.getElementById('eduGpa').value;
+                const parsedGpa = parseFloat(gpaRaw);
                 const item = {
                     degree: document.getElementById('eduDegree').value,
                     fieldOfStudy: document.getElementById('eduMajor').value,
                     institution: document.getElementById('eduInst').value,
-                    endYear: parseInt(document.getElementById('eduYear').value),
-                    cgpa: parseFloat(document.getElementById('eduGpa').value) || document.getElementById('eduGpa').value
+                    endYear: parseInt(document.getElementById('eduYear').value) || null,
+                    cgpa: isNaN(parsedGpa) ? null : parsedGpa
                 };
                 if (editIndex['edu'] !== -1) education[editIndex['edu']] = item;
                 else education.push(item);
