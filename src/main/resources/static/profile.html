@@ -1645,9 +1645,17 @@
                 if (data.extractedData) {
                     let fieldsUpdated = [];
                     
-                    // Populate Skills
-                    if (data.extractedData.skills && data.extractedData.skills.length > 0) {
-                        data.extractedData.skills.forEach(skill => {
+                    // Populate Skills (combine technical and soft)
+                    let extractedSkills = [];
+                    if (data.extractedData.technicalSkills && Array.isArray(data.extractedData.technicalSkills)) {
+                        extractedSkills = extractedSkills.concat(data.extractedData.technicalSkills);
+                    }
+                    if (data.extractedData.softSkills && Array.isArray(data.extractedData.softSkills)) {
+                        extractedSkills = extractedSkills.concat(data.extractedData.softSkills);
+                    }
+                    
+                    if (extractedSkills.length > 0) {
+                        extractedSkills.forEach(skill => {
                             if (!skills.includes(skill)) {
                                 skills.push(skill);
                             }
@@ -1656,10 +1664,13 @@
                         fieldsUpdated.push("Skills");
                     }
                     
-                    // Populate Experience
-                    if (data.extractedData.years_of_experience > 0) {
-                        document.getElementById('pExp').value = data.extractedData.years_of_experience;
-                        fieldsUpdated.push("Experience");
+                    // Populate Experience ("5 years detected" -> 5)
+                    if (data.extractedData.experience && data.extractedData.experience.toLowerCase().includes("years")) {
+                        const yearsMatch = data.extractedData.experience.match(/\d+/);
+                        if (yearsMatch && yearsMatch.length > 0) {
+                            document.getElementById('pExp').value = yearsMatch[0];
+                            fieldsUpdated.push("Experience");
+                        }
                     }
 
                     if (fieldsUpdated.length > 0) {
