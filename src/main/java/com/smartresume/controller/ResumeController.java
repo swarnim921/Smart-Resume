@@ -42,6 +42,8 @@ public class ResumeController {
         response.put("fileName", meta.getFilename());
 
         if ("RESUME".equalsIgnoreCase(fileType)) {
+            user.setResumeUploaded(true);
+            userRepository.save(user);
             try {
                 String resumeText = resumeService.extractTextFromResume(meta.getId());
                 Map<String, Object> mlData = null;

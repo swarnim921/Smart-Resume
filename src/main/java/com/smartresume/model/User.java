@@ -46,4 +46,5 @@ public class User {
     private List<String> preferredLocations;
     private String availability;
     private List<String> languages;
+    private Boolean resumeUploaded;
 }
