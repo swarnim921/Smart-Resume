@@ -707,10 +707,10 @@
         }
 
         .btn-autofill {
-            background: var(--white);
-            color: var(--accent);
-            border: 2px solid rgba(37,99,235,0.15);
-            padding: 12px 24px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 12px 28px;
             border-radius: 14px;
             font-size: 15px;
             font-weight: 700;
@@ -720,16 +720,14 @@
             justify-content: center;
             gap: 10px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
             white-space: nowrap;
         }
 
         .btn-autofill:hover {
-            background: var(--gradient);
-            color: white;
-            border-color: transparent;
-            box-shadow: 0 8px 24px rgba(37,99,235,0.25);
             transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(37,99,235,0.4);
+            filter: brightness(1.05);
         }
 
         @media (max-width: 768px) {
