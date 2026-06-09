@@ -880,9 +880,9 @@
                     <div class="section-title">Education</div>
                 </div>
                 <div id="educationList"></div>
-                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;"
-                    onclick="openModal('edu')">
-                    <i data-lucide="plus"></i> Add Education History
+                <button type="button" class="btn-dashed" style="margin-top: 12px; width: 100%;"
+                    onclick="openModalNew('edu')">
+                    <i data-lucide="plus"></i> Add Education
                 </button>
             </div>
             <div class="card">
@@ -911,8 +911,8 @@
                     <div class="section-title">Projects</div>
                 </div>
                 <div id="projectsList"></div>
-                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;"
-                    onclick="openModal('proj')">
+                <button type="button" class="btn-dashed" style="margin-top: 12px; width: 100%;"
+                    onclick="openModalNew('proj')">
                     <i data-lucide="plus"></i> Add Major Project
                 </button>
             </div>
@@ -924,9 +924,9 @@
                     <div class="section-title">Professional Experience</div>
                 </div>
                 <div id="expList"></div>
-                <button type="button" class="btn-nav btn-back" style="width: 100%; border-style: dashed;"
-                    onclick="openModal('exp')">
-                    <i data-lucide="plus"></i> Add Experience/Internship
+                <button type="button" class="btn-dashed" style="margin-top: 12px; width: 100%;"
+                    onclick="openModalNew('exp')">
+                    <i data-lucide="plus"></i> Add Experience
                 </button>
             </div>
             <div class="card">
@@ -1482,7 +1482,35 @@
             document.getElementById(type + 'Modal').style.display = 'none';
         }
 
+        let editIndex = { edu: -1, proj: -1, exp: -1 };
+
+        function openModalNew(type) {
+            editIndex[type] = -1;
+            if (type === 'edu') {
+                document.getElementById('eduDegree').value = '';
+                document.getElementById('eduMajor').value = '';
+                document.getElementById('eduInst').value = '';
+                document.getElementById('eduYear').value = '';
+                document.getElementById('eduGpa').value = '';
+            } else if (type === 'proj') {
+                document.getElementById('projTitle').value = '';
+                document.getElementById('projTech').value = '';
+                document.getElementById('projDesc').value = '';
+                document.getElementById('projLink').value = '';
+            } else if (type === 'exp') {
+                document.getElementById('expRole').value = '';
+                document.getElementById('expComp').value = '';
+                document.getElementById('expStart').value = '';
+                document.getElementById('expEnd').value = '';
+                document.getElementById('expEnd').disabled = false;
+                document.getElementById('expCurrent').checked = false;
+                document.getElementById('expDesc').value = '';
+            }
+            openModal(type);
+        }
+
         function editItem(type, index) {
+            editIndex[type] = index;
             let item;
             if (type === 'edu') {
                 item = education[index];
@@ -1491,14 +1519,12 @@
                 document.getElementById('eduInst').value = item.institution || '';
                 document.getElementById('eduYear').value = item.endYear || item.gradYear || '';
                 document.getElementById('eduGpa').value = item.cgpa || '';
-                education.splice(index, 1);
             } else if (type === 'proj') {
                 item = projectsList[index];
                 document.getElementById('projTitle').value = item.title || '';
                 document.getElementById('projTech').value = (item.technologies || []).join(', ');
                 document.getElementById('projDesc').value = item.description || '';
                 document.getElementById('projLink').value = item.githubLink || item.link || '';
-                projectsList.splice(index, 1);
             } else if (type === 'exp') {
                 item = experienceList[index];
                 document.getElementById('expRole').value = item.role || '';
@@ -1519,7 +1545,6 @@
                 document.getElementById('expEnd').value = isPresent ? "" : parseMon(item.endDate);
                 
                 document.getElementById('expDesc').value = item.description || '';
-                experienceList.splice(index, 1);
             }
             openModal(type);
         }
@@ -1533,7 +1558,8 @@
                     endYear: parseInt(document.getElementById('eduYear').value),
                     cgpa: parseFloat(document.getElementById('eduGpa').value) || document.getElementById('eduGpa').value
                 };
-                education.push(item);
+                if (editIndex['edu'] !== -1) education[editIndex['edu']] = item;
+                else education.push(item);
                 renderList('edu');
             } else if (type === 'proj') {
                 const item = {
@@ -1542,7 +1568,8 @@
                     description: document.getElementById('projDesc').value,
                     githubLink: document.getElementById('projLink').value
                 };
-                projectsList.push(item);
+                if (editIndex['proj'] !== -1) projectsList[editIndex['proj']] = item;
+                else projectsList.push(item);
                 renderList('proj');
             } else if (type === 'exp') {
                 const desc = document.getElementById('expDesc').value.trim();
@@ -1563,11 +1590,10 @@
                     endDate: isCurrent ? "Present" : (formatMon(endRaw) || endRaw),
                     description: desc || null
                 };
-                experienceList.push(item);
+                if (editIndex['exp'] !== -1) experienceList[editIndex['exp']] = item;
+                else experienceList.push(item);
                 renderList('exp');
             }
-            // Clear modal inputs
-            if (type === 'exp') document.getElementById('expDesc').value = '';
             closeModal(type);
             updateCompleteness();
         }
