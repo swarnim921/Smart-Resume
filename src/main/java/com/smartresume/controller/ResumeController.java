@@ -95,25 +95,28 @@ public class ResumeController {
                 
                 // 4. Education Extraction
                 java.util.List<String> foundEd = new java.util.ArrayList<>();
-                if (lower.contains("b.tech") || lower.contains("bachelor of technology")) foundEd.add("B.Tech");
+                if (lower.contains("b.tech") || lower.contains("bachelor of technology") || lower.contains("b.e.")) foundEd.add("B.Tech / B.E.");
                 else if (lower.contains("b.s.") || lower.contains("bachelor of science")) foundEd.add("B.S.");
                 else if (lower.contains("b.a.") || lower.contains("bachelor of arts")) foundEd.add("B.A.");
-                else if (lower.contains("bachelor")) foundEd.add("Bachelor's Degree");
+                else if (lower.contains("bachelor") || lower.contains("degree")) foundEd.add("Bachelor's Degree");
                 
                 if (lower.contains("m.tech") || lower.contains("master of technology")) foundEd.add("M.Tech");
                 else if (lower.contains("m.s.") || lower.contains("master of science")) foundEd.add("M.S.");
                 else if (lower.contains("master")) foundEd.add("Master's Degree");
                 
-                java.util.regex.Matcher mUni = java.util.regex.Pattern.compile("([a-zA-Z\\s]+(?:university|college|institute))", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(resumeText);
-                String institution = "University";
+                java.util.regex.Matcher mUni = java.util.regex.Pattern.compile("([a-zA-Z\\s]+(?:university|college|institute|academy))", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(resumeText);
+                String institution = "University / College";
                 if (mUni.find()) {
                     String uni = mUni.group(1).trim();
                     if (uni.length() < 60) {
                         institution = uni.replaceAll("\\n", " ").trim();
                     }
                 }
-                if (!foundEd.isEmpty()) {
-                    extracted.put("educationDegree", foundEd.get(0));
+                if (foundEd.isEmpty() && !institution.equals("University / College")) {
+                    foundEd.add("Degree"); // If we found a university but no degree name
+                }
+                if (!foundEd.isEmpty() || !institution.equals("University / College")) {
+                    extracted.put("educationDegree", foundEd.isEmpty() ? "Degree" : foundEd.get(0));
                     extracted.put("educationInstitution", institution);
                 }
                 
@@ -125,12 +128,38 @@ public class ResumeController {
                     String[] pLines = pText.split("\\n");
                     for (String pl : pLines) {
                         String clean = pl.replaceAll("^[-*•]\\s*", "").trim();
-                        if (clean.length() > 10 && clean.length() < 100) {
+                        if (clean.length() > 15 && clean.length() < 120) {
                             foundProj.add(clean);
                         }
                     }
                 }
+                if (foundProj.isEmpty()) {
+                    // Aggressive fallback for projects
+                    java.util.regex.Matcher mProj2 = java.util.regex.Pattern.compile("(?i)(?:built|developed|created|designed|implemented).*?([a-zA-Z0-9 ]{15,100})").matcher(resumeText.replaceAll("\\n", " "));
+                    if (mProj2.find()) {
+                        foundProj.add(mProj2.group().trim());
+                    } else if (mGit.find(0)) {
+                        foundProj.add("Personal Project (See GitHub: " + mGit.group(1) + ")");
+                    }
+                }
                 extracted.put("projects", foundProj);
+                
+                // 6. Professional Experience Blocks
+                java.util.List<Map<String, String>> expBlocks = new java.util.ArrayList<>();
+                String[] commonRoles = {"Software Engineer", "Developer", "Intern", "Manager", "Analyst", "Data Scientist", "Consultant", "Engineer", "Designer", "Lead"};
+                for (String r : commonRoles) {
+                    if (lower.contains(r.toLowerCase())) {
+                        Map<String, String> eb = new HashMap<>();
+                        eb.put("role", r);
+                        eb.put("comp", "Company / Organization");
+                        eb.put("start", "2020");
+                        eb.put("end", "Present");
+                        eb.put("desc", "Worked in a professional capacity as a " + r + ".");
+                        expBlocks.add(eb);
+                        break; // Just extract one block for auto-fill demonstration
+                    }
+                }
+                extracted.put("experienceBlocks", expBlocks);
 
                 response.put("extractedData", extracted);
             } catch (Exception e) {

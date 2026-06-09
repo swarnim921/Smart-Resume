@@ -1705,6 +1705,21 @@
                         renderList('proj');
                         fieldsUpdated.push("Projects");
                     }
+                    
+                    // Professional Experience Blocks
+                    if (data.extractedData.experienceBlocks && Array.isArray(data.extractedData.experienceBlocks) && data.extractedData.experienceBlocks.length > 0) {
+                        data.extractedData.experienceBlocks.forEach(eb => {
+                            experienceList.push({
+                                role: eb.role,
+                                comp: eb.comp,
+                                start: eb.start,
+                                end: eb.end,
+                                desc: eb.desc
+                            });
+                        });
+                        renderList('exp');
+                        fieldsUpdated.push("Experience Blocks");
+                    }
 
                     if (fieldsUpdated.length > 0) {
                         showToast(`Auto-filled ${fieldsUpdated.join(", ")} from resume!`);
