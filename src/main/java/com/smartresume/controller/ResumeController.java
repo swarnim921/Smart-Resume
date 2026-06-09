@@ -47,6 +47,25 @@ public class ResumeController {
                 Map<String, Object> mlData = mlIntegrationService.extractSkills(resumeText);
                 if (mlData != null) {
                     response.put("extractedData", mlData);
+                } else {
+                    // Fallback heuristics if Python ML service is offline or unreachable
+                    Map<String, Object> fallback = new HashMap<>();
+                    java.util.List<String> foundSkills = new java.util.ArrayList<>();
+                    String lower = resumeText.toLowerCase();
+                    String[] techKeywords = {"java", "python", "react", "javascript", "spring", "node", "aws", "sql", "html", "css", "c++", "angular", "docker", "kubernetes", "git"};
+                    for (String kw : techKeywords) {
+                        if (lower.contains(kw)) foundSkills.add(kw.substring(0, 1).toUpperCase() + kw.substring(1));
+                    }
+                    fallback.put("technicalSkills", foundSkills);
+                    fallback.put("softSkills", new java.util.ArrayList<>());
+                    
+                    java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d+)\\+?\\s*years?").matcher(lower);
+                    if (m.find()) {
+                        fallback.put("experience", m.group(1) + " years");
+                    } else {
+                        fallback.put("experience", "Not specified");
+                    }
+                    response.put("extractedData", fallback);
                 }
             } catch (Exception e) {
                 // Log and ignore to not fail the upload just because extraction failed
