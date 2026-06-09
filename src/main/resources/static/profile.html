@@ -1511,8 +1511,8 @@
                             <p>${e.institution} • Grad: ${e.gradYear} • CGPA: ${e.cgpa}</p>
                         </div>
                         <div style="display:flex; gap:4px;">
-                            <button class="btn-action-sm" onclick="editItem('edu', ${i})"><i data-lucide="edit-2" style="width:14px;"></i></button>
-                            <button class="btn-action-sm" onclick="education.splice(${i},1);renderList('edu');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                            <button type="button" class="btn-action-sm" onclick="editItem('edu', ${i})"><i data-lucide="edit-2" style="width:14px;"></i></button>
+                            <button type="button" class="btn-action-sm" onclick="education.splice(${i},1);renderList('edu');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
                         </div>
                     </div>
                 `).join('');
@@ -1526,8 +1526,8 @@
                             <div class="badge-grid">${p.technologies.map(t => `<span class="skill-chip" style="font-size:10px; padding:2px 8px;">${t}</span>`).join('')}</div>
                         </div>
                         <div style="display:flex; gap:4px;">
-                            <button class="btn-action-sm" onclick="editItem('proj', ${i})"><i data-lucide="edit-2" style="width:14px;"></i></button>
-                            <button class="btn-action-sm" onclick="projectsList.splice(${i},1);renderList('proj');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                            <button type="button" class="btn-action-sm" onclick="editItem('proj', ${i})"><i data-lucide="edit-2" style="width:14px;"></i></button>
+                            <button type="button" class="btn-action-sm" onclick="projectsList.splice(${i},1);renderList('proj');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
                         </div>
                     </div>
                 `).join('');
@@ -1541,8 +1541,8 @@
                             ${e.description ? `<p style="margin-top:6px;font-size:12px;color:var(--text);line-height:1.5;">${e.description}</p>` : ''}
                         </div>
                         <div style="display:flex; gap:4px;">
-                            <button class="btn-action-sm" onclick="editItem('exp', ${i})"><i data-lucide="edit-2" style="width:14px;"></i></button>
-                            <button class="btn-action-sm" onclick="experienceList.splice(${i},1);renderList('exp');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                            <button type="button" class="btn-action-sm" onclick="editItem('exp', ${i})"><i data-lucide="edit-2" style="width:14px;"></i></button>
+                            <button type="button" class="btn-action-sm" onclick="experienceList.splice(${i},1);renderList('exp');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
                         </div>
                     </div>
                 `).join('');
