@@ -1407,6 +1407,34 @@
             document.getElementById(type + 'Modal').style.display = 'none';
         }
 
+        function editItem(type, index) {
+            let item;
+            if (type === 'edu') {
+                item = education[index];
+                document.getElementById('eduDegree').value = item.degree || '';
+                document.getElementById('eduInst').value = item.institution || '';
+                document.getElementById('eduYear').value = item.gradYear || '';
+                document.getElementById('eduGpa').value = item.cgpa || '';
+                education.splice(index, 1);
+            } else if (type === 'proj') {
+                item = projectsList[index];
+                document.getElementById('projTitle').value = item.title || '';
+                document.getElementById('projTech').value = (item.technologies || []).join(', ');
+                document.getElementById('projDesc').value = item.description || '';
+                document.getElementById('projLink').value = item.githubLink || item.link || '';
+                projectsList.splice(index, 1);
+            } else if (type === 'exp') {
+                item = experienceList[index];
+                document.getElementById('expRole').value = item.role || '';
+                document.getElementById('expComp').value = item.company || '';
+                document.getElementById('expStart').value = item.startDate || '';
+                document.getElementById('expEnd').value = item.endDate || '';
+                document.getElementById('expDesc').value = item.description || '';
+                experienceList.splice(index, 1);
+            }
+            openModal(type);
+        }
+
         function saveItem(type) {
             if (type === 'edu') {
                 const item = {
@@ -1453,7 +1481,10 @@
                             <h4>${e.degree}</h4>
                             <p>${e.institution} • Grad: ${e.gradYear} • CGPA: ${e.cgpa}</p>
                         </div>
-                        <button class="btn-action-sm" onclick="education.splice(${i},1);renderList('edu');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                        <div style="display:flex; gap:4px;">
+                            <button class="btn-action-sm" onclick="editItem('edu', ${i})"><i data-lucide="edit-2" style="width:14px;"></i></button>
+                            <button class="btn-action-sm" onclick="education.splice(${i},1);renderList('edu');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                        </div>
                     </div>
                 `).join('');
             } else if (type === 'proj') {
@@ -1465,7 +1496,10 @@
                             <p>${p.description.substring(0, 100)}...</p>
                             <div class="badge-grid">${p.technologies.map(t => `<span class="skill-chip" style="font-size:10px; padding:2px 8px;">${t}</span>`).join('')}</div>
                         </div>
-                        <button class="btn-action-sm" onclick="projectsList.splice(${i},1);renderList('proj');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                        <div style="display:flex; gap:4px;">
+                            <button class="btn-action-sm" onclick="editItem('proj', ${i})"><i data-lucide="edit-2" style="width:14px;"></i></button>
+                            <button class="btn-action-sm" onclick="projectsList.splice(${i},1);renderList('proj');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                        </div>
                     </div>
                 `).join('');
             } else if (type === 'exp') {
@@ -1477,7 +1511,10 @@
                             <p>${e.startDate} - ${e.endDate}</p>
                             ${e.description ? `<p style="margin-top:6px;font-size:12px;color:var(--text);line-height:1.5;">${e.description}</p>` : ''}
                         </div>
-                        <button class="btn-action-sm" onclick="experienceList.splice(${i},1);renderList('exp');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                        <div style="display:flex; gap:4px;">
+                            <button class="btn-action-sm" onclick="editItem('exp', ${i})"><i data-lucide="edit-2" style="width:14px;"></i></button>
+                            <button class="btn-action-sm" onclick="experienceList.splice(${i},1);renderList('exp');updateCompleteness()"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                        </div>
                     </div>
                 `).join('');
             }
