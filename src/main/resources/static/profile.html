@@ -1688,7 +1688,7 @@
                         education.push({
                             degree: data.extractedData.educationDegree,
                             institution: data.extractedData.educationInstitution || 'University',
-                            year: '', gpa: ''
+                            gradYear: '', cgpa: ''
                         });
                         renderList('edu');
                         fieldsUpdated.push("Education");
@@ -1699,7 +1699,7 @@
                         data.extractedData.projects.forEach(p => {
                             projectsList.push({
                                 title: p.substring(0, 50) + (p.length > 50 ? '...' : ''),
-                                desc: p, tech: '', link: ''
+                                description: p, technologies: [], link: ''
                             });
                         });
                         renderList('proj');
@@ -1711,10 +1711,10 @@
                         data.extractedData.experienceBlocks.forEach(eb => {
                             experienceList.push({
                                 role: eb.role,
-                                comp: eb.comp,
-                                start: eb.start,
-                                end: eb.end,
-                                desc: eb.desc
+                                company: eb.comp,
+                                startDate: eb.start,
+                                endDate: eb.end,
+                                description: eb.desc
                             });
                         });
                         renderList('exp');
