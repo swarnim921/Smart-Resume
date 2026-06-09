@@ -166,6 +166,15 @@ public class ResumeController {
                     }
                 }
                 extracted.put("experienceBlocks", expBlocks);
+                
+                // If explicit years wasn't found, estimate from experience blocks
+                if (!extracted.containsKey("experience") || extracted.get("experience").equals("Not specified")) {
+                    if (expBlocks.size() > 0) {
+                        extracted.put("experience", expBlocks.size() + " years");
+                    } else {
+                        extracted.put("experience", "0 years");
+                    }
+                }
 
                 response.put("extractedData", extracted);
             } catch (Exception e) {
