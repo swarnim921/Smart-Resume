@@ -1075,10 +1075,16 @@
             <div class="form-group"><label class="form-label">Company</label><input type="text" id="expComp"
                     class="form-input"></div>
             <div class="grid-2">
-                <div class="form-group"><label class="form-label">Start Date</label><input type="text" id="expStart"
-                        class="form-input" placeholder="Jan 2025"></div>
-                <div class="form-group"><label class="form-label">End Date</label><input type="text" id="expEnd"
-                        class="form-input" placeholder="Present"></div>
+                <div class="form-group"><label class="form-label">Start Month</label><input type="month" id="expStart" class="form-input"></div>
+                <div class="form-group">
+                    <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+                        End Month
+                        <label style="font-weight:normal; font-size:12px; display:flex; align-items:center; gap:4px; margin:0; cursor:pointer;">
+                            <input type="checkbox" id="expCurrent" onchange="document.getElementById('expEnd').disabled = this.checked; if(this.checked) document.getElementById('expEnd').value = '';"> Current
+                        </label>
+                    </label>
+                    <input type="month" id="expEnd" class="form-input">
+                </div>
             </div>
             <div class="form-group">
                 <label class="form-label">Role Description <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
@@ -1427,8 +1433,21 @@
                 item = experienceList[index];
                 document.getElementById('expRole').value = item.role || '';
                 document.getElementById('expComp').value = item.company || '';
-                document.getElementById('expStart').value = item.startDate || '';
-                document.getElementById('expEnd').value = item.endDate || '';
+                
+                const parseMon = (val) => {
+                    if (!val || val === "Present") return "";
+                    const d = new Date(val);
+                    if (isNaN(d)) return "";
+                    return d.toISOString().slice(0, 7);
+                };
+                
+                document.getElementById('expStart').value = parseMon(item.startDate);
+                
+                const isPresent = item.endDate === "Present";
+                document.getElementById('expCurrent').checked = isPresent;
+                document.getElementById('expEnd').disabled = isPresent;
+                document.getElementById('expEnd').value = isPresent ? "" : parseMon(item.endDate);
+                
                 document.getElementById('expDesc').value = item.description || '';
                 experienceList.splice(index, 1);
             }
@@ -1456,11 +1475,21 @@
                 renderList('proj');
             } else if (type === 'exp') {
                 const desc = document.getElementById('expDesc').value.trim();
+                const startRaw = document.getElementById('expStart').value;
+                const endRaw = document.getElementById('expEnd').value;
+                const isCurrent = document.getElementById('expCurrent').checked;
+                
+                const formatMon = (val) => {
+                    if(!val || !val.includes('-')) return val;
+                    const d = new Date(val + "-01T00:00:00");
+                    return d.toLocaleString('en-US', {month: 'short', year: 'numeric'});
+                };
+                
                 const item = {
                     role: document.getElementById('expRole').value,
                     company: document.getElementById('expComp').value,
-                    startDate: document.getElementById('expStart').value,
-                    endDate: document.getElementById('expEnd').value,
+                    startDate: formatMon(startRaw) || startRaw,
+                    endDate: isCurrent ? "Present" : (formatMon(endRaw) || endRaw),
                     description: desc || null
                 };
                 experienceList.push(item);
