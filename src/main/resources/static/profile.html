@@ -1757,6 +1757,20 @@
                 };
                 sessionStorage.setItem('profileData', JSON.stringify(profileObj));
                 showToast('Success! Your profile is up to date.');
+
+                // Auto-apply logic
+                const pendingJobId = sessionStorage.getItem('pendingApplyJobId');
+                // We ensure completeness calculates 100% (or resumeUploaded + fields are set)
+                // updateCompleteness() already runs dynamically, so compPct is accurate.
+                if (pendingJobId && document.getElementById('compPct').textContent === '100%') {
+                    sessionStorage.removeItem('pendingApplyJobId');
+                    // Small delay to allow toast to show up, then redirect
+                    setTimeout(() => {
+                        window.location.href = "/candidate-dashboard.html?autoApply=" + pendingJobId;
+                    }, 500);
+                } else {
+                    updateCompleteness();
+                }
             } catch (err) {
                 showToast(err.message, true);
             } finally {

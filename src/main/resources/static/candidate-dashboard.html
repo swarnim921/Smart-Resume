@@ -1215,7 +1215,17 @@
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             initUI();
-            loadOverview();
+            loadOverview().then(() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const autoApplyJobId = urlParams.get('autoApply');
+                if (autoApplyJobId) {
+                    const profileComplete = sessionStorage.getItem("profileComplete");
+                    if (profileComplete === "true") {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        applyToJob(autoApplyJobId, null);
+                    }
+                }
+            });
         });
 
         function initUI() {
@@ -1819,11 +1829,12 @@
 
             if (profileComplete !== "true") {
                 alert("Please complete your profile and upload your resume before applying.");
+                sessionStorage.setItem('pendingApplyJobId', jobId);
                 window.location.href = "/profile.html";
                 return;
             }
 
-            btn.textContent = 'Applying...'; btn.disabled = true;
+            if (btn) { btn.textContent = 'Applying...'; btn.disabled = true; }
             try {
                 const r = await fetch(`${API}/api/applications`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ jobId }) });
                 const d = await r.json();
@@ -1835,7 +1846,7 @@
                 addNotif('warn', 'Apply Failed', e.message);
                 alert('Apply failed: ' + e.message);
             }
-            btn.textContent = 'Apply'; btn.disabled = false;
+            if (btn) { btn.textContent = 'Apply'; btn.disabled = false; }
         }
 
         async function withdraw(appId, jobTitle) {
