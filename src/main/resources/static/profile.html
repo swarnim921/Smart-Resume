@@ -1722,9 +1722,7 @@
                     }
 
                     if (fieldsUpdated.length > 0) {
-                        showToast(`Auto-filled ${fieldsUpdated.join(", ")} from resume!`);
-                        // Auto-save the profile since we got a bunch of stuff
-                        saveProfile(document.querySelector('.btn-save'));
+                        showToast(`Auto-filled ${fieldsUpdated.join(", ")} from resume! Please review and click Save.`);
                     } else {
                         showToast('Resume uploaded, but no auto-fill data found.');
                     }
