@@ -683,6 +683,69 @@
             font-weight: 600;
         }
         .cert-link:hover { text-decoration: underline; }
+
+        .autofill-card {
+            background: linear-gradient(135deg, rgba(37,99,235,0.06) 0%, rgba(99,102,241,0.06) 100%);
+            border: 1px solid rgba(37,99,235,0.15);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 10px 30px rgba(37,99,235,0.04);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .autofill-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(37,99,235,0.1);
+            border-color: rgba(37,99,235,0.3);
+            background: linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(99,102,241,0.08) 100%);
+        }
+
+        .btn-autofill {
+            background: var(--white);
+            color: var(--accent);
+            border: 2px solid rgba(37,99,235,0.15);
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            white-space: nowrap;
+        }
+
+        .btn-autofill:hover {
+            background: var(--gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 8px 24px rgba(37,99,235,0.25);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .autofill-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+                padding: 24px 20px;
+            }
+            .autofill-card > div:last-child {
+                width: 100%;
+            }
+            .btn-autofill {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -765,18 +828,22 @@
         </div>
 
         <!-- Auto-fill Banner -->
-        <div class="card" style="background: linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(16,185,129,0.05) 100%); border: 1px dashed var(--accent); display: flex; align-items: center; justify-content: space-between; padding: 20px;">
-            <div>
-                <h3 style="font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="sparkles" style="color: var(--accent); width: 18px; height: 18px;"></i>
+        <div class="autofill-card">
+            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%); border-radius: 50%;"></div>
+            
+            <div style="position: relative; z-index: 1;">
+                <h3 style="font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 12px; color: var(--text); margin-bottom: 8px;">
+                    <div style="background: var(--gradient); padding: 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(37,99,235,0.2);">
+                        <i data-lucide="sparkles" style="color: white; width: 18px; height: 18px;"></i>
+                    </div>
                     Save time! Auto-fill with your Resume
                 </h3>
-                <p style="font-size: 13px; color: var(--muted); margin-top: 4px;">We'll use AI to extract your skills and experience instantly.</p>
+                <p style="font-size: 14px; color: var(--muted); margin-left: 46px; font-weight: 500;">We'll use AI to extract your skills and experience instantly.</p>
             </div>
-            <div>
+            <div style="position: relative; z-index: 1;">
                 <input type="file" id="autofillUpload" accept=".pdf" style="display: none;" onchange="handleResumeSelect(event, true)">
-                <button type="button" class="btn" style="background: var(--white); color: var(--accent); border: 1px solid var(--accent); display: flex; align-items: center; gap: 8px; font-weight: 600;" onclick="document.getElementById('autofillUpload').click()">
-                    <i data-lucide="upload" style="width: 16px; height: 16px;"></i> Upload Resume
+                <button type="button" class="btn-autofill" onclick="document.getElementById('autofillUpload').click()">
+                    <i data-lucide="upload-cloud" style="width: 18px; height: 18px;"></i> Upload Resume
                 </button>
             </div>
         </div>
