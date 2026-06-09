@@ -903,7 +903,7 @@
                         <input type="text" id="certInput" class="form-input" style="flex:1" placeholder="Certification name (e.g. AWS Cloud Practitioner)"
                             onkeydown="if(event.key==='Enter'){event.preventDefault();}">
                         <button type="button" class="cert-upload-btn" onclick="document.getElementById('certFileInput').click()">
-                            <i data-lucide="paperclip" style="width:12px;vertical-align:middle;margin-right:4px;"></i>Attach File (optional)
+                            <i data-lucide="paperclip" style="width:12px;vertical-align:middle;margin-right:4px;"></i>Attach File (required)
                         </button>
                         <button type="button" class="btn-add-skill" onclick="addCertification()">Add</button>
                     </div>
@@ -1256,43 +1256,39 @@
             statusEl.innerHTML = `📎 <strong>${file.name}</strong> attached — will upload when you click Add.`;
         }
 
-        // Add certification (with optional file upload)
+        // Add certification (with mandatory file upload)
         async function addCertification() {
             const nameInput = document.getElementById('certInput');
             const name = nameInput.value.trim();
             if (!name) { showToast('Please enter a certification name', true); return; }
             if (certifications.find(c => c.name === name)) { showToast('Already added', true); return; }
+            if (!pendingCertFile) { showToast('You must attach a certificate file', true); return; }
 
             const statusEl = document.getElementById('certUploadStatus');
 
-            if (pendingCertFile) {
-                // Upload file first
-                statusEl.style.display = 'block';
-                statusEl.innerHTML = `⏳ Uploading <strong>${pendingCertFile.name}</strong>...`;
-                try {
-                    const fd = new FormData();
-                    fd.append('file', pendingCertFile);
-                    fd.append('fileType', 'CERTIFICATE');
-                    const resp = await fetch(`${API}/api/resumes/upload`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}` },
-                        body: fd
-                    });
-                    if (!resp.ok) throw new Error('Upload failed');
-                    const data = await resp.json();
-                    certifications.push({ name, fileId: data.resumeId, fileName: data.fileName });
-                    statusEl.innerHTML = `✅ Certificate uploaded successfully.`;
-                    setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
-                } catch (err) {
-                    statusEl.innerHTML = `❌ Upload failed. Adding without file.`;
-                    certifications.push({ name, fileId: null, fileName: null });
-                }
-                pendingCertFile = null;
-                document.getElementById('certFileInput').value = '';
-            } else {
-                certifications.push({ name, fileId: null, fileName: null });
-                statusEl.style.display = 'none';
+            // Upload file first
+            statusEl.style.display = 'block';
+            statusEl.innerHTML = `⏳ Uploading <strong>${pendingCertFile.name}</strong>...`;
+            try {
+                const fd = new FormData();
+                fd.append('file', pendingCertFile);
+                fd.append('fileType', 'CERTIFICATE');
+                const resp = await fetch(`${API}/api/resumes/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: fd
+                });
+                if (!resp.ok) throw new Error('Upload failed');
+                const data = await resp.json();
+                certifications.push({ name, fileId: data.resumeId, fileName: data.fileName });
+                statusEl.innerHTML = `✅ Certificate uploaded successfully.`;
+                setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+            } catch (err) {
+                statusEl.innerHTML = `❌ Upload failed. Please try again.`;
+                return; // Do not add certification if upload fails since it's mandatory
             }
+            pendingCertFile = null;
+            document.getElementById('certFileInput').value = '';
 
             nameInput.value = '';
             renderCertChips();
