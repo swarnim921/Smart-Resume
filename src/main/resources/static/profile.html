@@ -1672,9 +1672,44 @@
                             fieldsUpdated.push("Experience");
                         }
                     }
+                    
+                    // Professional Links
+                    if (data.extractedData.github) {
+                        document.getElementById('pGithub').value = data.extractedData.github;
+                        fieldsUpdated.push("GitHub");
+                    }
+                    if (data.extractedData.linkedin) {
+                        document.getElementById('pLinkedin').value = data.extractedData.linkedin;
+                        fieldsUpdated.push("LinkedIn");
+                    }
+                    
+                    // Education
+                    if (data.extractedData.educationDegree) {
+                        education.push({
+                            degree: data.extractedData.educationDegree,
+                            institution: data.extractedData.educationInstitution || 'University',
+                            year: '', gpa: ''
+                        });
+                        renderList('edu');
+                        fieldsUpdated.push("Education");
+                    }
+                    
+                    // Projects
+                    if (data.extractedData.projects && Array.isArray(data.extractedData.projects) && data.extractedData.projects.length > 0) {
+                        data.extractedData.projects.forEach(p => {
+                            projectsList.push({
+                                title: p.substring(0, 50) + (p.length > 50 ? '...' : ''),
+                                desc: p, tech: '', link: ''
+                            });
+                        });
+                        renderList('proj');
+                        fieldsUpdated.push("Projects");
+                    }
 
                     if (fieldsUpdated.length > 0) {
-                        showToast(`Auto-filled ${fieldsUpdated.join(" and ")} from resume!`);
+                        showToast(`Auto-filled ${fieldsUpdated.join(", ")} from resume!`);
+                        // Auto-save the profile since we got a bunch of stuff
+                        saveProfile(document.querySelector('.btn-save'));
                     } else {
                         showToast('Resume uploaded, but no auto-fill data found.');
                     }
