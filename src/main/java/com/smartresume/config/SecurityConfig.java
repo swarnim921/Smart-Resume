@@ -202,9 +202,4 @@ public class SecurityConfig {
                 return idTokenDecoderFactory;
         }
 
-        @Bean
-        public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder();
-        }
-
 }
