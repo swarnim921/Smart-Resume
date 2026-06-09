@@ -152,17 +152,18 @@ public class ResumeController {
                 
                 // 6. Professional Experience Blocks
                 java.util.List<Map<String, String>> expBlocks = new java.util.ArrayList<>();
-                String[] commonRoles = {"Software Engineer", "Developer", "Intern", "Manager", "Analyst", "Data Scientist", "Consultant", "Engineer", "Designer", "Lead"};
+                String[] commonRoles = {"Software Engineer", "Developer", "Intern", "Internship", "Manager", "Analyst", "Data Scientist", "Consultant", "Engineer", "Designer", "Lead"};
                 for (String r : commonRoles) {
                     if (lower.contains(r.toLowerCase())) {
                         Map<String, String> eb = new HashMap<>();
-                        eb.put("role", r);
+                        String displayRole = r.equals("Internship") ? "Intern" : r;
+                        eb.put("role", displayRole);
                         eb.put("comp", "Company / Organization");
                         eb.put("start", "2020");
                         eb.put("end", "Present");
-                        eb.put("desc", "Worked in a professional capacity as a " + r + ".");
+                        eb.put("desc", "Worked in a professional capacity as a " + displayRole + ".");
                         expBlocks.add(eb);
-                        break; // Just extract one block for auto-fill demonstration
+                        if (expBlocks.size() >= 3) break; // Extract up to 3 blocks
                     }
                 }
                 extracted.put("experienceBlocks", expBlocks);
