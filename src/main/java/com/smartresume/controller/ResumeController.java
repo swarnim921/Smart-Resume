@@ -44,7 +44,13 @@ public class ResumeController {
         if ("RESUME".equalsIgnoreCase(fileType)) {
             try {
                 String resumeText = resumeService.extractTextFromResume(meta.getId());
-                Map<String, Object> mlData = mlIntegrationService.extractSkills(resumeText);
+                Map<String, Object> mlData = null;
+                try {
+                    mlData = mlIntegrationService.extractSkills(resumeText);
+                } catch (Exception mlEx) {
+                    System.err.println("ML Service failed or unreachable. Falling back to Java parser: " + mlEx.getMessage());
+                }
+                
                 Map<String, Object> extracted = (mlData != null) ? mlData : new HashMap<>();
                 
                 String lower = resumeText.toLowerCase();
