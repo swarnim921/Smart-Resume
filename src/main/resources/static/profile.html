@@ -1789,7 +1789,10 @@
                         languages
                     })
                 });
-                if (!r.ok) throw new Error('Update failed');
+                if (!r.ok) {
+                    const errorText = await r.text();
+                    throw new Error(`Update failed: ${errorText}`);
+                }
 
                 // Construct complete profile object from form for session persistence
                 const profileObj = {
@@ -1924,7 +1927,7 @@
                         education.push({
                             degree: data.extractedData.educationDegree,
                             institution: data.extractedData.educationInstitution || 'University',
-                            gradYear: '', cgpa: ''
+                            endYear: null, cgpa: null
                         });
                         renderList('edu');
                         fieldsUpdated.push("Education");
