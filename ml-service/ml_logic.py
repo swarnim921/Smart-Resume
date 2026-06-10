@@ -12,11 +12,8 @@ torch.set_num_threads(1)
 # 1. INITIALIZATION & CONFIGURATION
 # ==========================================
 
-print("⏳ Loading SentenceTransformer model...")
-model = SentenceTransformer('all-MiniLM-L6-v2')
-# Warm-up call to eliminate first-request latency
-model.encode("warmup")
-print("✅ Model loaded and warmed up.")
+# The model will be lazily loaded to avoid boot timeouts on slow free-tier CPUs
+model = None
 
 def load_skill_database():
     """
@@ -191,6 +188,13 @@ def get_embedding(text):
     Performance Optimization: Caches embeddings to avoid redundant
     GPU/CPU compute for the same text (especially Job Descriptions).
     """
+    global model
+    if model is None:
+        print("⏳ Lazy loading SentenceTransformer model...", flush=True)
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+        model.encode("warmup")
+        print("✅ Model loaded and warmed up.", flush=True)
+        
     with torch.no_grad():
         return model.encode(text, convert_to_tensor=True)
 
