@@ -22,8 +22,8 @@ public class MLIntegrationService {
 
     public MLIntegrationService() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(5000); // 5 seconds
-        factory.setReadTimeout(15000);    // 15 seconds
+        factory.setConnectTimeout(30000); // 30 seconds
+        factory.setReadTimeout(90000);    // 90 seconds (to wait for Render cold-starts)
         this.restTemplate = new RestTemplate(factory);
     }
 
