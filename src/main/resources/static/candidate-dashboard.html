@@ -1583,7 +1583,7 @@
                 // Fetch applications for matched job checking
                 const r = await fetch(`${API}/api/applications/my-applications`, { headers: { 'Authorization': `Bearer ${token}` } });
                 const apps = await r.json();
-                appliedJobsMap = new Map(apps.map(a => [a.jobId, a.status]));
+                appliedJobsMap = new Map(apps.map(a => [a.jobId, { status: a.status, score: a.matchScore }]));
 
                 // AI Insights (Strengths from profile)
                 if (user.skills && user.skills.length) {
@@ -1675,10 +1675,21 @@
                     return;
                 }
 
-                // Stable match logic for demo consistency
+                // Predictive real-time match scoring algorithm
+                const calculateMatch = (job) => {
+                    if (appliedJobsMap.has(job.id) && appliedJobsMap.get(job.id).score) {
+                        return appliedJobsMap.get(job.id).score; // Show real ATS score if already applied
+                    }
+                    if (!user.skills || !user.skills.length) return 40;
+                    const jobText = ((job.title || '') + ' ' + (job.description || '') + ' ' + (job.requirements || '')).toLowerCase();
+                    let hits = 0;
+                    user.skills.forEach(s => { if (jobText.includes(s.toLowerCase())) hits++; });
+                    let score = 30 + (hits / Math.max(user.skills.length, 3)) * 70;
+                    return Math.floor(Math.min(98, score));
+                };
+
                 el.innerHTML = jobs.slice(0, 3).map((j, i) => {
-                    const baseMatch = 78 + (i * 2); // 78, 80, 82
-                    const match = Math.min(94, baseMatch + (user.skills ? user.skills.length : 0));
+                    const match = calculateMatch(j);
 
                     return `
                     <div class="job-card col-4">
@@ -1701,7 +1712,7 @@
                             <span class="salary">${j.salary || 'Competitive'}</span>
                             ${(() => {
                                 if (appliedJobsMap.has(j.id)) {
-                                    const status = appliedJobsMap.get(j.id);
+                                    const status = appliedJobsMap.get(j.id).status;
                                     if (status === 'REJECTED' || status === 'ATS_REJECTED') {
                                         return `<button class="apply-btn" disabled style="background:#fee2e2; color:#ef4444; cursor:default">Rejected</button>`;
                                     } else if (status === 'OFFERED') {
@@ -1820,7 +1831,16 @@
                                     <div class="company-logo">${JOB_EMOJIS[i % JOB_EMOJIS.length]}</div>
                                     <div class="match-badge">
                                         <i data-lucide="zap" style="width:14px"></i>
-                                        ${Math.floor(70 + Math.random() * 25)}% Match
+                                        ${(() => {
+                                            if (appliedJobsMap.has(j.id) && appliedJobsMap.get(j.id).score) {
+                                                return appliedJobsMap.get(j.id).score;
+                                            }
+                                            if (!user.skills || !user.skills.length) return 40;
+                                            const jobText = ((j.title || '') + ' ' + (j.description || '') + ' ' + (j.requirements || '')).toLowerCase();
+                                            let hits = 0;
+                                            user.skills.forEach(s => { if (jobText.includes(s.toLowerCase())) hits++; });
+                                            return Math.floor(Math.min(98, 30 + (hits / Math.max(user.skills.length, 3)) * 70));
+                                        })()}% Match
                                     </div>
                                 </div>
                                 <div class="job-info">
@@ -1832,7 +1852,7 @@
                                     <span class="salary">${j.salary || 'Competitive'}</span>
                                     ${(() => {
                                         if (appliedJobsMap.has(j.id)) {
-                                            const status = appliedJobsMap.get(j.id);
+                                            const status = appliedJobsMap.get(j.id).status;
                                             if (status === 'REJECTED' || status === 'ATS_REJECTED') {
                                                 return `<button class="apply-btn" disabled style="background:#fee2e2; color:#ef4444; cursor:default">Rejected</button>`;
                                             } else if (status === 'OFFERED') {
@@ -1866,7 +1886,7 @@
                 const r = await fetch(`${API}/api/applications`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ jobId }) });
                 const d = await r.json();
                 if (!r.ok) throw new Error(d.error || 'Failed');
-                appliedJobsMap.set(jobId, 'PENDING');
+                appliedJobsMap.set(jobId, { status: 'PENDING', score: null });
                 addNotif('success', 'Application Sent!', `You successfully applied for ${d.jobTitle || 'the position'}. AI is now analyzing your match.`);
                 showSection('apps');
             } catch (e) {
