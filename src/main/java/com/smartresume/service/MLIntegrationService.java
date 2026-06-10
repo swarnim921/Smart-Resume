@@ -55,12 +55,10 @@ public class MLIntegrationService {
             }
         } catch (Exception e) {
             log.error("ML service unavailable: {}", e.getMessage());
-            // Return null — ApplicationService will save null score (shows as "-" in UI)
-            return null;
+            throw new RuntimeException("ML API Error: " + e.getMessage(), e);
         }
 
-        // Fallback if response wasn't OK
-        return null;
+        throw new RuntimeException("ML Service failed to return a valid response.");
     }
 
     /**
