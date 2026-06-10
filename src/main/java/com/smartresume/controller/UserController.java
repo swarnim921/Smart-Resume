@@ -46,6 +46,7 @@ public class UserController {
                     profile.put("preferredLocations", u.getPreferredLocations() != null ? u.getPreferredLocations() : List.of());
                     profile.put("languages", u.getLanguages() != null ? u.getLanguages() : List.of());
                     profile.put("availability", nvl(u.getAvailability()));
+                    profile.put("resumeUploaded", u.getResumeUploaded() != null ? u.getResumeUploaded() : false);
                     profile.put("profileCompletedAt", u.getProfileCompletedAt() != null ? u.getProfileCompletedAt().toString() : "");
                     return ResponseEntity.ok(profile);
                 })
