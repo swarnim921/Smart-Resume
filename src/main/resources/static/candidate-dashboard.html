@@ -1561,7 +1561,18 @@
                 await loadAnalytics();
 
                 // Dynamic Profile Strength
-                const profile = JSON.parse(sessionStorage.getItem("profileData") || "{}");
+                let profile = {};
+                try {
+                    const profRes = await fetch(`${API}/api/users/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (profRes.ok) {
+                        profile = await profRes.json();
+                        sessionStorage.setItem("profileData", JSON.stringify(profile));
+                    } else {
+                        profile = JSON.parse(sessionStorage.getItem("profileData") || "{}");
+                    }
+                } catch (e) {
+                    profile = JSON.parse(sessionStorage.getItem("profileData") || "{}");
+                }
                 const strength = calculateProfileStrength(profile);
                 updateScoreBar(strength);
 
