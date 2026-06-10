@@ -143,6 +143,33 @@ public class ApplicationService {
         return saved;
     }
 
+    public int analyzeMatchPreApplication(String jobId, String candidateEmail) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        User user = userRepository.findByEmail(candidateEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        ResumeMeta resume = resumeRepository.findFirstByUserIdOrderByUploadedAtDesc(user.getId())
+                .orElseThrow(() -> new RuntimeException("Please upload a resume first"));
+
+        try {
+            String resumeText = resumeService.extractTextFromResume(resume.getId());
+            String jobDescription = job.getDescription() + " " + job.getRequirements();
+            var mlResult = mlIntegrationService.analyzeMatch(
+                    resumeText, jobDescription, job.getTitle(), job.getRequirements());
+
+            if (mlResult != null) {
+                return mlResult.getMatchScore();
+            } else {
+                throw new RuntimeException("ML Service returned null");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ ML/ATS failed: " + e.getMessage());
+            throw new RuntimeException("Failed to analyze match: " + e.getMessage());
+        }
+    }
+
     public List<Application> getCandidateApplications(String candidateEmail) {
         return applicationRepository.findByCandidateEmail(candidateEmail);
     }

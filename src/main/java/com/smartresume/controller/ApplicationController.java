@@ -41,6 +41,17 @@ public class ApplicationController {
         return ResponseEntity.ok(applicationService.getCandidateApplications(candidateEmail));
     }
 
+    @GetMapping("/analyze-match/{jobId}")
+    public ResponseEntity<?> analyzeMatchPreApplication(@PathVariable String jobId, Authentication auth) {
+        try {
+            String candidateEmail = auth.getName();
+            int score = applicationService.analyzeMatchPreApplication(jobId, candidateEmail);
+            return ResponseEntity.ok(Map.of("score", score));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/job/{jobId}")
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<?> getJobApplications(@PathVariable String jobId, Authentication auth) {

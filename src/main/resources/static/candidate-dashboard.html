@@ -1695,7 +1695,7 @@
                     <div class="job-card col-4">
                         <div class="job-card-header">
                             <div class="company-logo">${j.company ? j.company[0].toUpperCase() : '💼'}</div>
-                            <div class="match-badge">
+                            <div class="match-badge" id="rec-badge-${j.id}">
                                 <i data-lucide="zap" style="width:14px"></i>
                                 ${match}% Match
                             </div>
@@ -1720,7 +1720,12 @@
                                     }
                                     return `<button class="apply-btn" disabled style="background:#f1f5f9; color:var(--muted); cursor:default">Applied</button>`;
                                 }
-                                return `<button class="apply-btn" onclick="applyToJob('${j.id}',this)">Apply</button>`;
+                                return `
+                                    <div style="display:flex; gap:8px">
+                                        <button class="apply-btn" style="background:var(--accent-light); color:var(--accent)" onclick="analyzeMatch('${j.id}', this, 'rec-badge-${j.id}')">🤖 Analyze</button>
+                                        <button class="apply-btn" onclick="applyToJob('${j.id}',this)">Apply</button>
+                                    </div>
+                                `;
                             })()}
                         </div>
                     </div>`;
@@ -1829,7 +1834,7 @@
                             <div class="job-card col-4">
                                 <div class="job-card-header">
                                     <div class="company-logo">${JOB_EMOJIS[i % JOB_EMOJIS.length]}</div>
-                                    <div class="match-badge">
+                                    <div class="match-badge" id="badge-${j.id}">
                                         <i data-lucide="zap" style="width:14px"></i>
                                         ${(() => {
                                             if (appliedJobsMap.has(j.id) && appliedJobsMap.get(j.id).score) {
@@ -1860,7 +1865,12 @@
                                             }
                                             return `<button class="apply-btn" disabled style="background:#f1f5f9; color:var(--muted); cursor:default">Applied</button>`;
                                         }
-                                        return `<button class="apply-btn" onclick="applyToJob('${j.id}',this)">Quick Apply</button>`;
+                                        return `
+                                            <div style="display:flex; gap:8px">
+                                                <button class="apply-btn" style="background:var(--accent-light); color:var(--accent)" onclick="analyzeMatch('${j.id}', this, 'badge-${j.id}')">🤖 Analyze</button>
+                                                <button class="apply-btn" onclick="applyToJob('${j.id}',this)">Apply</button>
+                                            </div>
+                                        `;
                                     })()}
                                 </div>
                             </div>
@@ -1894,6 +1904,35 @@
                 alert('Apply failed: ' + e.message);
             }
             if (btn) { btn.textContent = 'Apply'; btn.disabled = false; }
+        }
+
+        async function analyzeMatch(jobId, btn, badgeId) {
+            const profileComplete = sessionStorage.getItem("profileComplete");
+            if (profileComplete !== "true") {
+                alert("Please complete your profile and upload your resume before analyzing.");
+                return;
+            }
+
+            if (btn) { btn.textContent = 'Loading...'; btn.disabled = true; }
+            try {
+                const r = await fetch(`${API}/api/applications/analyze-match/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const d = await r.json();
+                if (!r.ok) throw new Error(d.error || 'Failed');
+                
+                // Update badge with real ML score
+                const badge = document.getElementById(badgeId);
+                if (badge) {
+                    badge.innerHTML = `<i data-lucide="zap" style="width:14px"></i> ${d.score}% Match`;
+                    badge.style.background = '#dcfce7';
+                    badge.style.color = '#166534';
+                    lucide.createIcons();
+                }
+                addNotif('success', 'Analysis Complete!', `The AI matched your resume to this job with a score of ${d.score}%.`);
+            } catch (e) {
+                addNotif('warn', 'Analysis Failed', e.message);
+                alert('Analysis failed: ' + e.message);
+            }
+            if (btn) { btn.textContent = '🤖 Analyze'; btn.disabled = false; }
         }
 
         async function withdraw(appId, jobTitle) {
