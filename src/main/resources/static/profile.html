@@ -1373,7 +1373,7 @@
         function updateCompleteness() {
             // LinkedIn-style Weighted Scores
             let score = 0;
-            const resumeUploaded = document.getElementById('resumeStatus').innerText.includes('Successfully');
+            const resumeUploaded = document.getElementById('resumeStatus').innerText.includes('Successfully') || document.getElementById('resumeStatus').innerText.includes('on file');
 
             // Basic Info (15%)
             if (document.getElementById('pName').value) score += 5;
@@ -1428,11 +1428,18 @@
                 dropZone.classList.remove('disabled');
                 dropZone.style.opacity = '1';
                 dropZone.style.cursor = 'pointer';
-                lockBadge.innerHTML = '<i data-lucide="unlock" style="width:14px"></i> Unlocked';
-                lockBadge.style.color = 'var(--success)';
-                lockMsg.textContent = 'Profile details complete! You can now upload your resume to reach 100%.';
-                dzTitle.textContent = 'Click to upload your resume';
-                dzSub.textContent = 'PDF format only (Max 5MB)';
+                if (resumeUploaded) {
+                    lockBadge.innerHTML = '<span style="color:#10b981;font-size:12px;font-weight:700;">Uploaded</span>';
+                    lockMsg.textContent = 'You have already uploaded a resume.';
+                    dzTitle.textContent = 'Upload a new resume to replace it';
+                    dzSub.textContent = 'PDF format only (Max 5MB)';
+                } else {
+                    lockBadge.innerHTML = '<i data-lucide="unlock" style="width:14px"></i> Unlocked';
+                    lockBadge.style.color = 'var(--success)';
+                    lockMsg.textContent = 'Profile details complete! You can now upload your resume to reach 100%.';
+                    dzTitle.textContent = 'Click to upload your resume';
+                    dzSub.textContent = 'PDF format only (Max 5MB)';
+                }
             } else {
                 // Lock Resume
                 dropZone.classList.add('disabled');
