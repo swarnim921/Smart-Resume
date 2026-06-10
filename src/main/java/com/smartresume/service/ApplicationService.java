@@ -150,8 +150,11 @@ public class ApplicationService {
         User user = userRepository.findByEmail(candidateEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        ResumeMeta resume = resumeRepository.findFirstByUserIdOrderByUploadedAtDesc(user.getId())
-                .orElseThrow(() -> new RuntimeException("Please upload a resume first"));
+        java.util.List<com.smartresume.model.ResumeMeta> resumes = resumeRepository.findByOwnerId(user.getId());
+        if (resumes == null || resumes.isEmpty()) {
+            throw new RuntimeException("Please upload a resume first");
+        }
+        com.smartresume.model.ResumeMeta resume = resumes.get(0);
 
         try {
             String resumeText = resumeService.extractTextFromResume(resume.getId());
@@ -159,8 +162,8 @@ public class ApplicationService {
             var mlResult = mlIntegrationService.analyzeMatch(
                     resumeText, jobDescription, job.getTitle(), job.getRequirements());
 
-            if (mlResult != null) {
-                return mlResult.getMatchScore();
+            if (mlResult != null && mlResult.getMatchScore() != null) {
+                return mlResult.getMatchScore().intValue();
             } else {
                 throw new RuntimeException("ML Service returned null");
             }
