@@ -1135,8 +1135,11 @@
                 <button class="nav-item" id="nav-jobs" onclick="showSection('jobs')">
                     <i data-lucide="briefcase"></i> <span>My Jobs</span>
                 </button>
-                <button class="nav-item" id="nav-panels" onclick="showSection('panels')">
-                    <i data-lucide="calendar"></i> <span>Interview Panels</span>
+                <button class="nav-item" onclick="showSection('panels')" id="nav-panels">
+                    <i data-lucide="calendar"></i> <span>Interviews</span>
+                </button>
+                <button class="nav-item" onclick="showSection('enterprise')" id="nav-enterprise">
+                    <i data-lucide="briefcase"></i> <span>Enterprise Batch</span>
                 </button>
                 <button class="nav-item" id="nav-analytics" onclick="showSection('analytics')">
                     <i data-lucide="bar-chart-3"></i> <span>Analytics</span>
@@ -1254,12 +1257,18 @@
                         <h1 class="welcome-title">Post New Job</h1>
                         <p class="welcome-subtitle">Create a job posting and define your custom hiring pipeline.</p>
                     </div>
-                    <button type="button" class="apply-btn" style="padding:10px 24px;"
-                        onclick="document.querySelector('#post-form-submit').click()">
-                        <i data-lucide="send"
-                            style="width:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Post
-                        Job
-                    </button>
+                    <div style="display:flex; gap:12px">
+                        <button type="button" class="nav-item" style="width:auto; padding:10px 24px; background:#fff; border:1px solid var(--border); color:var(--text); font-weight:600; justify-content:center" onclick="document.getElementById('jd-upload-input').click()">
+                            <i data-lucide="upload-cloud" style="width:16px"></i> Auto-Fill from JD
+                        </button>
+                        <input type="file" id="jd-upload-input" accept=".txt,.pdf,.png,.jpg,.jpeg" style="display:none" onchange="parseJdFile(this)">
+                        <button type="button" class="apply-btn" style="padding:10px 24px;"
+                            onclick="document.querySelector('#post-form-submit').click()">
+                            <i data-lucide="send"
+                                style="width:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Post
+                            Job
+                        </button>
+                    </div>
                 </div>
                 <div class="card">
                     <form onsubmit="postJob(event)">
@@ -1365,6 +1374,53 @@
                     <div id="panels-list" class="dashboard-grid"></div>
                 </div>
             </div>
+            <!-- Enterprise Batch Section -->
+            <div id="sec-enterprise" style="display:none">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Enterprise Batch Screening</h1>
+                    <p class="welcome-subtitle">Many-to-1 processing: Upload a Job Description and multiple Candidate Resumes to analyze them all instantly.</p>
+                </div>
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <div class="card-title"><i data-lucide="upload-cloud"></i> Upload Files</div>
+                    </div>
+                    <div class="dashboard-grid" style="margin-top:16px;">
+                        <div class="col-12" style="margin-bottom: 16px;">
+                            <label class="form-label">1. Job Description File (TXT, PDF, Image) *</label>
+                            <input type="file" id="batch-jd-input" accept=".txt,.pdf,.png,.jpg,.jpeg" class="form-input">
+                        </div>
+                        <div class="col-12" style="margin-bottom: 16px;">
+                            <label class="form-label">2. Candidate Resumes (Multiple files allowed) *</label>
+                            <input type="file" id="batch-resumes-input" multiple accept=".txt,.pdf,.png,.jpg,.jpeg" class="form-input">
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="apply-btn" onclick="runBatchScreening()" id="btn-batch-screen">
+                                <i data-lucide="play" style="width:16px; margin-right:4px;"></i> Run Batch Screening
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="batch-results-card" style="display:none;">
+                    <div class="card-header">
+                        <div class="card-title"><i data-lucide="bar-chart-2"></i> ML Screening Results</div>
+                    </div>
+                    <div style="overflow-x: auto; margin-top: 16px;">
+                        <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border);">
+                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Rank</th>
+                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Candidate Name</th>
+                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Match Score</th>
+                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Missing Skills</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-results-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1453,7 +1509,7 @@
         function logout() { sessionStorage.clear(); location.href = '/smart_resume_signin_page.html'; }
 
         // ===================== NAVIGATION =====================
-        const sections = ['overview', 'post', 'jobs', 'panels', 'analytics'];
+        const sections = ['overview', 'post', 'jobs', 'panels', 'analytics', 'enterprise'];
         function showSection(n) {
             sections.forEach(s => {
                 const el = document.getElementById('sec-' + s);
@@ -2202,6 +2258,116 @@
                 document.body.classList.add('sidebar-open');
             } else {
                 document.body.classList.remove('sidebar-open');
+            }
+        }
+
+        // ===================== ENTERPRISE BATCH SCREENING =====================
+        async function runBatchScreening() {
+            const jdInput = document.getElementById('batch-jd-input');
+            const resumesInput = document.getElementById('batch-resumes-input');
+            const btn = document.getElementById('btn-batch-screen');
+
+            if (!jdInput.files.length) return alert('Please upload a Job Description file.');
+            if (!resumesInput.files.length) return alert('Please upload at least one Candidate Resume.');
+
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Processing Batch...';
+            lucide.createIcons();
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('jdFile', jdInput.files[0]);
+            for (let i = 0; i < resumesInput.files.length; i++) {
+                formData.append('resumes', resumesInput.files[i]);
+            }
+
+            try {
+                const res = await fetch(`${API}/api/enterprise/batch-screen`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const results = data.results || [];
+                    
+                    document.getElementById('batch-results-card').style.display = 'block';
+                    const tbody = document.getElementById('batch-results-body');
+                    
+                    tbody.innerHTML = results.map((r, index) => {
+                        const skills = Array.isArray(r.missingSkills) ? r.missingSkills.join(', ') : 'None';
+                        return `
+                            <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;">
+                                <td style="padding: 16px 12px; font-weight: 700; color: var(--text);">#${index + 1}</td>
+                                <td style="padding: 16px 12px; font-weight: 500; color: var(--accent);">${r.candidateName || 'Candidate'}</td>
+                                <td style="padding: 16px 12px;">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <div style="width: 60px; height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                            <div style="height: 100%; width: ${r.matchScore}%; background: ${r.matchScore >= 75 ? 'var(--success)' : (r.matchScore >= 50 ? 'var(--warning)' : 'var(--danger)')};"></div>
+                                        </div>
+                                        <span style="font-weight: 600; font-size: 13px;">${r.matchScore}%</span>
+                                    </div>
+                                </td>
+                                <td style="padding: 16px 12px; font-size: 13px; color: var(--danger); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${skills}">
+                                    ${skills}
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    const err = await res.json();
+                    alert(err.error || 'Batch screening failed');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error connecting to Enterprise API');
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+
+        // ===================== ENTERPRISE JD PARSING =====================
+        async function parseJdFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const btn = input.previousElementSibling;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Parsing JD...';
+            lucide.createIcons();
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch(`${API}/api/enterprise/parse-jd`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('jTitle').value = data.jobTitle || '';
+                    document.getElementById('jDescription').value = data.description || '';
+                    document.getElementById('jRequirements').value = data.requirements || '';
+                    alert('Job Description successfully parsed and auto-filled!');
+                } else {
+                    const err = await res.json();
+                    alert(err.error || 'Failed to parse JD');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error connecting to Enterprise API');
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                lucide.createIcons();
+                input.value = ''; // Reset input
             }
         }
 

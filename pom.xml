@@ -100,6 +100,13 @@
             <version>2.0.29</version>
         </dependency>
 
+        <!-- Tess4J for Image OCR (Tesseract) -->
+        <dependency>
+            <groupId>net.sourceforge.tess4j</groupId>
+            <artifactId>tess4j</artifactId>
+            <version>5.8.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -839,7 +839,7 @@
                 <p style="font-size: 14px; color: var(--muted); margin-left: 46px; font-weight: 500;">We'll use AI to extract your skills and experience instantly.</p>
             </div>
             <div style="position: relative; z-index: 1;">
-                <input type="file" id="autofillUpload" accept=".pdf" style="display: none;" onchange="handleResumeSelect(event, true)">
+                <input type="file" id="autofillUpload" accept=".txt,.pdf,.png,.jpg,.jpeg" style="display: none;" onchange="handleResumeSelect(event, true)">
                 <button type="button" class="btn-autofill" onclick="document.getElementById('autofillUpload').click()">
                     <i data-lucide="upload-cloud" style="width: 18px; height: 18px;"></i> Upload Resume
                 </button>
@@ -1070,7 +1070,7 @@
                     style="margin-bottom:16px; font-size:12px; color:var(--muted); line-height:1.4;">
                     Complete your profile details (Education, Skills, Experience) to unlock resume upload.
                 </div>
-                <input type="file" id="resumeUpload" accept=".pdf" style="display: none;"
+                <input type="file" id="resumeUpload" accept=".txt,.pdf,.png,.jpg,.jpeg" style="display: none;"
                     onchange="handleResumeSelect(event)">
                 <div class="dropzone disabled" id="dropZone" onclick="handleGatedResumeClick()"
                     style="opacity: 0.6; cursor: not-allowed;">

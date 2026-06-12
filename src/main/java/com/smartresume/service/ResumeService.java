@@ -74,14 +74,38 @@ public class ResumeService {
             throw new RuntimeException("Resume file not found in GridFS");
         }
 
-        // Extract text from PDF
-        try (InputStream inputStream = resource.getInputStream();
-                org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.pdmodel.PDDocument
-                        .load(inputStream)) {
-            org.apache.pdfbox.text.PDFTextStripper stripper = new org.apache.pdfbox.text.PDFTextStripper();
-            return stripper.getText(document);
+        String contentType = resumeMeta.getContentType();
+        String filename = resumeMeta.getFilename() != null ? resumeMeta.getFilename().toLowerCase() : "";
+
+        try (InputStream inputStream = resource.getInputStream()) {
+            if (contentType != null && (contentType.equals("text/plain") || filename.endsWith(".txt"))) {
+                return new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            } else if (contentType != null && (contentType.startsWith("image/") || filename.endsWith(".png") || filename.endsWith(".jpg") || filename.endsWith(".jpeg"))) {
+                java.io.File tempFile = java.io.File.createTempFile("ocr_", filename);
+                try {
+                    java.nio.file.Files.copy(inputStream, tempFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    net.sourceforge.tess4j.ITesseract tesseract = new net.sourceforge.tess4j.Tesseract();
+                    // On Ubuntu (Render), tessdata is usually here
+                    if (new java.io.File("/usr/share/tesseract-ocr/4.00/tessdata").exists()) {
+                        tesseract.setDatapath("/usr/share/tesseract-ocr/4.00/tessdata");
+                    } else if (new java.io.File("/usr/share/tesseract-ocr/5/tessdata").exists()) {
+                        tesseract.setDatapath("/usr/share/tesseract-ocr/5/tessdata");
+                    }
+                    tesseract.setLanguage("eng");
+                    return tesseract.doOCR(tempFile);
+                } catch (Exception | Error e) {
+                    throw new IOException("OCR processing failed. Please ensure Tesseract is installed: " + e.getMessage(), e);
+                } finally {
+                    tempFile.delete();
+                }
+            } else {
+                try (org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.pdmodel.PDDocument.load(inputStream)) {
+                    org.apache.pdfbox.text.PDFTextStripper stripper = new org.apache.pdfbox.text.PDFTextStripper();
+                    return stripper.getText(document);
+                }
+            }
         } catch (Exception e) {
-            throw new IOException("Failed to extract text from PDF: " + e.getMessage(), e);
+            throw new IOException("Failed to extract text: " + e.getMessage(), e);
         }
     }
 }
