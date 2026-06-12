@@ -1232,33 +1232,8 @@
                         <div class="metric-info">
                             <span class="metric-value" id="st-ats">0</span>
                             <span class="metric-label">ATS Filtered</span>
-                            <div class="file-upload" onclick="document.getElementById('bResumes').click()">
-                                <i data-feather="users"></i>
-                                <span>Click to select multiple Resume files</span>
-                                <input type="file" id="bResumes" multiple accept=".pdf,.doc,.docx,.txt" style="display:none">
-                            </div>
-                            <div id="bResumesList" class="file-list"></div>
-                        </div>
-
-                        <div style="text-align: right; margin-top: 24px;">
-                            <button class="btn btn-primary" id="btnBatch" onclick="runBatchScreening()">
-                                <i data-feather="play"></i> Start Batch Screening
-                            </button>
                         </div>
                     </div>
-
-                    <!-- Progress Bar Section -->
-                    <div id="batchProgress" class="progress-container">
-                        <h3><i data-feather="loader" class="spin"></i> AI Batch Processing in Progress...</h3>
-                        <p style="color: var(--muted); font-size: 14px;">Please wait while the AI analyzes and ranks all candidates against the JD. You can safely leave this tab open.</p>
-                        <div class="progress-bar-bg">
-                            <div id="pbFill" class="progress-bar-fill"></div>
-                        </div>
-                        <div id="pbText" class="progress-text">0%</div>
-                    </div>
-
-                    <!-- Leaderboard Output -->
-                    <div id="batchResults" style="display:none; margin-top: 24px;"></div>
 
                     <!-- Job Postings List -->
                     <div class="col-12" style="margin-top: 16px;">
@@ -1424,6 +1399,18 @@
                             </button>
                         </div>
                     </div>
+                    <!-- Progress Bar Section -->
+                    <div id="batchProgress" class="progress-container">
+                        <h3><i data-lucide="loader" class="spin"></i> AI Batch Processing in Progress...</h3>
+                        <p style="color: var(--muted); font-size: 14px;">Please wait while the AI analyzes and ranks all candidates against the JD. You can safely leave this tab open.</p>
+                        <div class="progress-bar-bg">
+                            <div id="pbFill" class="progress-bar-fill"></div>
+                        </div>
+                        <div id="pbText" class="progress-text">0%</div>
+                    </div>
+
+                    <!-- Leaderboard Output -->
+                    <div id="batchResults" style="display:none; margin-top: 24px;"></div>
                 </div>
 
                 <div class="card" id="batch-results-card" style="display:none;">
