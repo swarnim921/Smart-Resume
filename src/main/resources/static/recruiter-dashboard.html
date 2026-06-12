@@ -1232,8 +1232,33 @@
                         <div class="metric-info">
                             <span class="metric-value" id="st-ats">0</span>
                             <span class="metric-label">ATS Filtered</span>
+                            <div class="file-upload" onclick="document.getElementById('bResumes').click()">
+                                <i data-feather="users"></i>
+                                <span>Click to select multiple Resume files</span>
+                                <input type="file" id="bResumes" multiple accept=".pdf,.doc,.docx,.txt" style="display:none">
+                            </div>
+                            <div id="bResumesList" class="file-list"></div>
+                        </div>
+
+                        <div style="text-align: right; margin-top: 24px;">
+                            <button class="btn btn-primary" id="btnBatch" onclick="runBatchScreening()">
+                                <i data-feather="play"></i> Start Batch Screening
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Progress Bar Section -->
+                    <div id="batchProgress" class="progress-container">
+                        <h3><i data-feather="loader" class="spin"></i> AI Batch Processing in Progress...</h3>
+                        <p style="color: var(--muted); font-size: 14px;">Please wait while the AI analyzes and ranks all candidates against the JD. You can safely leave this tab open.</p>
+                        <div class="progress-bar-bg">
+                            <div id="pbFill" class="progress-bar-fill"></div>
+                        </div>
+                        <div id="pbText" class="progress-text">0%</div>
+                    </div>
+
+                    <!-- Leaderboard Output -->
+                    <div id="batchResults" style="display:none; margin-top: 24px;"></div>
 
                     <!-- Job Postings List -->
                     <div class="col-12" style="margin-top: 16px;">
@@ -2308,46 +2333,110 @@
                     body: formData
                 });
 
-                if (res.ok) {
+                if (res.status === 202) {
                     const data = await res.json();
-                    const results = data.results || [];
-                    
-                    document.getElementById('batch-results-card').style.display = 'block';
-                    const tbody = document.getElementById('batch-results-body');
-                    
-                    tbody.innerHTML = results.map((r, index) => {
-                        const skills = Array.isArray(r.missingSkills) ? r.missingSkills.join(', ') : 'None';
-                        return `
-                            <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;">
-                                <td style="padding: 16px 12px; font-weight: 700; color: var(--text);">#${index + 1}</td>
-                                <td style="padding: 16px 12px; font-weight: 500; color: var(--accent);">${r.candidateName || 'Candidate'}</td>
-                                <td style="padding: 16px 12px;">
-                                    <div style="display:flex; align-items:center; gap:8px;">
-                                        <div style="width: 60px; height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
-                                            <div style="height: 100%; width: ${r.matchScore}%; background: ${r.matchScore >= 75 ? 'var(--success)' : (r.matchScore >= 50 ? 'var(--warning)' : 'var(--danger)')};"></div>
-                                        </div>
-                                        <span style="font-weight: 600; font-size: 13px;">${r.matchScore}%</span>
-                                    </div>
-                                </td>
-                                <td style="padding: 16px 12px; font-size: 13px; color: var(--danger); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${skills}">
-                                    ${skills}
-                                </td>
-                            </tr>
-                        `;
-                    }).join('');
-                    showToast('✓ Batch screening successfully completed!');
+                    startPollingBatchJob(data.batchId);
                 } else {
                     const err = await res.json();
                     showToast(err.error || 'Batch screening failed', true);
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
                 }
             } catch (e) {
                 console.error(e);
-                showToast('Error connecting to Enterprise API', true);
-            } finally {
-                btn.innerHTML = originalHtml;
+                showToast('An error occurred during batch screening.', true);
                 btn.disabled = false;
-                lucide.createIcons();
+                btn.innerHTML = originalHtml;
             }
+        }
+
+        let pollInterval;
+        async function startPollingBatchJob(batchId) {
+            document.getElementById('batchProgress').style.display = 'block';
+            document.getElementById('batchResults').style.display = 'none';
+            
+            pollInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`${API}/api/enterprise/batch/${batchId}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const job = await res.json();
+                        
+                        let percent = 0;
+                        if (job.totalResumes > 0) {
+                            percent = Math.floor((job.processedResumes / job.totalResumes) * 100);
+                        }
+                        
+                        document.getElementById('pbFill').style.width = percent + '%';
+                        document.getElementById('pbText').innerText = `Processed ${job.processedResumes} / ${job.totalResumes} Resumes (${percent}%)`;
+                        
+                        if (job.status === 'COMPLETED') {
+                            clearInterval(pollInterval);
+                            document.getElementById('batchProgress').style.display = 'none';
+                            renderBatchResults(job);
+                            
+                            const btn = document.getElementById('btn-batch-screen');
+                            btn.disabled = false;
+                            btn.innerHTML = `<i data-lucide="play"></i> Run Batch Screening`;
+                            lucide.createIcons();
+                            showToast('✓ Batch Screening Complete!');
+                        } else if (job.status === 'FAILED') {
+                            clearInterval(pollInterval);
+                            document.getElementById('batchProgress').style.display = 'none';
+                            showToast('Batch processing failed internally.', true);
+                            
+                            const btn = document.getElementById('btn-batch-screen');
+                            btn.disabled = false;
+                            btn.innerHTML = `<i data-lucide="play"></i> Run Batch Screening`;
+                            lucide.createIcons();
+                        }
+                    }
+                } catch (e) {
+                    console.error("Polling error", e);
+                }
+            }, 3000);
+        }
+
+        function renderBatchResults(job) {
+            const data = job.results || [];
+            document.getElementById('batchResults').style.display = 'block';
+            document.getElementById('batchResults').innerHTML = `
+                <div class="card" id="batch-results-card">
+                    <div class="card-header">
+                        <div class="card-title"><i data-lucide="bar-chart-2"></i> ML Screening Results</div>
+                    </div>
+                    <div style="overflow-x: auto; margin-top: 16px;">
+                        <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border);">
+                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Rank</th>
+                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Candidate Name</th>
+                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Match Score</th>
+                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Missing Skills</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batchTableBody">
+                                ${data.map((r, index) => {
+                                    const skills = Array.isArray(r.missingSkills) ? r.missingSkills.join(', ') : 'None';
+                                    return `
+                                        <tr style="border-bottom: 1px solid var(--border);">
+                                            <td style="padding: 16px 12px; font-weight: 700;">#${index + 1}</td>
+                                            <td style="padding: 16px 12px; font-weight: 500;">${r.candidateName || 'Candidate'}</td>
+                                            <td style="padding: 16px 12px;">
+                                                <div style="display:flex; align-items:center; gap:8px;">
+                                                    <div style="width: 60px; height: 6px; background: #e2e8f0; border-radius: 4px;"><div style="height: 100%; width: ${r.matchScore}%; background: ${r.matchScore >= 75 ? 'var(--success)' : 'var(--warning)'};"></div></div>
+                                                    <span>${r.matchScore}%</span>
+                                                </div>
+                                            </td>
+                                            <td style="padding: 16px 12px; font-size: 13px;">${skills}</td>
+                                        </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+            lucide.createIcons();
         }
 
         // ===================== ENTERPRISE JD PARSING =====================

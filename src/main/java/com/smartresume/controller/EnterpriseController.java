@@ -3,6 +3,10 @@ package com.smartresume.controller;
 import com.smartresume.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.smartresume.model.BatchJob;
+import com.smartresume.repository.BatchJobRepository;
+import com.smartresume.service.BatchProcessingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +23,14 @@ import java.util.*;
 @Slf4j
 public class EnterpriseController {
 
-    private final ResumeService resumeService;
+    @Autowired
+    private ResumeService resumeService;
+
+    @Autowired
+    private BatchJobRepository batchJobRepository;
+
+    @Autowired
+    private BatchProcessingService batchProcessingService;
     private final RestTemplate restTemplate;
 
     @Value("${ml.service.url:http://localhost:5000}")
@@ -162,59 +173,52 @@ public class EnterpriseController {
             User systemUser = new User();
             systemUser.setId("system_enterprise");
 
-            // 1. Parse JD
+            // Create Batch Job
+            BatchJob job = new BatchJob();
+            job.setStatus("PROCESSING");
+            job.setTotalResumes(resumes.length);
+            job.setProcessedResumes(0);
+            batchJobRepository.save(job);
+
+            // 1. Parse JD synchronously to extract text
             ResumeMeta jdMeta = resumeService.store(jdFile, systemUser, "JD_DOC");
             String jdText = resumeService.extractTextFromResume(jdMeta.getId());
 
-            // 2. Parse all Resumes
-            List<Map<String, Object>> mlPayloadApps = new ArrayList<>();
+            // 2. Store all resumes synchronously to prevent temp file destruction
+            List<String> resumeIds = new ArrayList<>();
             Map<String, String> candidateNames = new HashMap<>();
 
             for (MultipartFile resumeFile : resumes) {
                 ResumeMeta resMeta = resumeService.store(resumeFile, systemUser, "CANDIDATE_RESUME");
-                String resText = resumeService.extractTextFromResume(resMeta.getId());
-                
                 String filename = resumeFile.getOriginalFilename();
                 String candidateName = filename != null ? filename.replaceAll("(?i)\\.(pdf|txt|png|jpg|jpeg|doc|docx)$", "") : "Unknown Candidate";
                 candidateNames.put(resMeta.getId(), candidateName);
-
-                Map<String, Object> appObj = new HashMap<>();
-                appObj.put("applicationId", resMeta.getId());
-                appObj.put("resumeText", resText);
-                appObj.put("jobDescription", jdText);
-                mlPayloadApps.add(appObj);
+                resumeIds.add(resMeta.getId());
             }
 
-            // 3. Send to Python ML Service for Batch Analysis
-            String url = mlServiceUrl + "/api/ml/batch-analyze";
-            Map<String, Object> request = new HashMap<>();
-            request.put("jobId", "enterprise-batch-1");
-            request.put("applications", mlPayloadApps);
+            // 3. Fire the Async Background Worker
+            batchProcessingService.processBatch(job.getId(), jdText, resumeIds, candidateNames);
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-            
-            if (response.getStatusCode() == HttpStatus.OK) {
-                Map<String, Object> responseBody = response.getBody();
-                List<Map<String, Object>> results = (List<Map<String, Object>>) responseBody.get("results");
-                
-                // Add candidate names back into the results
-                for (Map<String, Object> res : results) {
-                    String appId = (String) res.get("applicationId");
-                    res.put("candidateName", candidateNames.get(appId));
-                }
-                
-                return ResponseEntity.ok(responseBody);
-            } else {
-                throw new RuntimeException("ML Service failed to batch analyze");
-            }
+            // 4. Return immediately to the frontend
+            return ResponseEntity.accepted().body(Map.of(
+                "batchId", job.getId(),
+                "status", "PROCESSING",
+                "message", "Batch uploaded successfully. Background processing started."
+            ));
 
-        } catch (org.springframework.web.client.HttpClientErrorException.TooManyRequests e) {
-            log.error("ML Service Rate Limited: {}", e.getMessage());
-            return ResponseEntity.status(429).body(Map.of("error", "The AI Analysis Service is currently experiencing high traffic. Please wait 10 seconds and try again."));
         } catch (Exception e) {
-            log.error("Batch screening failed: {}", e.getMessage(), e);
+            log.error("Batch screening initialization failed: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @GetMapping("/batch/{batchId}")
+    public ResponseEntity<?> getBatchStatus(@PathVariable String batchId) {
+        BatchJob job = batchJobRepository.findById(batchId).orElse(null);
+        if (job == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "Batch not found"));
+        }
+        return ResponseEntity.ok(job);
     }
 
     private String extractRegex(String text, String regex) {
