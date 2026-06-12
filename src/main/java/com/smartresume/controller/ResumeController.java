@@ -179,6 +179,33 @@ public class ResumeController {
                     }
                 }
 
+                // 7. Personal Info (Name, Location, Bio)
+                String[] lines = resumeText.split("\n");
+                String name = "";
+                for (String line : lines) {
+                    if (line.trim().length() > 2 && line.trim().length() < 40 && !line.toLowerCase().contains("resume") && !line.toLowerCase().contains("curriculum vitae")) {
+                        name = line.trim();
+                        break;
+                    }
+                }
+                if (!name.isEmpty()) extracted.put("name", name);
+
+                java.util.regex.Matcher mLocation = java.util.regex.Pattern.compile("(?i)(New York|San Francisco|London|Bengaluru|Mumbai|Delhi|Hyderabad|Pune|Chennai|Remote|India|USA|UK)[,\\s]*(India|USA|UK)?").matcher(resumeText);
+                if (mLocation.find()) extracted.put("location", mLocation.group().trim());
+
+                int summaryIdx = lower.indexOf("summary");
+                if (summaryIdx == -1) summaryIdx = lower.indexOf("objective");
+                if (summaryIdx != -1) {
+                    int endIdx = lower.indexOf("\n\n", summaryIdx);
+                    if (endIdx == -1) endIdx = lower.indexOf("experience", summaryIdx);
+                    if (endIdx == -1) endIdx = lower.indexOf("education", summaryIdx);
+                    if (endIdx != -1 && endIdx > summaryIdx + 10) {
+                        String bio = resumeText.substring(summaryIdx, endIdx).replaceAll("(?i)(summary|objective)", "").trim();
+                        bio = bio.replaceAll("^\\s*[\\-\\*:]\\s*", "").trim();
+                        if (bio.length() > 20) extracted.put("bio", bio);
+                    }
+                }
+
                 response.put("extractedData", extracted);
             } catch (Exception e) {
                 // Log and ignore to not fail the upload just because extraction failed

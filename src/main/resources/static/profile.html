@@ -1898,6 +1898,20 @@
                 // AUTO-FILL Logic
                 if (data.extractedData) {
                     let fieldsUpdated = [];
+
+                    // Basic Info
+                    if (data.extractedData.name) {
+                        document.getElementById('pName').value = data.extractedData.name;
+                        fieldsUpdated.push("Name");
+                    }
+                    if (data.extractedData.location) {
+                        document.getElementById('pLocation').value = data.extractedData.location;
+                        fieldsUpdated.push("Location");
+                    }
+                    if (data.extractedData.bio) {
+                        document.getElementById('pBio').value = data.extractedData.bio;
+                        fieldsUpdated.push("Bio");
+                    }
                     
                     // Populate Skills (combine technical and soft)
                     let extractedSkills = [];
