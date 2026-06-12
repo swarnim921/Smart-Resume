@@ -100,7 +100,7 @@ public class EnterpriseController {
                 String resText = resumeService.extractTextFromResume(resMeta.getId());
                 
                 String filename = resumeFile.getOriginalFilename();
-                String candidateName = filename != null ? filename.replaceAll("(?i)\\.(pdf|txt|png|jpg|jpeg)$", "") : "Unknown Candidate";
+                String candidateName = filename != null ? filename.replaceAll("(?i)\\.(pdf|txt|png|jpg|jpeg|doc|docx)$", "") : "Unknown Candidate";
                 candidateNames.put(resMeta.getId(), candidateName);
 
                 Map<String, Object> appObj = new HashMap<>();
