@@ -93,14 +93,18 @@ public class EnterpriseController {
             if (reqIdx == -1) reqIdx = extractedText.toLowerCase().indexOf("skills");
             
             if (descIdx != -1 && reqIdx != -1 && reqIdx > descIdx) {
-                description = extractedText.substring(descIdx + 15, reqIdx).trim();
-                reqs = extractedText.substring(reqIdx + 12).trim();
+                int descEndLine = extractedText.indexOf("\n", descIdx);
+                int reqEndLine = extractedText.indexOf("\n", reqIdx);
+                description = extractedText.substring(descEndLine != -1 ? descEndLine : descIdx + 15, reqIdx).trim();
+                reqs = extractedText.substring(reqEndLine != -1 ? reqEndLine : reqIdx + 12).trim();
             } else if (descIdx != -1) {
-                description = extractedText.substring(descIdx + 15).trim();
+                int descEndLine = extractedText.indexOf("\n", descIdx);
+                description = extractedText.substring(descEndLine != -1 ? descEndLine : descIdx + 15).trim();
                 reqs = allSkills;
             } else if (reqIdx != -1) {
+                int reqEndLine = extractedText.indexOf("\n", reqIdx);
                 description = extractedText.substring(0, reqIdx).trim();
-                reqs = extractedText.substring(reqIdx + 12).trim();
+                reqs = extractedText.substring(reqEndLine != -1 ? reqEndLine : reqIdx + 12).trim();
             } else {
                 description = extractedText;
                 reqs = allSkills;
