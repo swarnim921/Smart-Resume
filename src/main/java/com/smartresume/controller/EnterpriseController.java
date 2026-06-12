@@ -86,7 +86,11 @@ public class EnterpriseController {
             String description = "";
             String reqs = "";
             int descIdx = extractedText.toLowerCase().indexOf("job description");
+            if (descIdx == -1) descIdx = extractedText.toLowerCase().indexOf("role summary");
+            
             int reqIdx = extractedText.toLowerCase().indexOf("requirements");
+            if (reqIdx == -1) reqIdx = extractedText.toLowerCase().indexOf("qualifications");
+            if (reqIdx == -1) reqIdx = extractedText.toLowerCase().indexOf("skills");
             
             if (descIdx != -1 && reqIdx != -1 && reqIdx > descIdx) {
                 description = extractedText.substring(descIdx + 15, reqIdx).trim();
@@ -100,6 +104,29 @@ public class EnterpriseController {
             } else {
                 description = extractedText;
                 reqs = allSkills;
+            }
+
+            if ((reqs == null || reqs.isEmpty()) && (allSkills == null || allSkills.isEmpty())) {
+                java.util.List<String> foundSkills = new java.util.ArrayList<>();
+                String[] techKeywords = {
+                    "java", "python", "react", "javascript", "spring", "node", "aws", "sql", "html", "css", 
+                    "c++", "angular", "docker", "kubernetes", "git", "typescript", "c#", "ruby", "go", 
+                    "mongodb", "redis", "postgresql", "mysql", "azure", "gcp", "linux", "jenkins", "ci/cd", 
+                    "machine learning", "tensorflow", "pytorch", "django", "flask", "vue", "next.js", 
+                    "express", "hibernate", "graphql", "rest api", "microservices", "agile", "scrum"
+                };
+                for (String kw : techKeywords) {
+                    if (extractedText.toLowerCase().contains(kw) || extractedText.toLowerCase().contains(kw.replace(" ", ""))) {
+                        if (kw.equals("aws") || kw.equals("sql") || kw.equals("gcp") || kw.equals("ci/cd")) {
+                            foundSkills.add(kw.toUpperCase());
+                        } else if (kw.equals("c++") || kw.equals("c#") || kw.equals("html") || kw.equals("css")) {
+                            foundSkills.add(kw.toUpperCase());
+                        } else {
+                            foundSkills.add(kw.substring(0, 1).toUpperCase() + kw.substring(1));
+                        }
+                    }
+                }
+                reqs = String.join(", ", foundSkills);
             }
 
             Map<String, Object> result = new HashMap<>();
