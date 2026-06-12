@@ -44,7 +44,7 @@ public class EnterpriseController {
             // Ask ML service to extract structured JD fields
             String url = mlServiceUrl + "/api/ml/extract-skills";
             Map<String, String> request = new HashMap<>();
-            request.put("text", extractedText);
+            request.put("resumeText", extractedText);
 
             ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
             Map<String, Object> responseBody = response.getBody();
@@ -69,6 +69,9 @@ public class EnterpriseController {
 
             return ResponseEntity.ok(result);
 
+        } catch (org.springframework.web.client.HttpClientErrorException.TooManyRequests e) {
+            log.error("ML Service Rate Limited: {}", e.getMessage());
+            return ResponseEntity.status(429).body(Map.of("error", "The AI Analysis Service is currently experiencing high traffic. Please wait a few seconds and try again."));
         } catch (Exception e) {
             log.error("Failed to parse JD file: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
@@ -133,6 +136,9 @@ public class EnterpriseController {
                 throw new RuntimeException("ML Service failed to batch analyze");
             }
 
+        } catch (org.springframework.web.client.HttpClientErrorException.TooManyRequests e) {
+            log.error("ML Service Rate Limited: {}", e.getMessage());
+            return ResponseEntity.status(429).body(Map.of("error", "The AI Analysis Service is currently experiencing high traffic. Please wait 10 seconds and try again."));
         } catch (Exception e) {
             log.error("Batch screening failed: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
