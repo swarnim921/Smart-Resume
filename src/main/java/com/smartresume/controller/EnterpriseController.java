@@ -46,8 +46,17 @@ public class EnterpriseController {
             Map<String, String> request = new HashMap<>();
             request.put("resumeText", extractedText);
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-            Map<String, Object> responseBody = response.getBody();
+            ResponseEntity<Map> response = null;
+            Map<String, Object> responseBody = new HashMap<>();
+            
+            try {
+                response = restTemplate.postForEntity(url, request, Map.class);
+                if (response.getBody() != null) {
+                    responseBody = response.getBody();
+                }
+            } catch (Exception mlEx) {
+                log.warn("ML Service unavailable for JD parse, falling back to heuristics: {}", mlEx.getMessage());
+            }
             
             List<String> techSkills = (List<String>) responseBody.getOrDefault("technicalSkills", Collections.emptyList());
             List<String> softSkills = (List<String>) responseBody.getOrDefault("softSkills", Collections.emptyList());
@@ -104,9 +113,6 @@ public class EnterpriseController {
 
             return ResponseEntity.ok(result);
 
-        } catch (org.springframework.web.client.HttpClientErrorException.TooManyRequests e) {
-            log.error("ML Service Rate Limited: {}", e.getMessage());
-            return ResponseEntity.status(429).body(Map.of("error", "The AI Analysis Service is currently experiencing high traffic. Please wait a few seconds and try again."));
         } catch (Exception e) {
             log.error("Failed to parse JD file: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
