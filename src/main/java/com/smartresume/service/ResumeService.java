@@ -98,7 +98,18 @@ public class ResumeService {
                 } finally {
                     tempFile.delete();
                 }
+            } else if (contentType != null && (contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") || filename.endsWith(".docx"))) {
+                try (org.apache.poi.xwpf.usermodel.XWPFDocument docx = new org.apache.poi.xwpf.usermodel.XWPFDocument(inputStream);
+                     org.apache.poi.xwpf.extractor.XWPFWordExtractor extractor = new org.apache.poi.xwpf.extractor.XWPFWordExtractor(docx)) {
+                    return extractor.getText();
+                }
+            } else if (contentType != null && (contentType.equals("application/msword") || filename.endsWith(".doc"))) {
+                try (org.apache.poi.hwpf.HWPFDocument doc = new org.apache.poi.hwpf.HWPFDocument(inputStream);
+                     org.apache.poi.hwpf.extractor.WordExtractor extractor = new org.apache.poi.hwpf.extractor.WordExtractor(doc)) {
+                    return extractor.getText();
+                }
             } else {
+                // Default to PDF
                 try (org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.pdmodel.PDDocument.load(inputStream)) {
                     org.apache.pdfbox.text.PDFTextStripper stripper = new org.apache.pdfbox.text.PDFTextStripper();
                     return stripper.getText(document);

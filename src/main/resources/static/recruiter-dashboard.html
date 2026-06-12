@@ -1261,7 +1261,7 @@
                         <button type="button" class="nav-item" style="width:auto; padding:10px 24px; background:#fff; border:1px solid var(--border); color:var(--text); font-weight:600; justify-content:center" onclick="document.getElementById('jd-upload-input').click()">
                             <i data-lucide="upload-cloud" style="width:16px"></i> Auto-Fill from JD
                         </button>
-                        <input type="file" id="jd-upload-input" accept=".txt,.pdf,.png,.jpg,.jpeg" style="display:none" onchange="parseJdFile(this)">
+                        <input type="file" id="jd-upload-input" accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" style="display:none" onchange="parseJdFile(this)">
                         <button type="button" class="apply-btn" style="padding:10px 24px;"
                             onclick="document.querySelector('#post-form-submit').click()">
                             <i data-lucide="send"
@@ -1386,12 +1386,12 @@
                     </div>
                     <div class="dashboard-grid" style="margin-top:16px;">
                         <div class="col-12" style="margin-bottom: 16px;">
-                            <label class="form-label">1. Job Description File (TXT, PDF, Image) *</label>
-                            <input type="file" id="batch-jd-input" accept=".txt,.pdf,.png,.jpg,.jpeg" class="form-input">
+                            <label class="form-label">1. Job Description File (TXT, PDF, DOC, Image) *</label>
+                            <input type="file" id="batch-jd-input" accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" class="form-input">
                         </div>
                         <div class="col-12" style="margin-bottom: 16px;">
                             <label class="form-label">2. Candidate Resumes (Multiple files allowed) *</label>
-                            <input type="file" id="batch-resumes-input" multiple accept=".txt,.pdf,.png,.jpg,.jpeg" class="form-input">
+                            <input type="file" id="batch-resumes-input" multiple accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" class="form-input">
                         </div>
                         <div class="col-12">
                             <button type="button" class="apply-btn" onclick="runBatchScreening()" id="btn-batch-screen">
@@ -2246,6 +2246,25 @@
             } catch (e) { el.innerHTML = 'Error loading analytics'; }
         }
 
+        // ===================== TOAST NOTIFICATIONS =====================
+        function showToast(msg, isError = false) {
+            let t = document.getElementById('toast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'toast';
+                t.style.cssText = 'position:fixed; bottom:20px; right:20px; padding:16px 24px; border-radius:12px; font-weight:600; color:white; z-index:9999; transform:translateY(100px); opacity:0; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);';
+                document.body.appendChild(t);
+            }
+            t.textContent = msg;
+            t.style.background = isError ? 'var(--danger)' : '#10b981';
+            t.style.transform = 'translateY(0)';
+            t.style.opacity = '1';
+            setTimeout(() => {
+                t.style.transform = 'translateY(100px)';
+                t.style.opacity = '0';
+            }, 5000);
+        }
+
         // Toggle Sidebar
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
@@ -2267,11 +2286,12 @@
             const resumesInput = document.getElementById('batch-resumes-input');
             const btn = document.getElementById('btn-batch-screen');
 
-            if (!jdInput.files.length) return alert('Please upload a Job Description file.');
-            if (!resumesInput.files.length) return alert('Please upload at least one Candidate Resume.');
+            if (!jdInput.files.length) return showToast('Please upload a Job Description file.', true);
+            if (!resumesInput.files.length) return showToast('Please upload at least one Candidate Resume.', true);
 
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Processing Batch...';
+            showToast(`Uploading and processing batch of ${resumesInput.files.length} resumes... This might take a few seconds.`);
             lucide.createIcons();
             btn.disabled = true;
 
@@ -2315,13 +2335,14 @@
                             </tr>
                         `;
                     }).join('');
+                    showToast('✓ Batch screening successfully completed!');
                 } else {
                     const err = await res.json();
-                    alert(err.error || 'Batch screening failed');
+                    showToast(err.error || 'Batch screening failed', true);
                 }
             } catch (e) {
                 console.error(e);
-                alert('Error connecting to Enterprise API');
+                showToast('Error connecting to Enterprise API', true);
             } finally {
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
@@ -2337,6 +2358,7 @@
             const btn = input.previousElementSibling;
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Parsing JD...';
+            showToast(`Uploading and parsing Job Description ${file.name}... This might take a few seconds.`);
             lucide.createIcons();
             btn.disabled = true;
 
@@ -2355,14 +2377,14 @@
                     document.getElementById('jTitle').value = data.jobTitle || '';
                     document.getElementById('jDescription').value = data.description || '';
                     document.getElementById('jRequirements').value = data.requirements || '';
-                    alert('Job Description successfully parsed and auto-filled!');
+                    showToast('✓ Job Description successfully parsed and auto-filled!');
                 } else {
                     const err = await res.json();
-                    alert(err.error || 'Failed to parse JD');
+                    showToast(err.error || 'Failed to parse JD', true);
                 }
             } catch (e) {
                 console.error(e);
-                alert('Error connecting to Enterprise API');
+                showToast('Error connecting to Enterprise API', true);
             } finally {
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;

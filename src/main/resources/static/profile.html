@@ -839,7 +839,7 @@
                 <p style="font-size: 14px; color: var(--muted); margin-left: 46px; font-weight: 500;">We'll use AI to extract your skills and experience instantly.</p>
             </div>
             <div style="position: relative; z-index: 1;">
-                <input type="file" id="autofillUpload" accept=".txt,.pdf,.png,.jpg,.jpeg" style="display: none;" onchange="handleResumeSelect(event, true)">
+                <input type="file" id="autofillUpload" accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" style="display: none;" onchange="handleResumeSelect(event, true)">
                 <button type="button" class="btn-autofill" onclick="document.getElementById('autofillUpload').click()">
                     <i data-lucide="upload-cloud" style="width: 18px; height: 18px;"></i> Upload Resume
                 </button>
@@ -1070,7 +1070,7 @@
                     style="margin-bottom:16px; font-size:12px; color:var(--muted); line-height:1.4;">
                     Complete your profile details (Education, Skills, Experience) to unlock resume upload.
                 </div>
-                <input type="file" id="resumeUpload" accept=".txt,.pdf,.png,.jpg,.jpeg" style="display: none;"
+                <input type="file" id="resumeUpload" accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" style="display: none;"
                     onchange="handleResumeSelect(event)">
                 <div class="dropzone disabled" id="dropZone" onclick="handleGatedResumeClick()"
                     style="opacity: 0.6; cursor: not-allowed;">
@@ -1432,13 +1432,13 @@
                     lockBadge.innerHTML = '<span style="color:#10b981;font-size:12px;font-weight:700;">Uploaded</span>';
                     lockMsg.textContent = 'You have already uploaded a resume.';
                     dzTitle.textContent = 'Upload a new resume to replace it';
-                    dzSub.textContent = 'TXT, PDF, JPG, PNG (Max 5MB)';
+                    dzSub.textContent = 'TXT, PDF, DOC, JPG, PNG (Max 5MB)';
                 } else {
                     lockBadge.innerHTML = '<i data-lucide="unlock" style="width:14px"></i> Unlocked';
                     lockBadge.style.color = 'var(--success)';
                     lockMsg.textContent = 'Profile details complete! You can now upload your resume to reach 100%.';
                     dzTitle.textContent = 'Click to upload your resume';
-                    dzSub.textContent = 'TXT, PDF, JPG, PNG (Max 5MB)';
+                    dzSub.textContent = 'TXT, PDF, DOC, JPG, PNG (Max 5MB)';
                 }
             } else {
                 // Lock Resume
