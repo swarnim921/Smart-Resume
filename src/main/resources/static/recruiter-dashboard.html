@@ -1391,11 +1391,14 @@
                         </div>
                         <div class="col-12" style="margin-bottom: 16px;">
                             <label class="form-label">2. Candidate Resumes (Multiple files allowed) *</label>
-                            <input type="file" id="batch-resumes-input" multiple accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" class="form-input">
+                            <input type="file" id="batch-resumes-input" multiple accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" class="form-input" onchange="document.getElementById('file-ready-msg').style.display='block'; document.getElementById('file-ready-text').innerText = this.files.length + ' resumes selected and ready to upload!'">
+                            <div id="file-ready-msg" style="display:none; margin-top:12px; padding:12px; background:rgba(16, 185, 129, 0.1); border:1px solid var(--success); border-radius:8px; color:var(--success); font-weight:500;">
+                                <i data-lucide="check-circle" style="width:16px; margin-right:6px; vertical-align:text-bottom;"></i> <span id="file-ready-text"></span>
+                            </div>
                         </div>
                         <div class="col-12">
                             <button type="button" class="apply-btn" onclick="runBatchScreening()" id="btn-batch-screen">
-                                <i data-lucide="play" style="width:16px; margin-right:4px;"></i> Run Batch Screening
+                                <i data-lucide="upload-cloud" style="width:16px; margin-right:4px;"></i> Upload & Run Batch Screening
                             </button>
                         </div>
                     </div>
@@ -2302,8 +2305,9 @@
             if (!resumesInput.files.length) return showToast('Please upload at least one Candidate Resume.', true);
 
             const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Processing Batch...';
-            showToast(`Uploading and processing batch of ${resumesInput.files.length} resumes... This might take a few seconds.`);
+            btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Uploading & Processing...';
+            document.getElementById('file-ready-msg').style.display = 'none';
+            showToast(`Uploading batch of ${resumesInput.files.length} resumes... This might take a few moments for large batches.`);
             lucide.createIcons();
             btn.disabled = true;
 
