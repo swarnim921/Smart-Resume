@@ -1404,8 +1404,8 @@
                     </div>
                     <!-- Progress Bar Section -->
                     <div id="batchProgress" class="progress-container" style="display:none;">
-                        <h3><i data-lucide="loader" class="spin"></i> AI Batch Processing in Progress...</h3>
-                        <p style="color: var(--muted); font-size: 14px;">Please wait while the AI analyzes and ranks all candidates against the JD. You can safely leave this tab open.</p>
+                        <h3 id="batchProgressTitle"><i data-lucide="loader" class="spin"></i> AI Batch Processing in Progress...</h3>
+                        <p id="batchProgressDesc" style="color: var(--muted); font-size: 14px;">Please wait while the AI analyzes and ranks all candidates against the JD. You can safely leave this tab open.</p>
                         <div class="progress-bar-bg">
                             <div id="pbFill" class="progress-bar-fill"></div>
                         </div>
@@ -2318,34 +2318,62 @@
             }
 
             try {
-                const res = await fetch(`${API}/api/enterprise/batch-screen`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
-                });
+                // Show Progress UI immediately for upload phase
+                document.getElementById('batchProgress').style.display = 'block';
+                document.getElementById('batchResults').style.display = 'none';
+                document.getElementById('batchProgressTitle').innerHTML = '<i data-lucide="upload" class="bounce"></i> Uploading Files to Secure Server...';
+                document.getElementById('batchProgressDesc').innerText = 'Please wait while your files are securely uploaded. Large batches can take a few minutes depending on your internet connection.';
+                document.getElementById('pbFill').style.width = '0%';
+                document.getElementById('pbText').innerText = '0% Uploaded';
+                lucide.createIcons();
 
-                if (res.status === 202) {
-                    const data = await res.json();
+                await new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', `${API}/api/enterprise/batch-screen`, true);
+                    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+                    xhr.upload.onprogress = function(e) {
+                        if (e.lengthComputable) {
+                            const percentComplete = Math.round((e.loaded / e.total) * 100);
+                            document.getElementById('pbFill').style.width = percentComplete + '%';
+                            document.getElementById('pbText').innerText = percentComplete + '% Uploaded';
+                        }
+                    };
+
+                    xhr.onload = function() {
+                        if (xhr.status === 202) {
+                            const data = JSON.parse(xhr.responseText);
+                            resolve(data);
+                        } else {
+                            reject(new Error('Batch screening failed with status ' + xhr.status));
+                        }
+                    };
+
+                    xhr.onerror = function() {
+                        reject(new Error('Network error occurred during upload.'));
+                    };
+
+                    xhr.send(formData);
+                }).then(data => {
+                    // Upload finished, transition to ML processing phase
+                    document.getElementById('batchProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> AI Batch Processing in Progress...';
+                    document.getElementById('batchProgressDesc').innerText = 'Please wait while the AI analyzes and ranks all candidates against the JD. You can safely leave this tab open.';
+                    document.getElementById('pbFill').style.width = '0%';
+                    document.getElementById('pbText').innerText = 'Starting ML processing...';
+                    lucide.createIcons();
                     startPollingBatchJob(data.batchId);
-                } else {
-                    const err = await res.json();
-                    showToast(err.error || 'Batch screening failed', true);
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
-                }
+                });
             } catch (e) {
                 console.error(e);
-                showToast('An error occurred during batch screening.', true);
+                showToast('An error occurred during file upload or processing.', true);
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
+                document.getElementById('batchProgress').style.display = 'none';
             }
         }
 
         let pollInterval;
         async function startPollingBatchJob(batchId) {
-            document.getElementById('batchProgress').style.display = 'block';
-            document.getElementById('batchResults').style.display = 'none';
-            
             pollInterval = setInterval(async () => {
                 try {
                     const res = await fetch(`${API}/api/enterprise/batch/${batchId}`, {
