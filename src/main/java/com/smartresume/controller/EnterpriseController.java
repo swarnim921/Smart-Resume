@@ -212,6 +212,66 @@ public class EnterpriseController {
         }
     }
 
+    /**
+     * B2B Feature: Many-to-Many Placement Cell Bulk Matching
+     */
+    @PostMapping("/placement-screen")
+    public ResponseEntity<?> placementScreen(
+            @RequestParam("jdFiles") MultipartFile[] jdFiles,
+            @RequestParam("resumes") MultipartFile[] resumes) {
+        
+        try {
+            User systemUser = new User();
+            systemUser.setId("system_enterprise");
+
+            BatchJob job = new BatchJob();
+            job.setStatus("PROCESSING");
+            job.setTotalResumes(resumes.length);
+            job.setTotalJds(jdFiles.length);
+            job.setProcessedResumes(0);
+            batchJobRepository.save(job);
+
+            List<Map<String, String>> jdsData = new ArrayList<>();
+            for (MultipartFile jdFile : jdFiles) {
+                ResumeMeta jdMeta = resumeService.store(jdFile, systemUser, "JD_DOC");
+                String text = resumeService.extractTextFromResume(jdMeta.getId());
+                
+                String filename = jdFile.getOriginalFilename();
+                String jdName = filename != null ? filename.replaceAll("(?i)\\.(pdf|txt|png|jpg|jpeg|doc|docx)$", "") : "Unknown JD";
+                
+                Map<String, String> jdMap = new HashMap<>();
+                jdMap.put("id", jdMeta.getId());
+                jdMap.put("text", text);
+                jdMap.put("name", jdName);
+                jdsData.add(jdMap);
+            }
+
+            List<String> resumeIds = new ArrayList<>();
+            Map<String, String> candidateNames = new HashMap<>();
+
+            for (MultipartFile resumeFile : resumes) {
+                ResumeMeta resMeta = resumeService.store(resumeFile, systemUser, "CANDIDATE_RESUME");
+                String filename = resumeFile.getOriginalFilename();
+                String candidateName = filename != null ? filename.replaceAll("(?i)\\.(pdf|txt|png|jpg|jpeg|doc|docx)$", "") : "Unknown Candidate";
+                candidateNames.put(resMeta.getId(), candidateName);
+                resumeIds.add(resMeta.getId());
+            }
+
+            batchProcessingService.processPlacementBatch(job.getId(), jdsData, resumeIds, candidateNames);
+
+            return ResponseEntity.accepted().body(Map.of(
+                "batchId", job.getId(),
+                "status", "PROCESSING",
+                "jds", jdsData,
+                "message", "Placement batch uploaded successfully. Matrix processing started."
+            ));
+
+        } catch (Exception e) {
+            log.error("Placement screening initialization failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/batch/{batchId}")
     public ResponseEntity<?> getBatchStatus(@PathVariable String batchId) {
         BatchJob job = batchJobRepository.findById(batchId).orElse(null);

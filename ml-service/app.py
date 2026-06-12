@@ -155,6 +155,46 @@ def batch_analyze():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/ml/matrix-analyze', methods=['POST'])
+def matrix_analyze():
+    """Many-to-Many Placement Cell Bulk Matching"""
+    try:
+        data = request.json
+        job_descriptions = data.get('jobDescriptions', [])
+        applications = data.get('applications', [])
+        
+        if not applications or not job_descriptions:
+            return jsonify({"error": "Missing applications or job descriptions"}), 400
+            
+        resume_texts = [app.get('resumeText', '') for app in applications]
+        jd_texts = [jd.get('jobDescriptionText', '') for jd in job_descriptions]
+        
+        # Fast bulk matrix matching
+        matrix_scores = ml_logic.analyze_matrix_match(resume_texts, jd_texts)
+        
+        # Structure the results
+        results = []
+        for i, app in enumerate(applications):
+            res_matches = matrix_scores[i]
+            # Add JD ids to the scores
+            for score_data in res_matches:
+                score_data['jobId'] = job_descriptions[score_data['jdIndex']].get('jobId')
+                
+            # Sort this resume's matches by matchScore descending
+            res_matches.sort(key=lambda x: x['matchScore'], reverse=True)
+            
+            # Map best matches
+            results.append({
+                "applicationId": app.get('applicationId'),
+                "matches": res_matches
+            })
+            
+        return jsonify({"results": results}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     print("🚀 ML Service starting on http://localhost:5000")
     print("📊 Endpoints available:")
@@ -163,6 +203,7 @@ if __name__ == '__main__':
     print("  - POST /api/ml/extract-skills")
     print("  - POST /api/ml/recommend-courses")
     print("  - POST /api/ml/batch-analyze")
+    print("  - POST /api/ml/matrix-analyze")
     print("✅ Using real ML model (SentenceTransformer)")
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)

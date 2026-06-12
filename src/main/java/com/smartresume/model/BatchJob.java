@@ -15,6 +15,7 @@ public class BatchJob {
     private String status; // PROCESSING, COMPLETED, FAILED
     private int totalResumes;
     private int processedResumes;
+    private int totalJds;
     private String jdId;
     
     private List<Map<String, Object>> results;
@@ -30,6 +31,9 @@ public class BatchJob {
 
     public int getProcessedResumes() { return processedResumes; }
     public void setProcessedResumes(int processedResumes) { this.processedResumes = processedResumes; }
+
+    public int getTotalJds() { return totalJds; }
+    public void setTotalJds(int totalJds) { this.totalJds = totalJds; }
 
     public String getJdId() { return jdId; }
     public void setJdId(String jdId) { this.jdId = jdId; }

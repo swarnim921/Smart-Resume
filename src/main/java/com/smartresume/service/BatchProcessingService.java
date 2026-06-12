@@ -128,4 +128,85 @@ public class BatchProcessingService {
             batchJobRepository.save(job);
         }
     }
+
+    @Async
+    public void processPlacementBatch(String batchId, List<Map<String, String>> jds, List<String> resumeIds, Map<String, String> candidateNames) {
+        log.info("Starting async Placement Matrix processing for BatchJob: {}", batchId);
+        
+        BatchJob job = batchJobRepository.findById(batchId).orElse(null);
+        if (job == null) {
+            log.error("BatchJob {} not found!", batchId);
+            return;
+        }
+
+        try {
+            int chunkSize = 25;
+            List<Map<String, Object>> allResults = new ArrayList<>();
+            
+            // Format JDs
+            List<Map<String, Object>> mlPayloadJds = new ArrayList<>();
+            for (Map<String, String> jd : jds) {
+                Map<String, Object> jdObj = new HashMap<>();
+                jdObj.put("jobId", jd.get("id"));
+                jdObj.put("jobDescriptionText", jd.get("text"));
+                mlPayloadJds.add(jdObj);
+            }
+            
+            for (int i = 0; i < resumeIds.size(); i += chunkSize) {
+                int end = Math.min(i + chunkSize, resumeIds.size());
+                List<String> chunk = resumeIds.subList(i, end);
+                
+                List<Map<String, Object>> mlPayloadApps = new ArrayList<>();
+                for (String resId : chunk) {
+                    try {
+                        String resText = resumeService.extractTextFromResume(resId);
+                        Map<String, Object> appObj = new HashMap<>();
+                        appObj.put("applicationId", resId);
+                        appObj.put("resumeText", resText);
+                        mlPayloadApps.add(appObj);
+                    } catch (Exception ex) {
+                        log.warn("Failed to extract text for {}: {}", resId, ex.getMessage());
+                    }
+                }
+
+                String url = mlServiceUrl + "/api/ml/matrix-analyze";
+                Map<String, Object> request = new HashMap<>();
+                request.put("jobDescriptions", mlPayloadJds);
+                request.put("applications", mlPayloadApps);
+
+                try {
+                    ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+                    if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                        List<Map<String, Object>> chunkResults = (List<Map<String, Object>>) response.getBody().get("results");
+                        for (Map<String, Object> res : chunkResults) {
+                            String appId = (String) res.get("applicationId");
+                            res.put("candidateName", candidateNames.get(appId));
+                            allResults.add(res);
+                        }
+                    }
+                } catch (Exception mlEx) {
+                    log.error("ML Service matrix-analyze failed for chunk {} to {}: {}", i, end, mlEx.getMessage());
+                }
+
+                job.setProcessedResumes(end);
+                batchJobRepository.save(job);
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+
+            job.setStatus("COMPLETED");
+            job.setResults(allResults);
+            batchJobRepository.save(job);
+            log.info("Placement BatchJob {} completed successfully.", batchId);
+
+        } catch (Exception e) {
+            log.error("Fatal error processing Placement BatchJob {}: {}", batchId, e.getMessage(), e);
+            job.setStatus("FAILED");
+            batchJobRepository.save(job);
+        }
+    }
 }

@@ -1141,6 +1141,9 @@
                 <button class="nav-item" onclick="showSection('enterprise')" id="nav-enterprise">
                     <i data-lucide="briefcase"></i> <span>Enterprise Batch</span>
                 </button>
+                <button class="nav-item" onclick="showSection('placement')" id="nav-placement">
+                    <i data-lucide="network"></i> <span>Placement Cell</span>
+                </button>
                 <button class="nav-item" id="nav-analytics" onclick="showSection('analytics')">
                     <i data-lucide="bar-chart-3"></i> <span>Analytics</span>
                 </button>
@@ -1414,6 +1417,48 @@
 
                     <!-- Leaderboard Output -->
                     <div id="batchResults" style="display:none; margin-top: 24px;"></div>
+                </div>
+            </div>
+
+            <!-- Placement Cell Section -->
+            <div id="sec-placement" style="display:none">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Placement Cell Matrix</h1>
+                    <p class="welcome-subtitle">Many-to-Many processing: Upload multiple Job Descriptions and Candidate Resumes to analyze them against each other.</p>
+                </div>
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <div class="card-title"><i data-lucide="upload-cloud"></i> Bulk Matrix Matching</div>
+                    </div>
+                    <div class="dashboard-grid" style="margin-top:16px;">
+                        <div class="col-12" style="margin-bottom: 16px;">
+                            <label class="form-label">1. Job Description Files (Multiple files allowed) *</label>
+                            <input type="file" id="placement-jd-input" multiple accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" class="form-input">
+                        </div>
+                        <div class="col-12" style="margin-bottom: 16px;">
+                            <label class="form-label">2. Candidate Resumes (Multiple files allowed) *</label>
+                            <input type="file" id="placement-resumes-input" multiple accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" class="form-input" onchange="document.getElementById('placement-ready-msg').style.display='block'; document.getElementById('placement-ready-text').innerText = this.files.length + ' resumes selected and ready to upload!'">
+                            <div id="placement-ready-msg" style="display:none; margin-top:12px; padding:12px; background:rgba(16, 185, 129, 0.1); border:1px solid var(--success); border-radius:8px; color:var(--success); font-weight:500;">
+                                <i data-lucide="check-circle" style="width:16px; margin-right:6px; vertical-align:text-bottom;"></i> <span id="placement-ready-text"></span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="apply-btn" onclick="runPlacementScreening()" id="btn-placement-screen">
+                                <i data-lucide="upload-cloud" style="width:16px; margin-right:4px;"></i> Upload & Matrix Search
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="placementProgress" class="progress-container" style="display:none; margin-top:24px;">
+                        <h3 id="placementProgressTitle"><i data-lucide="loader" class="spin"></i> AI Matrix Processing...</h3>
+                        <p id="placementProgressDesc" style="color: var(--muted); font-size: 14px;">Comparing every resume against every JD...</p>
+                        <div class="progress-bar-bg" style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 12px;">
+                            <div id="placementPbFill" style="height: 100%; width: 0%; background: var(--accent); transition: width 0.3s ease;"></div>
+                        </div>
+                        <div id="placementPbText" style="font-size: 12px; margin-top: 8px; font-weight: 600;">0%</div>
+                    </div>
+
+                    <div id="placementResults" style="display:none; margin-top: 24px;"></div>
                 </div>
             </div>
         </div>
@@ -2458,6 +2503,174 @@
                                                 </div>
                                             </td>
                                             <td style="padding: 16px 12px; font-size: 13px;">${skills}</td>
+                                        </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        // ===================== PLACEMENT CELL MATRIX SCREENING =====================
+        async function runPlacementScreening() {
+            const jdInput = document.getElementById('placement-jd-input');
+            const resumesInput = document.getElementById('placement-resumes-input');
+            const btn = document.getElementById('btn-placement-screen');
+
+            if (!jdInput.files.length) return showToast('Please upload at least one Job Description.', true);
+            if (!resumesInput.files.length) return showToast('Please upload at least one Candidate Resume.', true);
+
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Uploading & Processing...';
+            document.getElementById('placement-ready-msg').style.display = 'none';
+            showToast(`Uploading batch of ${resumesInput.files.length} resumes and ${jdInput.files.length} JDs...`);
+            lucide.createIcons();
+            btn.disabled = true;
+
+            const formData = new FormData();
+            for (let i = 0; i < jdInput.files.length; i++) {
+                formData.append('jdFiles', jdInput.files[i]);
+            }
+            for (let i = 0; i < resumesInput.files.length; i++) {
+                formData.append('resumes', resumesInput.files[i]);
+            }
+
+            try {
+                document.getElementById('placementProgress').style.display = 'block';
+                document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> AI Matrix Processing...';
+                document.getElementById('placementPbFill').style.width = '0%';
+                document.getElementById('placementPbText').innerText = '0%';
+                document.getElementById('placementResults').style.display = 'none';
+                
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `${API}/api/enterprise/placement-screen`, true);
+                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+                
+                xhr.upload.onprogress = function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Uploading Files...';
+                        document.getElementById('placementPbFill').style.width = percentComplete + '%';
+                        
+                        if (percentComplete === 100) {
+                            document.getElementById('placementPbText').innerText = '100% Uploaded. Server is securely validating and saving files to database...';
+                        } else {
+                            document.getElementById('placementPbText').innerText = percentComplete + '% Uploaded';
+                        }
+                    }
+                };
+
+                xhr.onload = function() {
+                    if (xhr.status === 202) {
+                        const data = JSON.parse(xhr.responseText);
+                        document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> AI Matrix Processing...';
+                        document.getElementById('placementPbText').innerText = '0% Processed';
+                        pollPlacementProgress(data.batchId);
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                        lucide.createIcons();
+                        document.getElementById('placementProgress').style.display = 'none';
+                        showToast('Failed to start placement screening', true);
+                    }
+                };
+                
+                xhr.onerror = function() {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                    lucide.createIcons();
+                    document.getElementById('placementProgress').style.display = 'none';
+                    showToast('Network Error', true);
+                };
+                
+                xhr.send(formData);
+                
+            } catch (e) {
+                console.error(e);
+                showToast('Error connecting to API', true);
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                lucide.createIcons();
+                document.getElementById('placementProgress').style.display = 'none';
+            }
+        }
+
+        function pollPlacementProgress(batchId) {
+            const pollInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`${API}/api/enterprise/batch/${batchId}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (res.ok) {
+                        const job = await res.json();
+                        
+                        const total = job.totalResumes || 1;
+                        const processed = job.processedResumes || 0;
+                        const pct = Math.round((processed / total) * 100);
+                        
+                        document.getElementById('placementPbFill').style.width = pct + '%';
+                        document.getElementById('placementPbText').innerText = `${pct}% Processed (${processed}/${total} Resumes vs ${job.totalJds} JDs)`;
+                        
+                        if (job.status === 'COMPLETED') {
+                            clearInterval(pollInterval);
+                            document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="check-circle" style="color:var(--success)"></i> Processing Complete!';
+                            
+                            renderPlacementResults(job);
+                            
+                            const btn = document.getElementById('btn-placement-screen');
+                            btn.disabled = false;
+                            btn.innerHTML = `<i data-lucide="upload-cloud"></i> Upload & Matrix Search`;
+                            lucide.createIcons();
+                            showToast('✓ Placement Matrix Complete!');
+                        } else if (job.status === 'FAILED') {
+                            clearInterval(pollInterval);
+                            document.getElementById('placementProgress').style.display = 'none';
+                            showToast('Matrix processing failed internally.', true);
+                            
+                            const btn = document.getElementById('btn-placement-screen');
+                            btn.disabled = false;
+                            btn.innerHTML = `<i data-lucide="upload-cloud"></i> Upload & Matrix Search`;
+                            lucide.createIcons();
+                        }
+                    }
+                } catch (e) {
+                    console.error("Polling error", e);
+                }
+            }, 3000);
+        }
+
+        function renderPlacementResults(job) {
+            const data = job.results || [];
+            const jds = job.jds || [];
+            
+            document.getElementById('placementResults').style.display = 'block';
+            document.getElementById('placementResults').innerHTML = `
+                <div class="card" id="placement-results-card">
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div class="card-title"><i data-lucide="network"></i> Many-to-Many Matrix Results</div>
+                    </div>
+                    <div style="overflow-x: auto; margin-top: 16px;">
+                        <table style="width: 100%; text-align: left; border-collapse: collapse; min-width: 800px;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border);">
+                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Candidate</th>
+                                    ${jds.map(jd => `<th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase; text-align:center;">${jd.name}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map((r, index) => {
+                                    return `
+                                        <tr style="border-bottom: 1px solid var(--border);">
+                                            <td style="padding: 16px 12px; font-weight: 700;">${r.candidateName || 'Candidate'}</td>
+                                            ${jds.map(jd => {
+                                                // Find score for this JD
+                                                const match = (r.matches || []).find(m => m.jobId === jd.id);
+                                                if (!match) return `<td style="padding: 16px 12px; text-align:center;">-</td>`;
+                                                const color = match.matchScore >= 75 ? 'var(--success)' : (match.matchScore >= 50 ? 'var(--warning)' : 'var(--danger)');
+                                                return `<td style="padding: 16px 12px; text-align:center; font-weight:600; color:${color}">${match.matchScore}%</td>`;
+                                            }).join('')}
                                         </tr>`;
                                 }).join('')}
                             </tbody>

@@ -283,3 +283,78 @@ def analyze_resume_job_match(resume_text, job_description):
         "missing_technical_skills": missing_tech,
         "missing_soft_skills": missing_soft
     }
+
+def analyze_matrix_match(resume_texts, jd_texts):
+    """
+    Optimized M x N matrix match using vectorized PyTorch operations.
+    Computes everything simultaneously for bulk placement cells.
+    """
+    global model
+    if model is None:
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+        
+    with torch.no_grad():
+        resume_embeddings = model.encode(resume_texts, convert_to_tensor=True)
+        jd_embeddings = model.encode(jd_texts, convert_to_tensor=True)
+        
+    # Output shape: [len(resume_texts), len(jd_texts)]
+    semantic_matrix = util.cos_sim(resume_embeddings, jd_embeddings)
+    
+    # Precompute tokens
+    res_token_list = [tokenize_text(r)[0] for r in resume_texts]
+    
+    jd_token_list = []
+    for jd in jd_texts:
+        t, s = tokenize_text(jd)
+        skills = {sk for sk in ALL_SKILLS if sk in t or (len(sk.split()) > 3 and sk in s)}
+        jd_token_list.append((t, s, skills))
+        
+    final_scores = []
+    for i, res_tokens in enumerate(res_token_list):
+        res_scores = []
+        for j, (jd_tokens, jd_str, jd_skills) in enumerate(jd_token_list):
+            if not jd_skills:
+                kw_score = 0.0
+                overlap_score = 0.0
+            else:
+                matched_count = 0
+                for skill in jd_skills:
+                    if skill in res_tokens:
+                        matched_count += 1
+                    elif skill in IMPLICATION_RULES:
+                        for evidence in IMPLICATION_RULES[skill]:
+                            if evidence in res_tokens:
+                                matched_count += 1
+                                break
+                kw_score = (matched_count / len(jd_skills)) * 100
+                
+                matched_skills = {sk for sk in jd_skills if sk in res_tokens}
+                overlap_score = (len(matched_skills) / len(jd_skills)) * 100
+                
+            sem_score = semantic_matrix[i][j].item() * 100
+            final_score = (sem_score * 0.50) + (kw_score * 0.30) + (overlap_score * 0.20)
+            
+            # missing skills
+            missing_tech = []
+            missing_soft = []
+            for category, out_list in [(TECH_SKILLS, missing_tech), (SOFT_SKILLS, missing_soft)]:
+                req = {s for s in category if s in jd_tokens or (len(s.split()) > 3 and s in jd_str)}
+                for skill in req:
+                    if skill not in res_tokens:
+                        found_implied = False
+                        if skill in IMPLICATION_RULES:
+                            for ev in IMPLICATION_RULES[skill]:
+                                if ev in res_tokens:
+                                    found_implied = True
+                                    break
+                        if not found_implied:
+                            out_list.append(skill.title())
+                            
+            res_scores.append({
+                "jdIndex": j,
+                "matchScore": round(final_score, 1),
+                "missingSkills": missing_tech + missing_soft
+            })
+        final_scores.append(res_scores)
+        
+    return final_scores
