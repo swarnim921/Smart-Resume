@@ -2336,7 +2336,11 @@
                         if (e.lengthComputable) {
                             const percentComplete = Math.round((e.loaded / e.total) * 100);
                             document.getElementById('pbFill').style.width = percentComplete + '%';
-                            document.getElementById('pbText').innerText = percentComplete + '% Uploaded';
+                            if (percentComplete === 100) {
+                                document.getElementById('pbText').innerText = '100% Uploaded. Server is securely saving 250+ files to database...';
+                            } else {
+                                document.getElementById('pbText').innerText = percentComplete + '% Uploaded';
+                            }
                         }
                     };
 
