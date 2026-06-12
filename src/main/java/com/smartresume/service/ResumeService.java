@@ -87,8 +87,8 @@ public class ResumeService {
                     
                     // Optimize image for faster OCR: scale down large images and convert to grayscale
                     java.awt.image.BufferedImage originalImage = javax.imageio.ImageIO.read(tempFile);
-                    if (originalImage != null && (originalImage.getWidth() > 1200 || originalImage.getHeight() > 1200)) {
-                        int maxDim = 1200;
+                    if (originalImage != null && (originalImage.getWidth() > 800 || originalImage.getHeight() > 800)) {
+                        int maxDim = 800;
                         double scale = Math.min((double) maxDim / originalImage.getWidth(), (double) maxDim / originalImage.getHeight());
                         int newWidth = (int) (originalImage.getWidth() * scale);
                         int newHeight = (int) (originalImage.getHeight() * scale);
@@ -111,6 +111,10 @@ public class ResumeService {
                     tesseract.setLanguage("eng");
                     // Use fast LSTM mode for much faster performance
                     tesseract.setOcrEngineMode(1); 
+                    // Assume single column of text to skip complex layout analysis (massive speedup)
+                    tesseract.setPageSegMode(4);
+                    tesseract.setTessVariable("load_system_dawg", "F");
+                    tesseract.setTessVariable("load_freq_dawg", "F");
                     return tesseract.doOCR(tempFile);
                 } catch (Exception | Error e) {
                     throw new IOException("OCR processing failed. Please ensure Tesseract is installed: " + e.getMessage(), e);
