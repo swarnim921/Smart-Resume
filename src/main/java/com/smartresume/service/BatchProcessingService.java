@@ -86,7 +86,7 @@ public class BatchProcessingService {
                         Map<String, Object> fallbackRes = new HashMap<>();
                         fallbackRes.put("applicationId", resId);
                         fallbackRes.put("candidateName", candidateNames.get(resId));
-                        fallbackRes.put("matchPercentage", 0);
+                        fallbackRes.put("matchScore", 0);
                         fallbackRes.put("missingSkills", new ArrayList<>());
                         allResults.add(fallbackRes);
                     }
@@ -107,10 +107,10 @@ public class BatchProcessingService {
             // All chunks processed
             job.setStatus("COMPLETED");
             
-            // Sort by match percentage highest first
+            // Sort by match score highest first
             allResults.sort((a, b) -> {
-                Number scoreA = (Number) a.get("matchPercentage");
-                Number scoreB = (Number) b.get("matchPercentage");
+                Number scoreA = (Number) a.get("matchScore");
+                Number scoreB = (Number) b.get("matchScore");
                 if (scoreA == null) scoreA = 0;
                 if (scoreB == null) scoreB = 0;
                 return Double.compare(scoreB.doubleValue(), scoreA.doubleValue());

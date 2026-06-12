@@ -1400,7 +1400,7 @@
                         </div>
                     </div>
                     <!-- Progress Bar Section -->
-                    <div id="batchProgress" class="progress-container">
+                    <div id="batchProgress" class="progress-container" style="display:none;">
                         <h3><i data-lucide="loader" class="spin"></i> AI Batch Processing in Progress...</h3>
                         <p style="color: var(--muted); font-size: 14px;">Please wait while the AI analyzes and ranks all candidates against the JD. You can safely leave this tab open.</p>
                         <div class="progress-bar-bg">
@@ -1411,26 +1411,6 @@
 
                     <!-- Leaderboard Output -->
                     <div id="batchResults" style="display:none; margin-top: 24px;"></div>
-                </div>
-
-                <div class="card" id="batch-results-card" style="display:none;">
-                    <div class="card-header">
-                        <div class="card-title"><i data-lucide="bar-chart-2"></i> ML Screening Results</div>
-                    </div>
-                    <div style="overflow-x: auto; margin-top: 16px;">
-                        <table style="width: 100%; text-align: left; border-collapse: collapse;">
-                            <thead>
-                                <tr style="border-bottom: 2px solid var(--border);">
-                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Rank</th>
-                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Candidate Name</th>
-                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Match Score</th>
-                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Missing Skills</th>
-                                </tr>
-                            </thead>
-                            <tbody id="batch-results-body">
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1735,6 +1715,26 @@
             if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
             if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
             return new Date(ms).toLocaleDateString();
+        }
+
+        function exportBatchToCsv() {
+            if (!window.currentBatchData || window.currentBatchData.length === 0) return;
+            const headers = ['Rank', 'Candidate Name', 'Match Score', 'Missing Skills'];
+            const rows = window.currentBatchData.map((r, i) => {
+                const skills = Array.isArray(r.missingSkills) ? r.missingSkills.join('; ') : 'None';
+                // Escape quotes for CSV
+                const name = (r.candidateName || 'Candidate').replace(/"/g, '""');
+                return `${i + 1},"${name}",${r.matchScore}%,"${skills}"`;
+            });
+            const csvContent = headers.join(',') + '\n' + rows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'TalentSync_Batch_Screening_Results.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // Initialize
@@ -2387,11 +2387,16 @@
 
         function renderBatchResults(job) {
             const data = job.results || [];
+            window.currentBatchData = data; // Store globally for CSV export
+            
             document.getElementById('batchResults').style.display = 'block';
             document.getElementById('batchResults').innerHTML = `
                 <div class="card" id="batch-results-card">
-                    <div class="card-header">
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
                         <div class="card-title"><i data-lucide="bar-chart-2"></i> ML Screening Results</div>
+                        <button class="apply-btn" onclick="exportBatchToCsv()" style="font-size:13px; padding:6px 16px; background:var(--success);">
+                            <i data-lucide="download" style="width:14px; margin-right:4px;"></i> Export CSV
+                        </button>
                     </div>
                     <div style="overflow-x: auto; margin-top: 16px;">
                         <table style="width: 100%; text-align: left; border-collapse: collapse;">
