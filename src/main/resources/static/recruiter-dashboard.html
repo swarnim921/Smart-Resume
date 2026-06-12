@@ -2375,6 +2375,10 @@
                 if (res.ok) {
                     const data = await res.json();
                     document.getElementById('jTitle').value = data.jobTitle || '';
+                    document.getElementById('jCompany').value = data.company || '';
+                    document.getElementById('jLocation').value = data.location || '';
+                    document.getElementById('jType').value = data.jobType || '';
+                    document.getElementById('jSalary').value = data.salary || '';
                     document.getElementById('jDescription').value = data.description || '';
                     document.getElementById('jRequirements').value = data.requirements || '';
                     showToast('✓ Job Description successfully parsed and auto-filled!');

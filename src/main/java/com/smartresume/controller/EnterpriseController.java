@@ -49,23 +49,58 @@ public class EnterpriseController {
             ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
             Map<String, Object> responseBody = response.getBody();
             
-            List<String> techSkills = (List<String>) responseBody.getOrDefault("technical_skills", Collections.emptyList());
-            List<String> softSkills = (List<String>) responseBody.getOrDefault("soft_skills", Collections.emptyList());
+            List<String> techSkills = (List<String>) responseBody.getOrDefault("technicalSkills", Collections.emptyList());
+            List<String> softSkills = (List<String>) responseBody.getOrDefault("softSkills", Collections.emptyList());
             
             String allSkills = String.join(", ", techSkills);
             if (!softSkills.isEmpty()) {
-                allSkills += ", " + String.join(", ", softSkills);
+                allSkills += (allSkills.isEmpty() ? "" : ", ") + String.join(", ", softSkills);
             }
 
-            // Heuristically extract a title from the first line
+            // Heuristically extract a title from the first non-empty line
             String[] lines = extractedText.split("\n");
-            String title = lines.length > 0 ? lines[0].trim() : "Parsed Job Title";
+            String title = "Parsed Job Title";
+            for (String line : lines) {
+                String t = line.trim();
+                if (!t.isEmpty() && !t.toLowerCase().contains("company:") && !t.toLowerCase().contains("location:")) {
+                    title = t;
+                    break;
+                }
+            }
             if (title.length() > 100) title = title.substring(0, 100);
+
+            String company = extractRegex(extractedText, "(?i)Company:\\s*(.+)");
+            String location = extractRegex(extractedText, "(?i)Location:\\s*(.+)");
+            String jobType = extractRegex(extractedText, "(?i)Job Type:\\s*(.+)");
+            String salary = extractRegex(extractedText, "(?i)Salary Range:\\s*(.+)");
+
+            String description = "";
+            String reqs = "";
+            int descIdx = extractedText.toLowerCase().indexOf("job description");
+            int reqIdx = extractedText.toLowerCase().indexOf("requirements");
+            
+            if (descIdx != -1 && reqIdx != -1 && reqIdx > descIdx) {
+                description = extractedText.substring(descIdx + 15, reqIdx).trim();
+                reqs = extractedText.substring(reqIdx + 12).trim();
+            } else if (descIdx != -1) {
+                description = extractedText.substring(descIdx + 15).trim();
+                reqs = allSkills;
+            } else if (reqIdx != -1) {
+                description = extractedText.substring(0, reqIdx).trim();
+                reqs = extractedText.substring(reqIdx + 12).trim();
+            } else {
+                description = extractedText;
+                reqs = allSkills;
+            }
 
             Map<String, Object> result = new HashMap<>();
             result.put("jobTitle", title);
-            result.put("description", extractedText);
-            result.put("requirements", allSkills);
+            result.put("company", company);
+            result.put("location", location);
+            result.put("jobType", jobType);
+            result.put("salary", salary);
+            result.put("description", description);
+            result.put("requirements", reqs.isEmpty() ? allSkills : reqs);
 
             return ResponseEntity.ok(result);
 
@@ -143,5 +178,13 @@ public class EnterpriseController {
             log.error("Batch screening failed: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
+    }
+
+    private String extractRegex(String text, String regex) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(regex).matcher(text);
+        if (m.find()) {
+            return m.group(1).trim();
+        }
+        return "";
     }
 }
