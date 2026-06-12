@@ -95,6 +95,13 @@ public class BatchProcessingService {
                 // Update progress after chunk finishes
                 job.setProcessedResumes(end);
                 batchJobRepository.save(job);
+
+                // Add a small delay between chunks to avoid hitting the ML Service rate limits
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
             }
 
             // All chunks processed
