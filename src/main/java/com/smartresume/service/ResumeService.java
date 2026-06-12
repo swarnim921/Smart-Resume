@@ -84,6 +84,23 @@ public class ResumeService {
                 java.io.File tempFile = java.io.File.createTempFile("ocr_", filename);
                 try {
                     java.nio.file.Files.copy(inputStream, tempFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    
+                    // Optimize image for faster OCR: scale down large images and convert to grayscale
+                    java.awt.image.BufferedImage originalImage = javax.imageio.ImageIO.read(tempFile);
+                    if (originalImage != null && (originalImage.getWidth() > 1200 || originalImage.getHeight() > 1200)) {
+                        int maxDim = 1200;
+                        double scale = Math.min((double) maxDim / originalImage.getWidth(), (double) maxDim / originalImage.getHeight());
+                        int newWidth = (int) (originalImage.getWidth() * scale);
+                        int newHeight = (int) (originalImage.getHeight() * scale);
+                        
+                        java.awt.image.BufferedImage resizedImage = new java.awt.image.BufferedImage(newWidth, newHeight, java.awt.image.BufferedImage.TYPE_BYTE_GRAY);
+                        java.awt.Graphics2D g = resizedImage.createGraphics();
+                        g.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+                        g.dispose();
+                        
+                        javax.imageio.ImageIO.write(resizedImage, "jpg", tempFile);
+                    }
+
                     net.sourceforge.tess4j.ITesseract tesseract = new net.sourceforge.tess4j.Tesseract();
                     // On Ubuntu (Render), tessdata is usually here
                     if (new java.io.File("/usr/share/tesseract-ocr/4.00/tessdata").exists()) {
@@ -92,6 +109,8 @@ public class ResumeService {
                         tesseract.setDatapath("/usr/share/tesseract-ocr/5/tessdata");
                     }
                     tesseract.setLanguage("eng");
+                    // Use fast LSTM mode for much faster performance
+                    tesseract.setOcrEngineMode(1); 
                     return tesseract.doOCR(tempFile);
                 } catch (Exception | Error e) {
                     throw new IOException("OCR processing failed. Please ensure Tesseract is installed: " + e.getMessage(), e);

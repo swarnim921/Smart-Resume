@@ -1868,12 +1868,10 @@
 
             // Show UI feedback
             showToast(`Uploading and analyzing ${file.name}... This might take a few seconds for images.`);
-            if (!isAutofill) {
-                statusEl.style.display = 'block';
-                statusEl.style.background = 'var(--accent-light)';
-                statusEl.style.color = 'var(--accent)';
-                statusEl.innerHTML = `Uploading ${file.name}... Our AI is processing the text.`;
-            }
+            statusEl.style.display = 'block';
+            statusEl.style.background = 'var(--accent-light)';
+            statusEl.style.color = 'var(--accent)';
+            statusEl.innerHTML = `Uploading ${file.name}... Our AI is processing the text.`;
 
             const formData = new FormData();
             formData.append('file', file);
@@ -1890,14 +1888,12 @@
 
                 // Success UI update
                 showToast(`✓ Successfully uploaded and parsed ${file.name}!`, false);
-                if (!isAutofill) {
-                    statusEl.style.display = 'block';
-                    statusEl.style.background = '#f0fdf4';
-                    statusEl.style.color = '#166534';
-                    statusEl.innerHTML = `✓ Successfully analyzed: ${file.name}`;
-                    dropZone.classList.remove('disabled'); // Ensure unlocked visually
-                    document.getElementById('resumeLockBadge').innerHTML = '<span style="color:#10b981;font-size:12px;font-weight:700;">Uploaded</span>';
-                }
+                statusEl.style.display = 'block';
+                statusEl.style.background = '#f0fdf4';
+                statusEl.style.color = '#166534';
+                statusEl.innerHTML = `✓ Successfully analyzed: ${file.name}`;
+                dropZone.classList.remove('disabled'); // Ensure unlocked visually
+                document.getElementById('resumeLockBadge').innerHTML = '<span style="color:#10b981;font-size:12px;font-weight:700;">Uploaded</span>';
 
                 // AUTO-FILL Logic
                 if (data.extractedData) {
@@ -1992,12 +1988,10 @@
                 lucide.createIcons();
                 updateCompleteness();
             } catch (error) {
-                if (!isAutofill) {
-                    statusEl.style.display = 'block';
-                    statusEl.style.background = '#fef2f2';
-                    statusEl.style.color = '#991b1b';
-                    statusEl.innerHTML = `✕ Upload failed. Please try again.`;
-                }
+                statusEl.style.display = 'block';
+                statusEl.style.background = '#fef2f2';
+                statusEl.style.color = '#991b1b';
+                statusEl.innerHTML = `✕ Upload failed. Please try again.`;
                 showToast('Resume upload failed.', true);
             }
         }
