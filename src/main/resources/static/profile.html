@@ -1866,14 +1866,13 @@
             const statusEl = document.getElementById('resumeStatus');
             const dropZone = document.getElementById('dropZone');
 
-            // If triggered from bottom dropzone, update that UI. If from top button, show a toast.
+            // Show UI feedback
+            showToast(`Uploading and analyzing ${file.name}... This might take a few seconds for images.`);
             if (!isAutofill) {
                 statusEl.style.display = 'block';
                 statusEl.style.background = 'var(--accent-light)';
                 statusEl.style.color = 'var(--accent)';
                 statusEl.innerHTML = `Uploading ${file.name}... Our AI is processing the text.`;
-            } else {
-                showToast(`Analyzing ${file.name} for auto-fill...`);
             }
 
             const formData = new FormData();
@@ -1889,13 +1888,16 @@
 
                 const data = await response.json();
 
-                // If bottom zone, update its success state
-                statusEl.style.display = 'block';
-                statusEl.style.background = '#f0fdf4';
-                statusEl.style.color = '#166534';
-                statusEl.innerHTML = `✓ Successfully analyzed: ${file.name}`;
-                dropZone.classList.remove('disabled'); // Ensure unlocked visually
-                document.getElementById('resumeLockBadge').innerHTML = '<span style="color:#10b981;font-size:12px;font-weight:700;">Uploaded</span>';
+                // Success UI update
+                showToast(`✓ Successfully uploaded and parsed ${file.name}!`, false);
+                if (!isAutofill) {
+                    statusEl.style.display = 'block';
+                    statusEl.style.background = '#f0fdf4';
+                    statusEl.style.color = '#166534';
+                    statusEl.innerHTML = `✓ Successfully analyzed: ${file.name}`;
+                    dropZone.classList.remove('disabled'); // Ensure unlocked visually
+                    document.getElementById('resumeLockBadge').innerHTML = '<span style="color:#10b981;font-size:12px;font-weight:700;">Uploaded</span>';
+                }
 
                 // AUTO-FILL Logic
                 if (data.extractedData) {
