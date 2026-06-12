@@ -138,6 +138,7 @@ def batch_analyze():
                 results.append({
                     "applicationId": app.get('applicationId'),
                     "matchScore": analysis["match_percentage"],
+                    "missingSkills": analysis["missing_technical_skills"] + analysis["missing_soft_skills"],
                     "rank": 0  # Will be set after sorting
                 })
         

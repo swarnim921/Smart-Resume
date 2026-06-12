@@ -45,8 +45,9 @@ public class BatchProcessingService {
         }
 
         try {
-            // Because ML Service might timeout if we send 200 at once, we chunk them into batches of 10.
-            int chunkSize = 10;
+            // Because ML Service might timeout if we send 250 at once, we chunk them.
+            // Using 25 resumes per chunk with a 5s delay safely bypasses Render/Cloudflare 429 limits
+            int chunkSize = 25;
             List<Map<String, Object>> allResults = new ArrayList<>();
             
             for (int i = 0; i < resumeIds.size(); i += chunkSize) {
@@ -96,9 +97,9 @@ public class BatchProcessingService {
                 job.setProcessedResumes(end);
                 batchJobRepository.save(job);
 
-                // Add a small delay between chunks to avoid hitting the ML Service rate limits
+                // Add a delay between chunks to avoid hitting the ML Service rate limits (Cloudflare 429)
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                 }
