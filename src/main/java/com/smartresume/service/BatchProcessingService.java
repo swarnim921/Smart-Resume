@@ -209,6 +209,12 @@ public class BatchProcessingService {
                     } catch (Exception mlEx) {
                         log.error("ML Service matrix-analyze failed for resume chunk {} to {}, JD chunk {} to {}: {}", i, end, j, jdEnd, mlEx.getMessage());
                     }
+                    
+                    try {
+                        Thread.sleep(700); // 700ms strictly caps throughput to ~85 req/min, preventing proxy limits
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
                 
                 // Add the fully aggregated candidate matches to the final results list
@@ -218,7 +224,7 @@ public class BatchProcessingService {
                 batchJobRepository.save(job);
 
                 try {
-                    Thread.sleep(2000); // Small sleep between major resume chunks
+                    Thread.sleep(4000); // 4000ms buffer between chunks dramatically lowers average requests per minute
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                 }
