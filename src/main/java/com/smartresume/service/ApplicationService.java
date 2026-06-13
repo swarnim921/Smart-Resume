@@ -154,7 +154,7 @@ public class ApplicationService {
         if (resumes == null || resumes.isEmpty()) {
             throw new RuntimeException("Please upload a resume first");
         }
-        com.smartresume.model.ResumeMeta resume = resumes.get(0);
+        com.smartresume.model.ResumeMeta resume = resumes.get(resumes.size() - 1);
 
         try {
             String resumeText = resumeService.extractTextFromResume(resume.getId());
