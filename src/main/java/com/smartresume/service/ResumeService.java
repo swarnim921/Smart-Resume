@@ -160,6 +160,8 @@ public class ResumeService {
                      org.apache.poi.hwpf.extractor.WordExtractor extractor = new org.apache.poi.hwpf.extractor.WordExtractor(doc)) {
                     return extractor.getText();
                 }
+            } else if (filename.endsWith(".txt") || filename.endsWith(".md") || filename.endsWith(".csv") || (contentType != null && contentType.startsWith("text/"))) {
+                return new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
             } else {
                 // Default to PDF
                 try (org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.pdmodel.PDDocument.load(inputStream)) {

@@ -199,8 +199,9 @@ public class BatchProcessingService {
                                     List<Map<String, Object>> existingMatches = (List<Map<String, Object>>) candidateAggregatedResults.get(appId).get("matches");
                                     existingMatches.addAll(matches);
                                 } else {
-                                    // New candidate in this chunk
+                                    // New candidate in this chunk: Ensure the matches list is strictly mutable
                                     res.put("candidateName", candidateNames.get(appId));
+                                    res.put("matches", new ArrayList<>(matches));
                                     candidateAggregatedResults.put(appId, res);
                                 }
                             }
