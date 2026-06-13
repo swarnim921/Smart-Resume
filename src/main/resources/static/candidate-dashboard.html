@@ -949,6 +949,10 @@
                     <i data-lucide="briefcase"></i>
                     <span>Job Board</span>
                 </button>
+                <button class="nav-item" onclick="showSection('matcher')" id="nav-matcher">
+                    <i data-lucide="wand-2"></i>
+                    <span>AI Job Matcher</span>
+                </button>
 
                 <a href="/profile.html" class="nav-item" id="nav-profile">
                     <i data-lucide="user"></i>
@@ -997,6 +1001,35 @@
                     <div class="user-info">
                         <div class="user-name" id="userNameDisplay">User Name</div>
                         <div class="user-role">Candidate Applicant</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Matcher Section -->
+            <div id="sec-matcher" style="display:none">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">AI Job Matcher</h1>
+                    <p class="welcome-subtitle">Instantly scan and rank every active job posting against your uploaded resume to find your best fit.</p>
+                </div>
+
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+                        <div class="card-title"><i data-lucide="sparkles"></i> Match My Resume</div>
+                        <p style="color: var(--muted); font-size: 14px;">Our AI Matrix will evaluate your resume against all active companies on the platform.</p>
+                        <button class="apply-btn" id="btn-run-matcher" onclick="runJobMatcher()" style="margin-top: 8px;">
+                            <i data-lucide="wand-2" style="width:16px; margin-right:6px;"></i> Find My Best Matches
+                        </button>
+                    </div>
+
+                    <div id="matcherProgress" class="progress-container" style="display:none; margin-top:24px; text-align: center;">
+                        <h3 id="matcherProgressTitle"><i data-lucide="loader" class="spin"></i> Scanning Platform...</h3>
+                        <p style="color: var(--muted); font-size: 14px; margin-top: 8px;">Running deep semantic match between your resume and all job descriptions...</p>
+                    </div>
+
+                    <div id="matcherResults" style="display:none; margin-top: 24px;">
+                        <div class="dashboard-grid" id="matcher-jobs-grid">
+                            <!-- Results populated by JS -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1253,7 +1286,7 @@
 
         }
 
-        const sections = ['overview', 'apps', 'jobs'];
+        const sections = ['overview', 'apps', 'jobs', 'matcher'];
         function showSection(n) {
             sections.forEach(s => {
                 const el = document.getElementById('sec-' + s);
@@ -1956,8 +1989,83 @@
                 alert('Withdrawal failed: ' + e.message);
             }
         }
+        }
 
+        // ===================== AI JOB MATCHER =====================
+        async function runJobMatcher() {
+            const btn = document.getElementById('btn-run-matcher');
+            const progress = document.getElementById('matcherProgress');
+            const resultsDiv = document.getElementById('matcherResults');
+            const grid = document.getElementById('matcher-jobs-grid');
 
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Processing...';
+            progress.style.display = 'block';
+            resultsDiv.style.display = 'none';
+            lucide.createIcons();
+
+            try {
+                const res = await fetch(`${API}/api/jobs/match-my-resume`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) {
+                    const error = await res.json();
+                    throw new Error(error.error || 'Failed to match resume');
+                }
+
+                const rankedJobs = await res.json();
+                
+                if (!rankedJobs || rankedJobs.length === 0) {
+                    grid.innerHTML = '<div class="col-12"><div class="empty-jobs"><h3>No active jobs found to match against.</h3></div></div>';
+                } else {
+                    grid.innerHTML = rankedJobs.map(item => {
+                        const j = item.job;
+                        const score = Math.round(item.matchScore || 0);
+                        const skillsMatched = item.skillsMatched ? item.skillsMatched.slice(0, 3).join(', ') : '';
+                        const color = score >= 75 ? 'var(--success)' : (score >= 50 ? 'var(--warning)' : 'var(--danger)');
+                        
+                        return `
+                            <div class="col-4">
+                                <div class="card job-card">
+                                    <div class="job-card-header">
+                                        <div class="company-logo">${(j.company || 'T')[0]}</div>
+                                        <div style="text-align: right;">
+                                            <div style="font-size: 20px; font-weight: 800; color: ${color};">${score}%</div>
+                                            <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Match Score</div>
+                                        </div>
+                                    </div>
+                                    <div class="job-info">
+                                        <h3>${j.title}</h3>
+                                        <p style="margin-bottom: 8px;">${j.company} • ${j.location || 'Remote'}</p>
+                                        <div style="font-size: 13px; color: #10b981; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                            <i data-lucide="check-circle" style="width: 14px;"></i> Matched: ${skillsMatched || 'Semantic match'}
+                                        </div>
+                                    </div>
+                                    <div class="job-card-footer">
+                                        <div class="salary">
+                                            ${j.salary || 'Competitive'}
+                                        </div>
+                                        <button class="apply-btn" onclick="applyJob('${j.id}')">Apply</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+                
+                resultsDiv.style.display = 'block';
+
+            } catch (e) {
+                console.error(e);
+                alert(e.message);
+            } finally {
+                progress.style.display = 'none';
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="wand-2" style="width:16px; margin-right:6px;"></i> Find My Best Matches';
+                lucide.createIcons();
+            }
+        }
     </script>
 </body>
 

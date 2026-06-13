@@ -156,6 +156,39 @@ public class MLIntegrationService {
         return null;
     }
 
+    /**
+     * Matrix analyze multiple applications against multiple JDs
+     */
+    public List<Map<String, Object>> matrixAnalyze(List<Map<String, Object>> jobDescriptions, List<Map<String, Object>> applications) {
+        log.info("Matrix analyzing {} applications against {} JDs", applications.size(), jobDescriptions.size());
+
+        try {
+            String url = mlServiceUrl + "/api/ml/matrix-analyze";
+
+            Map<String, Object> request = new HashMap<>();
+            request.put("jobDescriptions", jobDescriptions);
+            request.put("applications", applications);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+
+            ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                Map<String, Object> mlResponse = response.getBody();
+                if (mlResponse != null && mlResponse.containsKey("results")) {
+                    return (List<Map<String, Object>>) mlResponse.get("results");
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error calling ML service for matrix analyze: {}", e.getMessage());
+        }
+
+        return null;
+    }
+
     // Helper method to convert ML response to MLAnalysisResult
     private MLAnalysisResult convertToMLResult(Map<String, Object> mlResponse) {
         MLAnalysisResult result = new MLAnalysisResult();
