@@ -1019,7 +1019,10 @@
                     </div>
                 </div>
             </div>
+        </div>
 
+        <!-- Content -->
+        <div class="content">
             <!-- AI Matcher Section -->
             <div id="sec-matcher" style="display:none">
                 <div class="welcome-section">
@@ -1048,11 +1051,8 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Content -->
-        <div class="content">
-            <div class="welcome-section">
+            <div class="welcome-section" id="mainWelcomeSec">
                 <h1 class="welcome-title">Welcome back, <span id="welcomeUser">User</span> 👋</h1>
                 <p class="welcome-subtitle">Here's what's happening with your job applications today.</p>
             </div>
@@ -1312,6 +1312,11 @@
                 if (el) el.style.display = s === n ? 'block' : 'none';
                 if (nav) nav.classList.toggle('active', s === n);
             });
+
+            const mainWelcome = document.getElementById('mainWelcomeSec');
+            if (mainWelcome) {
+                mainWelcome.style.display = (n === 'matcher') ? 'none' : 'block';
+            }
 
             if (n === 'jobs') loadJobs();
             if (n === 'apps') loadApplications();
