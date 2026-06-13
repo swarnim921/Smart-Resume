@@ -1236,7 +1236,8 @@
     <script>
         const API = 'https://api.talentsynctech.in';
         const token = sessionStorage.getItem('token');
-        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        let user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        let globalProfile = {};
         let appliedJobsMap = new Map();
 
         // Auth check
@@ -1261,11 +1262,12 @@
             });
         });
 
-        function initUI() {
-            const initial = (user.name || 'U').charAt(0).toUpperCase();
+        function initUI(profileName) {
+            const finalName = profileName || user.name || 'User Name';
+            const initial = finalName.charAt(0).toUpperCase();
             document.getElementById('avatarInitial').textContent = initial;
-            document.getElementById('userNameDisplay').textContent = user.name || 'User';
-            document.getElementById('welcomeUser').textContent = user.name || 'User';
+            document.getElementById('userNameDisplay').textContent = finalName;
+            document.getElementById('welcomeUser').textContent = finalName;
         }
 
         function logout() {
@@ -1594,19 +1596,22 @@
                 await loadAnalytics();
 
                 // Dynamic Profile Strength
-                let profile = {};
                 try {
                     const profRes = await fetch(`${API}/api/users/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
                     if (profRes.ok) {
-                        profile = await profRes.json();
-                        sessionStorage.setItem("profileData", JSON.stringify(profile));
+                        globalProfile = await profRes.json();
+                        sessionStorage.setItem("profileData", JSON.stringify(globalProfile));
                     } else {
-                        profile = JSON.parse(sessionStorage.getItem("profileData") || "{}");
+                        globalProfile = JSON.parse(sessionStorage.getItem("profileData") || "{}");
                     }
                 } catch (e) {
-                    profile = JSON.parse(sessionStorage.getItem("profileData") || "{}");
+                    globalProfile = JSON.parse(sessionStorage.getItem("profileData") || "{}");
                 }
-                const strength = calculateProfileStrength(profile);
+                
+                // Update UI with actual profile name
+                initUI(globalProfile.name);
+                
+                const strength = calculateProfileStrength(globalProfile);
                 updateScoreBar(strength);
 
                 // Additional UI polish
@@ -1619,8 +1624,8 @@
                 appliedJobsMap = new Map(apps.map(a => [a.jobId, { status: a.status, score: a.matchScore }]));
 
                 // AI Insights (Strengths from profile)
-                if (user.skills && user.skills.length) {
-                    document.getElementById('ai-strengths').innerHTML = user.skills.slice(0, 5).map(s =>
+                if (globalProfile.skills && globalProfile.skills.length) {
+                    document.getElementById('ai-strengths').innerHTML = globalProfile.skills.slice(0, 5).map(s =>
                         `<span class="skill-tag" style="background:#f0fdf4; color:#166534; border:1px solid #dcfce7">${s}</span>`
                     ).join('');
                 }
@@ -1652,8 +1657,8 @@
                     document.getElementById('ai-weaknesses').innerHTML = '<span style="font-size:12px; color:var(--muted)">Apply to a job for gap analysis</span>';
 
                     const profileSuggestions = [];
-                    if (!user.skills || !user.skills.length) profileSuggestions.push({ t: 'Add skills to your profile', i: '+25%' });
-                    if (!user.bio || user.bio.length < 20) profileSuggestions.push({ t: 'Write a professional bio', i: '+15%' });
+                    if (!globalProfile.skills || !globalProfile.skills.length) profileSuggestions.push({ t: 'Add skills to your profile', i: '+25%' });
+                    if (!globalProfile.bio || globalProfile.bio.length < 20) profileSuggestions.push({ t: 'Write a professional bio', i: '+15%' });
                     profileSuggestions.push({ t: 'Apply to your first job', i: '+10%' });
 
                     document.getElementById('ai-suggestions').innerHTML = profileSuggestions.slice(0, 3).map(s => `
@@ -1713,11 +1718,11 @@
                     if (appliedJobsMap.has(job.id) && appliedJobsMap.get(job.id).score) {
                         return appliedJobsMap.get(job.id).score; // Show real ATS score if already applied
                     }
-                    if (!user.skills || !user.skills.length) return 40;
+                    if (!globalProfile.skills || !globalProfile.skills.length) return 40;
                     const jobText = ((job.title || '') + ' ' + (job.description || '') + ' ' + (job.requirements || '')).toLowerCase();
                     let hits = 0;
-                    user.skills.forEach(s => { if (jobText.includes(s.toLowerCase())) hits++; });
-                    let score = 30 + (hits / Math.max(user.skills.length, 3)) * 70;
+                    globalProfile.skills.forEach(s => { if (jobText.includes(s.toLowerCase())) hits++; });
+                    let score = 30 + (hits / Math.max(globalProfile.skills.length, 3)) * 70;
                     return Math.floor(Math.min(98, score));
                 };
 
