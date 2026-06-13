@@ -35,27 +35,43 @@ public class MLIntegrationService {
             String jobRequirements) {
         log.info("Analyzing resume-job match for job: {}", jobTitle);
 
-        try {
-            String url = mlServiceUrl + "/api/ml/analyze";
+        int maxRetries = 3;
+        int delayMs = 3000;
+        Exception lastException = null;
 
-            Map<String, String> request = new HashMap<>();
-            request.put("resumeText", resumeText);
-            request.put("jobDescription", jobDescription);
+        for (int i = 0; i < maxRetries; i++) {
+            try {
+                String url = mlServiceUrl + "/api/ml/analyze";
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-            HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
+                Map<String, String> request = new HashMap<>();
+                request.put("resumeText", resumeText);
+                request.put("jobDescription", jobDescription);
 
-            ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
-            if (response.getStatusCode() == HttpStatus.OK) {
-                Map<String, Object> mlResponse = response.getBody();
-                return mlResponse != null ? convertToMLResult(mlResponse) : null;
+                ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
+
+                if (response.getStatusCode() == HttpStatus.OK) {
+                    Map<String, Object> mlResponse = response.getBody();
+                    return mlResponse != null ? convertToMLResult(mlResponse) : null;
+                }
+                break;
+            } catch (org.springframework.web.client.HttpClientErrorException.TooManyRequests e) {
+                log.warn("ML API Rate Limited (429). Retrying {}/{} in {}ms...", i + 1, maxRetries, delayMs);
+                lastException = e;
+                try { Thread.sleep(delayMs); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                delayMs *= 2; // Exponential backoff
+            } catch (Exception e) {
+                log.error("ML service unavailable: {}", e.getMessage());
+                throw new RuntimeException("ML API Error: " + e.getMessage(), e);
             }
-        } catch (Exception e) {
-            log.error("ML service unavailable: {}", e.getMessage());
-            throw new RuntimeException("ML API Error: " + e.getMessage(), e);
+        }
+        
+        if (lastException != null) {
+            throw new RuntimeException("ML API Error after retries: " + lastException.getMessage(), lastException);
         }
 
         throw new RuntimeException("ML Service failed to return a valid response.");
