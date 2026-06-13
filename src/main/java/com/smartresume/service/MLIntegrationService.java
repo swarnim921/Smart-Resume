@@ -181,6 +181,8 @@ public class MLIntegrationService {
         int maxRetries = 3;
         int delayMs = 3000;
 
+        Exception lastException = null;
+
         for (int i = 0; i < maxRetries; i++) {
             try {
                 String url = mlServiceUrl + "/api/ml/matrix-analyze";
@@ -202,18 +204,29 @@ public class MLIntegrationService {
                         return (List<Map<String, Object>>) mlResponse.get("results");
                     }
                 }
-                break;
-            } catch (org.springframework.web.client.HttpClientErrorException.TooManyRequests e) {
-                log.warn("ML API Rate Limited (429) during matrix analyze. Retrying {}/{} in {}ms...", i + 1, maxRetries, delayMs);
-                try { Thread.sleep(delayMs); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
-                delayMs *= 2;
+                throw new RuntimeException("Invalid response format from ML service");
+            } catch (org.springframework.web.client.HttpStatusCodeException e) {
+                lastException = e;
+                if (e.getStatusCode().value() == 429) {
+                    log.warn("ML API Rate Limited (429) during matrix analyze. Retrying {}/{} in {}ms...", i + 1, maxRetries, delayMs);
+                    try { Thread.sleep(delayMs); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                    delayMs *= 2;
+                } else {
+                    log.error("HTTP error calling ML service for matrix analyze: {}", e.getMessage());
+                    break;
+                }
             } catch (Exception e) {
+                lastException = e;
                 log.error("Error calling ML service for matrix analyze: {}", e.getMessage());
                 break;
             }
         }
 
-        return null;
+        if (lastException != null) {
+            throw new RuntimeException("ML API Error: " + lastException.getMessage(), lastException);
+        }
+        
+        throw new RuntimeException("ML Service failed to return a valid response.");
     }
 
     // Helper method to convert ML response to MLAnalysisResult
