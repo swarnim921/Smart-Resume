@@ -231,38 +231,43 @@ public class EnterpriseController {
             job.setProcessedResumes(0);
             batchJobRepository.save(job);
 
-            List<Map<String, String>> jdsData = new ArrayList<>();
+            List<Map<String, String>> tempJdFiles = new ArrayList<>();
             for (MultipartFile jdFile : jdFiles) {
-                ResumeMeta jdMeta = resumeService.store(jdFile, systemUser, "JD_DOC");
-                String text = resumeService.extractTextFromResume(jdMeta.getId());
+                java.io.File tempFile = java.io.File.createTempFile("jd_", ".tmp");
+                jdFile.transferTo(tempFile);
                 
                 String filename = jdFile.getOriginalFilename();
                 String jdName = filename != null ? filename.replaceAll("(?i)\\.(pdf|txt|png|jpg|jpeg|doc|docx)$", "") : "Unknown JD";
                 
                 Map<String, String> jdMap = new HashMap<>();
-                jdMap.put("id", jdMeta.getId());
-                jdMap.put("text", text);
+                jdMap.put("path", tempFile.getAbsolutePath());
+                jdMap.put("originalFilename", filename);
+                jdMap.put("contentType", jdFile.getContentType());
                 jdMap.put("name", jdName);
-                jdsData.add(jdMap);
+                tempJdFiles.add(jdMap);
             }
 
-            List<String> resumeIds = new ArrayList<>();
-            Map<String, String> candidateNames = new HashMap<>();
-
+            List<Map<String, String>> tempResumeFiles = new ArrayList<>();
             for (MultipartFile resumeFile : resumes) {
-                ResumeMeta resMeta = resumeService.store(resumeFile, systemUser, "CANDIDATE_RESUME");
+                java.io.File tempFile = java.io.File.createTempFile("res_", ".tmp");
+                resumeFile.transferTo(tempFile);
+                
                 String filename = resumeFile.getOriginalFilename();
                 String candidateName = filename != null ? filename.replaceAll("(?i)\\.(pdf|txt|png|jpg|jpeg|doc|docx)$", "") : "Unknown Candidate";
-                candidateNames.put(resMeta.getId(), candidateName);
-                resumeIds.add(resMeta.getId());
+                
+                Map<String, String> resMap = new HashMap<>();
+                resMap.put("path", tempFile.getAbsolutePath());
+                resMap.put("originalFilename", filename);
+                resMap.put("contentType", resumeFile.getContentType());
+                resMap.put("name", candidateName);
+                tempResumeFiles.add(resMap);
             }
 
-            batchProcessingService.processPlacementBatch(job.getId(), jdsData, resumeIds, candidateNames);
+            batchProcessingService.processPlacementBatchFromDisk(job.getId(), tempJdFiles, tempResumeFiles, systemUser);
 
             return ResponseEntity.accepted().body(Map.of(
                 "batchId", job.getId(),
                 "status", "PROCESSING",
-                "jds", jdsData,
                 "message", "Placement batch uploaded successfully. Matrix processing started."
             ));
 

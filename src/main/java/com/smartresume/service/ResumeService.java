@@ -45,6 +45,24 @@ public class ResumeService {
         return resumeRepository.save(meta);
     }
 
+    public ResumeMeta store(java.io.File file, String originalFilename, String contentType, User owner, String fileType) throws IOException {
+        ObjectId gridId;
+        try (InputStream inputStream = new java.io.FileInputStream(file)) {
+            gridId = gridFsTemplate.store(inputStream, originalFilename, contentType);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to store file in GridFS", e);
+        }
+        ResumeMeta meta = new ResumeMeta();
+        meta.setFilename(originalFilename);
+        meta.setContentType(contentType);
+        meta.setSize(file.length());
+        meta.setGridFsId(gridId.toHexString());
+        meta.setOwnerId(owner.getId());
+        meta.setExtractedText(null);
+        meta.setFileType(fileType != null ? fileType : "RESUME");
+        return resumeRepository.save(meta);
+    }
+
     public GridFsResource getFileResourceByGridId(String gridId) {
         GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(new ObjectId(gridId))));
         if (gridFSFile == null)

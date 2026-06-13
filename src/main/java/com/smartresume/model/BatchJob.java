@@ -19,6 +19,8 @@ public class BatchJob {
     private String jdId;
     
     private List<Map<String, Object>> results;
+    
+    private List<Map<String, String>> jds;
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -40,4 +42,7 @@ public class BatchJob {
 
     public List<Map<String, Object>> getResults() { return results; }
     public void setResults(List<Map<String, Object>> results) { this.results = results; }
+    
+    public List<Map<String, String>> getJds() { return jds; }
+    public void setJds(List<Map<String, String>> jds) { this.jds = jds; }
 }

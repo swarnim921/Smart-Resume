@@ -209,4 +209,63 @@ public class BatchProcessingService {
             batchJobRepository.save(job);
         }
     }
+
+    @Async
+    public void processPlacementBatchFromDisk(String batchId, List<Map<String, String>> tempJdFiles, List<Map<String, String>> tempResumeFiles, com.smartresume.model.User systemUser) {
+        log.info("Starting async Placement Matrix processing from disk for BatchJob: {}", batchId);
+        
+        BatchJob job = batchJobRepository.findById(batchId).orElse(null);
+        if (job == null) {
+            log.error("BatchJob {} not found!", batchId);
+            return;
+        }
+
+        try {
+            // 1. Store JDs to GridFS and Extract Text
+            List<Map<String, String>> jdsData = new ArrayList<>();
+            for (Map<String, String> jdInfo : tempJdFiles) {
+                java.io.File file = new java.io.File(jdInfo.get("path"));
+                if (file.exists()) {
+                    com.smartresume.model.ResumeMeta jdMeta = resumeService.store(file, jdInfo.get("originalFilename"), jdInfo.get("contentType"), systemUser, "JD_DOC");
+                    String text = resumeService.extractTextFromResume(jdMeta.getId());
+                    
+                    Map<String, String> jdMap = new HashMap<>();
+                    jdMap.put("id", jdMeta.getId());
+                    jdMap.put("text", text);
+                    jdMap.put("name", jdInfo.get("name"));
+                    jdsData.add(jdMap);
+                    
+                    file.delete(); // cleanup temp file
+                }
+            }
+            
+            job.setJds(jdsData);
+            batchJobRepository.save(job);
+
+            // 2. Store Resumes to GridFS
+            List<String> resumeIds = new ArrayList<>();
+            Map<String, String> candidateNames = new HashMap<>();
+            
+            for (Map<String, String> resInfo : tempResumeFiles) {
+                java.io.File file = new java.io.File(resInfo.get("path"));
+                if (file.exists()) {
+                    com.smartresume.model.ResumeMeta resMeta = resumeService.store(file, resInfo.get("originalFilename"), resInfo.get("contentType"), systemUser, "CANDIDATE_RESUME");
+                    resumeIds.add(resMeta.getId());
+                    candidateNames.put(resMeta.getId(), resInfo.get("name"));
+                    
+                    file.delete(); // cleanup temp file
+                }
+            }
+            
+            // 3. Delegate to the regular matrix processing method, removing the @Async wrapper to run in the same thread
+            // Wait, processPlacementBatch is @Async! If we call it from another @Async method inside the same class, Spring won't proxy it.
+            // It will run synchronously in this same background thread, which is exactly what we want!
+            processPlacementBatch(batchId, jdsData, resumeIds, candidateNames);
+            
+        } catch (Exception e) {
+            log.error("Fatal error processing Placement BatchJob from disk {}: {}", batchId, e.getMessage(), e);
+            job.setStatus("FAILED");
+            batchJobRepository.save(job);
+        }
+    }
 }
