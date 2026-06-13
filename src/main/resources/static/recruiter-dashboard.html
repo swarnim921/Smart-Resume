@@ -1527,6 +1527,43 @@
         </div>
     </div>
 
+    <!-- Matrix Analysis Modal -->
+    <div id="matrixAnalysisModal" class="modal">
+        <div class="modal-content" style="max-width:600px">
+            <div class="modal-header">
+                <div class="modal-title"><i data-lucide="bar-chart-2"></i> Match Analysis Report</div>
+                <button class="close-btn" onclick="closeMatrixAnalysis()">×</button>
+            </div>
+            <div style="margin-top: 1rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                    <div>
+                        <div class="form-label">Candidate</div>
+                        <div style="font-weight:600; font-size:15px;" id="maCandidateName">-</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="form-label">Job Role</div>
+                        <div style="font-weight:600; font-size:15px;" id="maJobName">-</div>
+                    </div>
+                </div>
+                
+                <div style="text-align:center; margin: 1.5rem 0;">
+                    <div class="form-label">Overall Match Score</div>
+                    <div style="font-size:32px; font-weight:800; color:var(--primary)" id="maScore">-</div>
+                </div>
+
+                <div>
+                    <div class="form-label" style="color:var(--danger)"><i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Missing Skills (Gap Analysis)</div>
+                    <div id="maMissingSkills" style="margin-top:0.5rem; display:flex; flex-wrap:wrap; gap:8px;">
+                        <!-- Badges go here -->
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; margin-top:1.5rem">
+                <button class="btn btn-p" onclick="closeMatrixAnalysis()">Done</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API = 'https://api.talentsynctech.in';
         const token = sessionStorage.getItem('token');
@@ -2076,6 +2113,7 @@
             if (e.target.classList.contains('modal')) {
                 closeModal();
                 closePreview();
+                closeMatrixAnalysis();
             }
         });
 
@@ -2083,6 +2121,7 @@
             if (e.key === 'Escape') {
                 closeModal();
                 closePreview();
+                closeMatrixAnalysis();
             }
         });
 
@@ -2642,6 +2681,7 @@
         }
 
         function renderPlacementResults(job) {
+            window.currentPlacementJob = job;
             const data = job.results || [];
             const jds = job.jds || [];
             
@@ -2650,6 +2690,7 @@
                 <div class="card" id="placement-results-card">
                     <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
                         <div class="card-title"><i data-lucide="network"></i> Many-to-Many Matrix Results</div>
+                        <button class="btn btn-o" onclick="exportPlacementCSV()"><i data-lucide="download"></i> Export CSV Report</button>
                     </div>
                     <div style="overflow-x: auto; margin-top: 16px;">
                         <table style="width: 100%; text-align: left; border-collapse: collapse; min-width: 800px;">
@@ -2669,7 +2710,13 @@
                                                 const match = (r.matches || []).find(m => m.jobId === jd.id);
                                                 if (!match) return `<td style="padding: 16px 12px; text-align:center;">-</td>`;
                                                 const color = match.matchScore >= 75 ? 'var(--success)' : (match.matchScore >= 50 ? 'var(--warning)' : 'var(--danger)');
-                                                return `<td style="padding: 16px 12px; text-align:center; font-weight:600; color:${color}">${match.matchScore}%</td>`;
+                                                
+                                                // Escape data for onclick
+                                                const escapedSkills = (match.missingSkills || []).map(s => s.replace(/'/g, "\\'").replace(/"/g, '&quot;')).join(', ');
+                                                const escapedCandidate = (r.candidateName || 'Candidate').replace(/'/g, "\\'");
+                                                const escapedJd = (jd.name || 'Job').replace(/'/g, "\\'");
+                                                
+                                                return `<td style="padding: 16px 12px; text-align:center; font-weight:600; color:${color}; cursor:pointer;" onclick="showMatrixAnalysis('${escapedCandidate}', '${escapedJd}', ${match.matchScore}, '${escapedSkills}', '${color}')" title="Click for Analysis Report">${match.matchScore}%</td>`;
                                             }).join('')}
                                         </tr>`;
                                 }).join('')}
@@ -2678,6 +2725,92 @@
                     </div>
                 </div>`;
             lucide.createIcons();
+        }
+
+        function showMatrixAnalysis(candidate, jobName, score, missingSkillsCsv, color) {
+            document.getElementById('maCandidateName').innerText = candidate;
+            document.getElementById('maJobName').innerText = jobName;
+            
+            const scoreEl = document.getElementById('maScore');
+            scoreEl.innerText = score + '%';
+            scoreEl.style.color = color;
+
+            const skillsContainer = document.getElementById('maMissingSkills');
+            skillsContainer.innerHTML = '';
+            
+            if (!missingSkillsCsv || missingSkillsCsv.trim() === '') {
+                skillsContainer.innerHTML = '<span style="color:var(--muted); font-size:14px; font-style:italic;">No significant skill gaps identified. Candidate is a strong match!</span>';
+            } else {
+                const skills = missingSkillsCsv.split(', ');
+                skills.forEach(s => {
+                    if (s.trim() !== '') {
+                        const badge = document.createElement('span');
+                        badge.className = 'status-badge rejected';
+                        badge.style.backgroundColor = 'var(--danger-light)';
+                        badge.style.color = 'var(--danger)';
+                        badge.innerText = s;
+                        skillsContainer.appendChild(badge);
+                    }
+                });
+            }
+
+            document.getElementById('matrixAnalysisModal').classList.add('active');
+            lucide.createIcons();
+        }
+
+        function closeMatrixAnalysis() {
+            document.getElementById('matrixAnalysisModal').classList.remove('active');
+        }
+
+        function exportPlacementCSV() {
+            const job = window.currentPlacementJob;
+            if (!job) return;
+
+            const jds = job.jds || [];
+            const results = job.results || [];
+
+            if (jds.length === 0 || results.length === 0) {
+                showToast("No data to export", true);
+                return;
+            }
+
+            // CSV Header: Candidate Name, [JD 1 Name] Score, [JD 1 Name] Missing Skills, [JD 2 Name] Score, ...
+            let header = ['"Candidate Name"'];
+            jds.forEach(jd => {
+                const safeJdName = (jd.name || 'Job').replace(/"/g, '""');
+                header.push(`"${safeJdName} (Match %)"`);
+                header.push(`"${safeJdName} (Missing Skills)"`);
+            });
+
+            const rows = [header.join(',')];
+
+            results.forEach(r => {
+                const safeCandidate = (r.candidateName || 'Candidate').replace(/"/g, '""');
+                const row = [`"${safeCandidate}"`];
+
+                jds.forEach(jd => {
+                    const match = (r.matches || []).find(m => m.jobId === jd.id);
+                    if (!match) {
+                        row.push('""');
+                        row.push('""');
+                    } else {
+                        row.push(`"${match.matchScore}%"`);
+                        const missing = (match.missingSkills || []).join(', ').replace(/"/g, '""');
+                        row.push(`"${missing}"`);
+                    }
+                });
+                rows.push(row.join(','));
+            });
+
+            const csvContent = "data:text/csv;charset=utf-8," + rows.join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `placement_matrix_report_${job.id || 'export'}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Exporting CSV report...");
         }
 
         // ===================== ENTERPRISE JD PARSING =====================
