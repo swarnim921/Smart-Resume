@@ -283,7 +283,22 @@
         }
 
         .user-info {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
         }
 
         @media (max-width: 768px) {
@@ -973,7 +988,7 @@
     <div class="main">
         <!-- Topbar -->
         <div class="topbar">
-            <div style="display:flex; align-items:center; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px; flex: 1;">
                 <button class="menu-btn" onclick="toggleSidebar()">
                     <i data-lucide="menu"></i>
                 </button>
