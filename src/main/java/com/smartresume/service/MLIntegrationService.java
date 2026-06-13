@@ -178,28 +178,39 @@ public class MLIntegrationService {
     public List<Map<String, Object>> matrixAnalyze(List<Map<String, Object>> jobDescriptions, List<Map<String, Object>> applications) {
         log.info("Matrix analyzing {} applications against {} JDs", applications.size(), jobDescriptions.size());
 
-        try {
-            String url = mlServiceUrl + "/api/ml/matrix-analyze";
+        int maxRetries = 3;
+        int delayMs = 3000;
 
-            Map<String, Object> request = new HashMap<>();
-            request.put("jobDescriptions", jobDescriptions);
-            request.put("applications", applications);
+        for (int i = 0; i < maxRetries; i++) {
+            try {
+                String url = mlServiceUrl + "/api/ml/matrix-analyze";
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+                Map<String, Object> request = new HashMap<>();
+                request.put("jobDescriptions", jobDescriptions);
+                request.put("applications", applications);
 
-            ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
 
-            if (response.getStatusCode() == HttpStatus.OK) {
-                Map<String, Object> mlResponse = response.getBody();
-                if (mlResponse != null && mlResponse.containsKey("results")) {
-                    return (List<Map<String, Object>>) mlResponse.get("results");
+                ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
+
+                if (response.getStatusCode() == HttpStatus.OK) {
+                    Map<String, Object> mlResponse = response.getBody();
+                    if (mlResponse != null && mlResponse.containsKey("results")) {
+                        return (List<Map<String, Object>>) mlResponse.get("results");
+                    }
                 }
+                break;
+            } catch (org.springframework.web.client.HttpClientErrorException.TooManyRequests e) {
+                log.warn("ML API Rate Limited (429) during matrix analyze. Retrying {}/{} in {}ms...", i + 1, maxRetries, delayMs);
+                try { Thread.sleep(delayMs); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                delayMs *= 2;
+            } catch (Exception e) {
+                log.error("Error calling ML service for matrix analyze: {}", e.getMessage());
+                break;
             }
-        } catch (Exception e) {
-            log.error("Error calling ML service for matrix analyze: {}", e.getMessage());
         }
 
         return null;

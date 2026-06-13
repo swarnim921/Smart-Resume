@@ -168,7 +168,9 @@ public class JobController {
             return ResponseEntity.ok(finalRankedJobs);
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+            e.printStackTrace();
+            String msg = e.getMessage() != null ? e.getMessage() : "Unknown error: " + e.getClass().getSimpleName();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", msg));
         }
     }
 }
