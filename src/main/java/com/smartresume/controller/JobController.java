@@ -88,7 +88,7 @@ public class JobController {
     }
 
     @GetMapping("/match-my-resume")
-    @PreAuthorize("hasRole('CANDIDATE')")
+    @PreAuthorize("hasAnyRole('USER', 'CANDIDATE')")
     public ResponseEntity<?> matchMyResume(Authentication auth) {
         try {
             String email = auth.getName();
