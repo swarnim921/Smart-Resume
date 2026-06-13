@@ -152,8 +152,11 @@ public class BatchProcessingService {
                 mlPayloadJds.add(jdObj);
             }
             
-            for (int i = 0; i < resumeIds.size(); i += chunkSize) {
-                int end = Math.min(i + chunkSize, resumeIds.size());
+            int resumeChunkSize = 25;
+            int jdChunkSize = 10;
+            
+            for (int i = 0; i < resumeIds.size(); i += resumeChunkSize) {
+                int end = Math.min(i + resumeChunkSize, resumeIds.size());
                 List<String> chunk = resumeIds.subList(i, end);
                 
                 List<Map<String, Object>> mlPayloadApps = new ArrayList<>();
@@ -169,30 +172,52 @@ public class BatchProcessingService {
                     }
                 }
 
-                String url = mlServiceUrl + "/api/ml/matrix-analyze";
-                Map<String, Object> request = new HashMap<>();
-                request.put("jobDescriptions", mlPayloadJds);
-                request.put("applications", mlPayloadApps);
+                // Map to accumulate the matches for these 25 candidates across all JD chunks
+                Map<String, Map<String, Object>> candidateAggregatedResults = new HashMap<>();
+                
+                // 2D Chunking over JDs to prevent Python API timeouts
+                for (int j = 0; j < mlPayloadJds.size(); j += jdChunkSize) {
+                    int jdEnd = Math.min(j + jdChunkSize, mlPayloadJds.size());
+                    List<Map<String, Object>> jdChunk = mlPayloadJds.subList(j, jdEnd);
+                    
+                    String url = mlServiceUrl + "/api/ml/matrix-analyze";
+                    Map<String, Object> request = new HashMap<>();
+                    request.put("jobDescriptions", jdChunk);
+                    request.put("applications", mlPayloadApps);
 
-                try {
-                    ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-                    if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                        List<Map<String, Object>> chunkResults = (List<Map<String, Object>>) response.getBody().get("results");
-                        for (Map<String, Object> res : chunkResults) {
-                            String appId = (String) res.get("applicationId");
-                            res.put("candidateName", candidateNames.get(appId));
-                            allResults.add(res);
+                    try {
+                        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+                        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                            List<Map<String, Object>> chunkResults = (List<Map<String, Object>>) response.getBody().get("results");
+                            
+                            for (Map<String, Object> res : chunkResults) {
+                                String appId = (String) res.get("applicationId");
+                                List<Map<String, Object>> matches = (List<Map<String, Object>>) res.get("matches");
+                                
+                                if (candidateAggregatedResults.containsKey(appId)) {
+                                    // Append matches to existing candidate
+                                    List<Map<String, Object>> existingMatches = (List<Map<String, Object>>) candidateAggregatedResults.get(appId).get("matches");
+                                    existingMatches.addAll(matches);
+                                } else {
+                                    // New candidate in this chunk
+                                    res.put("candidateName", candidateNames.get(appId));
+                                    candidateAggregatedResults.put(appId, res);
+                                }
+                            }
                         }
+                    } catch (Exception mlEx) {
+                        log.error("ML Service matrix-analyze failed for resume chunk {} to {}, JD chunk {} to {}: {}", i, end, j, jdEnd, mlEx.getMessage());
                     }
-                } catch (Exception mlEx) {
-                    log.error("ML Service matrix-analyze failed for chunk {} to {}: {}", i, end, mlEx.getMessage());
                 }
+                
+                // Add the fully aggregated candidate matches to the final results list
+                allResults.addAll(candidateAggregatedResults.values());
 
                 job.setProcessedResumes(end);
                 batchJobRepository.save(job);
 
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(2000); // Small sleep between major resume chunks
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                 }
