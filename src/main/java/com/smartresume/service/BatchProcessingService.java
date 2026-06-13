@@ -152,8 +152,8 @@ public class BatchProcessingService {
                 mlPayloadJds.add(jdObj);
             }
             
-            int resumeChunkSize = 25;
-            int jdChunkSize = 10;
+            int resumeChunkSize = 10;
+            int jdChunkSize = 5;
             
             for (int i = 0; i < resumeIds.size(); i += resumeChunkSize) {
                 int end = Math.min(i + resumeChunkSize, resumeIds.size());

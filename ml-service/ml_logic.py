@@ -294,8 +294,8 @@ def analyze_matrix_match(resume_texts, jd_texts):
         model = SentenceTransformer('all-MiniLM-L6-v2')
         
     with torch.no_grad():
-        resume_embeddings = model.encode(resume_texts, convert_to_tensor=True)
-        jd_embeddings = model.encode(jd_texts, convert_to_tensor=True)
+        resume_embeddings = model.encode(resume_texts, convert_to_tensor=True, batch_size=4)
+        jd_embeddings = model.encode(jd_texts, convert_to_tensor=True, batch_size=4)
         
     # Output shape: [len(resume_texts), len(jd_texts)]
     semantic_matrix = util.cos_sim(resume_embeddings, jd_embeddings)
