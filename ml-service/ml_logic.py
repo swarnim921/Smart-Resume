@@ -353,8 +353,15 @@ def analyze_matrix_match(resume_texts, jd_texts):
             res_scores.append({
                 "jdIndex": j,
                 "matchScore": round(final_score, 1),
-                "missingSkills": missing_tech + missing_soft
+                "semanticScore": round(sem_score, 1),
+                "keywordScore": round(kw_score, 1)
             })
         final_scores.append(res_scores)
-        
+
+    del resume_embeddings
+    del jd_embeddings
+    del semantic_matrix
+    import gc
+    gc.collect()
+
     return final_scores

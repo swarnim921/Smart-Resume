@@ -189,7 +189,20 @@ def matrix_analyze():
                 "matches": res_matches
             })
             
-        return jsonify({"results": results}), 200
+        response = jsonify({"results": results})
+        
+        # Aggressive memory cleanup
+        del data
+        del job_descriptions
+        del applications
+        del resume_texts
+        del jd_texts
+        del matrix_scores
+        del results
+        import gc
+        gc.collect()
+        
+        return response, 200
     except Exception as e:
         import traceback
         traceback.print_exc()
