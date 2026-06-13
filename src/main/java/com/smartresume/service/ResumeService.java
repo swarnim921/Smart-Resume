@@ -85,39 +85,50 @@ public class ResumeService {
                 try {
                     java.nio.file.Files.copy(inputStream, tempFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                     
-                    // Optimize image for faster OCR: scale down large images and convert to grayscale
-                    java.awt.image.BufferedImage originalImage = javax.imageio.ImageIO.read(tempFile);
-                    if (originalImage != null && (originalImage.getWidth() > 800 || originalImage.getHeight() > 800)) {
-                        int maxDim = 800;
-                        double scale = Math.min((double) maxDim / originalImage.getWidth(), (double) maxDim / originalImage.getHeight());
-                        int newWidth = (int) (originalImage.getWidth() * scale);
-                        int newHeight = (int) (originalImage.getHeight() * scale);
-                        
-                        java.awt.image.BufferedImage resizedImage = new java.awt.image.BufferedImage(newWidth, newHeight, java.awt.image.BufferedImage.TYPE_BYTE_GRAY);
-                        java.awt.Graphics2D g = resizedImage.createGraphics();
-                        g.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
-                        g.dispose();
-                        
-                        javax.imageio.ImageIO.write(resizedImage, "jpg", tempFile);
-                    }
+                    try {
+                        // Optimize image for faster OCR: scale down large images and convert to grayscale
+                        java.awt.image.BufferedImage originalImage = javax.imageio.ImageIO.read(tempFile);
+                        if (originalImage == null) {
+                            throw new javax.imageio.IIOException("Unsupported image format");
+                        }
+                        if (originalImage.getWidth() > 800 || originalImage.getHeight() > 800) {
+                            int maxDim = 800;
+                            double scale = Math.min((double) maxDim / originalImage.getWidth(), (double) maxDim / originalImage.getHeight());
+                            int newWidth = (int) (originalImage.getWidth() * scale);
+                            int newHeight = (int) (originalImage.getHeight() * scale);
+                            
+                            java.awt.image.BufferedImage resizedImage = new java.awt.image.BufferedImage(newWidth, newHeight, java.awt.image.BufferedImage.TYPE_BYTE_GRAY);
+                            java.awt.Graphics2D g = resizedImage.createGraphics();
+                            g.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+                            g.dispose();
+                            
+                            javax.imageio.ImageIO.write(resizedImage, "jpg", tempFile);
+                        }
 
-                    net.sourceforge.tess4j.ITesseract tesseract = new net.sourceforge.tess4j.Tesseract();
-                    // On Ubuntu (Render), tessdata is usually here
-                    if (new java.io.File("/usr/share/tesseract-ocr/4.00/tessdata").exists()) {
-                        tesseract.setDatapath("/usr/share/tesseract-ocr/4.00/tessdata");
-                    } else if (new java.io.File("/usr/share/tesseract-ocr/5/tessdata").exists()) {
-                        tesseract.setDatapath("/usr/share/tesseract-ocr/5/tessdata");
+                        net.sourceforge.tess4j.ITesseract tesseract = new net.sourceforge.tess4j.Tesseract();
+                        // On Ubuntu (Render), tessdata is usually here
+                        if (new java.io.File("/usr/share/tesseract-ocr/4.00/tessdata").exists()) {
+                            tesseract.setDatapath("/usr/share/tesseract-ocr/4.00/tessdata");
+                        } else if (new java.io.File("/usr/share/tesseract-ocr/5/tessdata").exists()) {
+                            tesseract.setDatapath("/usr/share/tesseract-ocr/5/tessdata");
+                        }
+                        tesseract.setLanguage("eng");
+                        // Use fast LSTM mode for much faster performance
+                        tesseract.setOcrEngineMode(1); 
+                        // Assume single column of text to skip complex layout analysis (massive speedup)
+                        tesseract.setPageSegMode(4);
+                        tesseract.setTessVariable("load_system_dawg", "F");
+                        tesseract.setTessVariable("load_freq_dawg", "F");
+                        return tesseract.doOCR(tempFile);
+                    } catch (Exception | Error e) {
+                        // Fallback: try parsing it as a PDF just in case it was a misidentified PDF file
+                        try (org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.pdmodel.PDDocument.load(tempFile)) {
+                            org.apache.pdfbox.text.PDFTextStripper stripper = new org.apache.pdfbox.text.PDFTextStripper();
+                            return stripper.getText(document);
+                        } catch (Exception pdfEx) {
+                            throw new IOException("The uploaded file could not be read as an image or a PDF. Please upload a standard PDF resume.", e);
+                        }
                     }
-                    tesseract.setLanguage("eng");
-                    // Use fast LSTM mode for much faster performance
-                    tesseract.setOcrEngineMode(1); 
-                    // Assume single column of text to skip complex layout analysis (massive speedup)
-                    tesseract.setPageSegMode(4);
-                    tesseract.setTessVariable("load_system_dawg", "F");
-                    tesseract.setTessVariable("load_freq_dawg", "F");
-                    return tesseract.doOCR(tempFile);
-                } catch (Exception | Error e) {
-                    throw new IOException("OCR processing failed. Please ensure Tesseract is installed: " + e.getMessage(), e);
                 } finally {
                     tempFile.delete();
                 }
