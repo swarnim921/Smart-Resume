@@ -1701,9 +1701,17 @@
                                             <i data-lucide="users" style="width:16px"></i> 
                                             <span>Applications</span>
                                         </div>
-                                        <button class="apply-btn" onclick="viewApps('${j.id}','${(j.title || '').replace(/'/g, "\\'")}')">
-                                            Manage
-                                        </button>
+                                        <div style="display:flex; gap:8px;">
+                                            <button class="apply-btn" style="background:var(--bg); color:var(--text); border:1px solid var(--border); padding:8px;" onclick="editJob('${j.id}')" title="Edit Job">
+                                                <i data-lucide="edit-3" style="width:16px"></i>
+                                            </button>
+                                            <button class="apply-btn" style="background:var(--danger-light); color:var(--danger); border:1px solid var(--danger-light); padding:8px;" onclick="deleteJob('${j.id}','${(j.title || '').replace(/'/g, "\\'")}')" title="Delete Job">
+                                                <i data-lucide="trash-2" style="width:16px"></i>
+                                            </button>
+                                            <button class="apply-btn" onclick="viewApps('${j.id}','${(j.title || '').replace(/'/g, "\\'")}')">
+                                                Manage
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2165,6 +2173,53 @@
 
         function removeStage(id) { document.getElementById(`stage-${id}`).remove(); }
 
+        window.editingJobId = null;
+
+        async function editJob(id) {
+            const job = window.allJobs.find(j => j.id === id);
+            if (!job) return;
+            window.editingJobId = id;
+            document.querySelector('.welcome-title').innerText = 'Edit Job';
+            document.querySelector('#post-form-submit').innerHTML = '<i data-lucide="save" style="width:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Save Changes';
+            
+            document.getElementById('jTitle').value = job.title || '';
+            document.getElementById('jCompany').value = job.company || '';
+            document.getElementById('jLocation').value = job.location || '';
+            document.getElementById('jType').value = job.type || 'Full-time';
+            document.getElementById('jSalary').value = job.salary || '';
+            document.getElementById('jDescription').value = job.description || '';
+            document.getElementById('jRequirements').value = job.requirements || '';
+            
+            document.getElementById('stages-container').innerHTML = '';
+            stageCount = 0;
+            if (job.hiringPipeline && job.hiringPipeline.length > 0) {
+                job.hiringPipeline.forEach(s => {
+                    addStage();
+                    document.getElementById(`sname-${stageCount}`).value = s.stageName || '';
+                    document.getElementById(`body-${stageCount}`).value = s.emailBody || '';
+                });
+            }
+            showSection('post');
+        }
+
+        async function deleteJob(id, title) {
+            if (!confirm(`Are you sure you want to delete the job "${title}"?`)) return;
+            try {
+                const r = await fetch(`${API}/api/jobs/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (r.ok) {
+                    showToast('Job deleted successfully');
+                    loadJobs('jobs');
+                } else {
+                    showToast('Failed to delete job', true);
+                }
+            } catch(e) {
+                showToast('Error deleting job', true);
+            }
+        }
+
         async function postJob(e) {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
@@ -2195,17 +2250,26 @@
                     hiringPipeline: stages
                 };
 
-                const r = await fetch(`${API}/api/jobs`, {
-                    method: 'POST',
+                const method = window.editingJobId ? 'PUT' : 'POST';
+                const url = window.editingJobId ? `${API}/api/jobs/${window.editingJobId}` : `${API}/api/jobs`;
+
+                const r = await fetch(url, {
+                    method: method,
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
                 });
 
                 if (r.ok) {
-                    addNotif('success', 'Job Listing Live!', `"${body.title}" is now active and receiving applications.`);
-                    alert('Job posted successfully!');
+                    addNotif('success', window.editingJobId ? 'Job Updated!' : 'Job Listing Live!', `"${body.title}" has been saved.`);
+                    alert(window.editingJobId ? 'Job updated successfully!' : 'Job posted successfully!');
                     e.target.reset();
                     document.getElementById('stages-container').innerHTML = '';
+                    
+                    // Reset to Post mode
+                    window.editingJobId = null;
+                    document.querySelector('.welcome-title').innerText = 'Post New Job';
+                    document.querySelector('#post-form-submit').innerHTML = '<i data-lucide="send" style="width:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Post Job';
+                    
                     showSection('jobs');
                 }
             } catch (e) {
