@@ -1979,19 +1979,38 @@
 
             if (btn) { btn.textContent = 'Loading...'; btn.disabled = true; }
             try {
-                const r = await fetch(`${API}/api/applications/analyze-match/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                const d = await r.json();
-                if (!r.ok) throw new Error(d.error || 'Failed');
+                // Fetch Resume Text
+                const resReq = await fetch(`${API}/api/resumes/my-resume-text`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const resData = await resReq.json();
+                if (!resReq.ok) throw new Error(resData.error || 'Failed to fetch resume text');
+
+                // Fetch Job
+                const jobReq = await fetch(`${API}/api/jobs/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const jobData = await jobReq.json();
+                if (!jobReq.ok) throw new Error('Failed to fetch job');
+
+                const jobDesc = jobData.title + "\n" + (jobData.description||"") + "\n" + (jobData.requirements||"");
+
+                // Call local ML
+                const mlReq = await fetch(`http://127.0.0.1:5000/api/ml/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ resumeText: resData.text, jobDescription: jobDesc })
+                });
+                const mlData = await mlReq.json();
+                if (!mlReq.ok) throw new Error('Local ML failed');
+
+                const finalScore = mlData.matchScore ? mlData.matchScore.toFixed(0) : mlData.match_percentage.toFixed(0);
                 
                 // Update badge with real ML score
                 const badge = document.getElementById(badgeId);
                 if (badge) {
-                    badge.innerHTML = `<i data-lucide="zap" style="width:14px"></i> ${d.score}% Match`;
+                    badge.innerHTML = `<i data-lucide="zap" style="width:14px"></i> ${finalScore}% Match`;
                     badge.style.background = '#dcfce7';
                     badge.style.color = '#166534';
                     lucide.createIcons();
                 }
-                addNotif('success', 'Analysis Complete!', `The AI matched your resume to this job with a score of ${d.score}%.`);
+                addNotif('success', 'Analysis Complete!', `The AI matched your resume to this job with a score of ${finalScore}%.`);
             } catch (e) {
                 addNotif('warn', 'Analysis Failed', e.message);
                 alert('Analysis failed: ' + e.message);
@@ -2035,16 +2054,43 @@
             lucide.createIcons();
 
             try {
-                const res = await fetch(`${API}/api/jobs/match-my-resume`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const resReq = await fetch(`${API}/api/resumes/my-resume-text`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const resData = await resReq.json();
+                if (!resReq.ok) throw new Error(resData.error || 'Failed to fetch resume text');
+
+                const jobsReq = await fetch(`${API}/api/jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const allJobs = await jobsReq.json();
+                if (!jobsReq.ok) throw new Error('Failed to fetch jobs');
+
+                const mlPayloadJds = allJobs.map(job => ({
+                    jobId: job.id,
+                    jobDescriptionText: job.title + "\n" + (job.description||"") + "\n" + (job.requirements||"")
+                }));
+
+                const mlPayloadApps = [{
+                    applicationId: "my-resume",
+                    resumeText: resData.text
+                }];
+
+                const mlReq = await fetch(`http://127.0.0.1:5000/api/ml/matrix-analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ jobDescriptions: mlPayloadJds, applications: mlPayloadApps })
                 });
-
-                if (!res.ok) {
-                    const error = await res.json();
-                    throw new Error(error.error || 'Failed to match resume');
+                
+                if (!mlReq.ok) {
+                    throw new Error('Failed to connect to Local ML Server at 127.0.0.1:5000');
                 }
-
-                const rankedJobs = await res.json();
+                
+                const mlData = await mlReq.json();
+                const matches = mlData.results[0].matches;
+                
+                const rankedJobs = matches.map(match => {
+                    const job = allJobs.find(j => j.id === match.jobId);
+                    return { job, matchScore: match.matchScore, skillsMatched: match.skillsMatched, skillsGap: match.skillsGap };
+                });
+                
+                rankedJobs.sort((a,b) => b.matchScore - a.matchScore);
                 
                 if (!rankedJobs || rankedJobs.length === 0) {
                     grid.innerHTML = '<div class="col-12"><div class="empty-jobs"><h3>No active jobs found to match against.</h3></div></div>';

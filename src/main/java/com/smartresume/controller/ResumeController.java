@@ -216,6 +216,23 @@ public class ResumeController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/my-resume-text")
+    public ResponseEntity<?> getMyResumeText(Authentication auth) {
+        try {
+            User user = userRepository.findByEmail(auth.getName())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            java.util.List<ResumeMeta> resumes = resumeRepository.findByOwnerId(user.getId());
+            if (resumes.isEmpty()) {
+                return ResponseEntity.badRequest().body(java.util.Map.of("error", "No resume uploaded"));
+            }
+            ResumeMeta latest = resumes.get(resumes.size() - 1);
+            String text = resumeService.extractTextFromResume(latest.getId());
+            return ResponseEntity.ok(java.util.Map.of("text", text));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/{id}/download")
     public ResponseEntity<?> download(@PathVariable String id) throws Exception {
         ResumeMeta meta = resumeService.findById(id).orElseThrow(() -> new NoSuchElementException("Resume not found"));
