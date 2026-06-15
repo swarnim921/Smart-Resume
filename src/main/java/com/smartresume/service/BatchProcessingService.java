@@ -300,4 +300,93 @@ public class BatchProcessingService {
             batchJobRepository.save(job);
         }
     }
+
+    @Async
+    public void processPlacementBatchFromText(String batchId, List<Map<String, String>> jds, List<Map<String, String>> resumes, com.smartresume.model.User systemUser) {
+        log.info("Starting async FAST Placement Matrix processing from text for BatchJob: {}", batchId);
+        
+        BatchJob job = batchJobRepository.findById(batchId).orElse(null);
+        if (job == null) {
+            log.error("BatchJob {} not found!", batchId);
+            return;
+        }
+
+        try {
+            List<Map<String, Object>> allResults = new ArrayList<>();
+            
+            // Format JDs payload
+            List<Map<String, Object>> mlPayloadJds = new ArrayList<>();
+            for (Map<String, String> jd : jds) {
+                Map<String, Object> jdObj = new HashMap<>();
+                jdObj.put("jobId", jd.get("filename")); // Use filename as jobId for fast mode
+                jdObj.put("jobDescriptionText", jd.get("text"));
+                mlPayloadJds.add(jdObj);
+            }
+            
+            int resumeChunkSize = 10;
+            int jdChunkSize = 5;
+            
+            for (int i = 0; i < resumes.size(); i += resumeChunkSize) {
+                int end = Math.min(i + resumeChunkSize, resumes.size());
+                List<Map<String, String>> chunk = resumes.subList(i, end);
+                
+                List<Map<String, Object>> mlPayloadApps = new ArrayList<>();
+                for (Map<String, String> res : chunk) {
+                    Map<String, Object> appObj = new HashMap<>();
+                    appObj.put("applicationId", res.get("filename")); // Use filename as app ID
+                    appObj.put("resumeText", res.get("text"));
+                    mlPayloadApps.add(appObj);
+                }
+
+                Map<String, Map<String, Object>> candidateAggregatedResults = new HashMap<>();
+                
+                for (int j = 0; j < mlPayloadJds.size(); j += jdChunkSize) {
+                    int jdEnd = Math.min(j + jdChunkSize, mlPayloadJds.size());
+                    List<Map<String, Object>> jdChunk = mlPayloadJds.subList(j, jdEnd);
+                    
+                    String url = mlServiceUrl + "/api/ml/matrix-analyze";
+                    Map<String, Object> request = new HashMap<>();
+                    request.put("jobDescriptions", jdChunk);
+                    request.put("applications", mlPayloadApps);
+
+                    try {
+                        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+                        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                            List<Map<String, Object>> chunkResults = (List<Map<String, Object>>) response.getBody().get("results");
+                            
+                            for (Map<String, Object> res : chunkResults) {
+                                String appId = (String) res.get("applicationId");
+                                List<Map<String, Object>> matches = (List<Map<String, Object>>) res.get("matches");
+                                
+                                if (candidateAggregatedResults.containsKey(appId)) {
+                                    List<Map<String, Object>> existingMatches = (List<Map<String, Object>>) candidateAggregatedResults.get(appId).get("matches");
+                                    existingMatches.addAll(matches);
+                                } else {
+                                    res.put("candidateName", appId); // Fallback name
+                                    res.put("matches", new ArrayList<>(matches));
+                                    candidateAggregatedResults.put(appId, res);
+                                }
+                            }
+                        }
+                    } catch (Exception mlEx) {
+                        log.error("ML Service matrix-analyze failed: {}", mlEx.getMessage());
+                    }
+                }
+                
+                allResults.addAll(candidateAggregatedResults.values());
+                job.setProcessedResumes(end);
+                batchJobRepository.save(job);
+            }
+
+            job.setStatus("COMPLETED");
+            job.setResults(allResults);
+            batchJobRepository.save(job);
+            log.info("FAST Placement BatchJob {} completed successfully.", batchId);
+
+        } catch (Exception e) {
+            log.error("Fatal error processing FAST Placement BatchJob {}: {}", batchId, e.getMessage(), e);
+            job.setStatus("FAILED");
+            batchJobRepository.save(job);
+        }
+    }
 }

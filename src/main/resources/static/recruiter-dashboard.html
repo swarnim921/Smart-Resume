@@ -12,6 +12,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.1.0/dist/progressbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    </script>
     <style>
         * {
             margin: 0;
@@ -2577,53 +2581,88 @@
 
             try {
                 document.getElementById('placementProgress').style.display = 'block';
-                document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> AI Matrix Processing...';
+                document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Local Browser Parsing...';
                 document.getElementById('placementPbFill').style.width = '0%';
-                document.getElementById('placementPbText').innerText = '0%';
+                document.getElementById('placementPbText').innerText = '0% Parsed locally';
                 document.getElementById('placementResults').style.display = 'none';
                 
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', `${API}/api/enterprise/placement-screen`, true);
-                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-                
-                xhr.upload.onprogress = function(e) {
-                    if (e.lengthComputable) {
-                        const percentComplete = Math.round((e.loaded / e.total) * 100);
-                        document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Uploading Files...';
-                        document.getElementById('placementPbFill').style.width = percentComplete + '%';
-                        
-                        if (percentComplete === 100) {
-                            document.getElementById('placementPbText').innerText = '100% Uploaded. Server is securely validating and saving files to database...';
-                        } else {
-                            document.getElementById('placementPbText').innerText = percentComplete + '% Uploaded';
+                // Helper to extract text from a single File (PDF or Text)
+                const extractText = async (file) => {
+                    if (file.name.toLowerCase().endsWith('.txt')) {
+                        return await file.text();
+                    } else if (file.name.toLowerCase().endsWith('.pdf')) {
+                        try {
+                            const arrayBuffer = await file.arrayBuffer();
+                            const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                            let fullText = '';
+                            for (let i = 1; i <= pdf.numPages; i++) {
+                                const page = await pdf.getPage(i);
+                                const textContent = await page.getTextContent();
+                                const pageText = textContent.items.map(item => item.str).join(' ');
+                                fullText += pageText + ' ';
+                            }
+                            return fullText;
+                        } catch(e) {
+                            console.error("PDF parse error for " + file.name, e);
+                            return ""; // Fallback
                         }
                     }
+                    return ""; // Ignoring images/docs for local parsing fallback
                 };
 
-                xhr.onload = function() {
-                    if (xhr.status === 202) {
-                        const data = JSON.parse(xhr.responseText);
-                        document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> AI Matrix Processing...';
-                        document.getElementById('placementPbText').innerText = '0% Processed';
-                        pollPlacementProgress(data.batchId);
-                    } else {
-                        btn.disabled = false;
-                        btn.innerHTML = originalHtml;
-                        lucide.createIcons();
-                        document.getElementById('placementProgress').style.display = 'none';
-                        showToast('Failed to start placement screening', true);
-                    }
-                };
+                // Extract all
+                let jdTexts = [];
+                let resumeTexts = [];
                 
-                xhr.onerror = function() {
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
-                    lucide.createIcons();
-                    document.getElementById('placementProgress').style.display = 'none';
-                    showToast('Network Error', true);
-                };
+                const totalFiles = jdInput.files.length + resumesInput.files.length;
+                let parsedCount = 0;
+
+                for (let i = 0; i < jdInput.files.length; i++) {
+                    const text = await extractText(jdInput.files[i]);
+                    jdTexts.push({ filename: jdInput.files[i].name, text: text });
+                    parsedCount++;
+                    document.getElementById('placementPbFill').style.width = Math.round((parsedCount/totalFiles)*100) + '%';
+                }
+
+                for (let i = 0; i < resumesInput.files.length; i++) {
+                    const text = await extractText(resumesInput.files[i]);
+                    resumeTexts.push({ filename: resumesInput.files[i].name, text: text });
+                    parsedCount++;
+                    document.getElementById('placementPbFill').style.width = Math.round((parsedCount/totalFiles)*100) + '%';
+                }
+
+                document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Uploading Extracted Text...';
                 
-                xhr.send(formData);
+                // Send FAST payload
+                const payload = {
+                    jds: jdTexts,
+                    resumes: resumeTexts
+                };
+
+                const fastRes = await fetch(`${API}/api/enterprise/placement-screen-fast`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (fastRes.ok) {
+                    const data = await fastRes.json();
+                    document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> AI Matrix Processing...';
+                    document.getElementById('placementPbText').innerText = '0% Processed (AI Computing)';
+                    pollPlacementProgress(data.batchId);
+
+                    // BACKGROUND FIRE AND FORGET - Upload raw files
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', `${API}/api/enterprise/batch-upload-vault?batchId=${data.batchId}`, true);
+                    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+                    xhr.send(formData); // Silent upload
+
+                } else {
+                    throw new Error("Fast screening failed");
+                }
                 
             } catch (e) {
                 console.error(e);

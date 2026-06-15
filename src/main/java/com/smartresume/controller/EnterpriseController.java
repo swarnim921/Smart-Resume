@@ -277,6 +277,62 @@ public class EnterpriseController {
         }
     }
 
+    @PostMapping("/placement-screen-fast")
+    public ResponseEntity<?> placementScreenFast(@RequestBody Map<String, Object> payload) {
+        try {
+            User systemUser = new User();
+            systemUser.setId("system_enterprise");
+
+            List<Map<String, String>> jds = (List<Map<String, String>>) payload.get("jds");
+            List<Map<String, String>> resumes = (List<Map<String, String>>) payload.get("resumes");
+
+            BatchJob job = new BatchJob();
+            job.setStatus("PROCESSING");
+            job.setTotalResumes(resumes.size());
+            job.setTotalJds(jds.size());
+            job.setProcessedResumes(0);
+            batchJobRepository.save(job);
+
+            batchProcessingService.processPlacementBatchFromText(job.getId(), jds, resumes, systemUser);
+
+            return ResponseEntity.accepted().body(Map.of(
+                "batchId", job.getId(),
+                "status", "PROCESSING",
+                "message", "Fast matrix processing started locally."
+            ));
+        } catch (Exception e) {
+            log.error("Fast placement screening failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/batch-upload-vault")
+    public ResponseEntity<?> batchUploadVault(
+            @RequestParam("batchId") String batchId,
+            @RequestParam(value = "jdFiles", required = false) MultipartFile[] jdFiles,
+            @RequestParam(value = "resumes", required = false) MultipartFile[] resumes) {
+        
+        try {
+            User systemUser = new User();
+            systemUser.setId("system_enterprise");
+            // Silently store the files for auditing
+            if (jdFiles != null) {
+                for (MultipartFile jdFile : jdFiles) {
+                    resumeService.store(jdFile, systemUser, "JD_DOC");
+                }
+            }
+            if (resumes != null) {
+                for (MultipartFile resumeFile : resumes) {
+                    resumeService.store(resumeFile, systemUser, "CANDIDATE_RESUME");
+                }
+            }
+            return ResponseEntity.ok(Map.of("status", "VAULT_UPLOAD_COMPLETE"));
+        } catch(Exception e) {
+            log.error("Vault upload failed: {}", e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/batch/{batchId}")
     public ResponseEntity<?> getBatchStatus(@PathVariable String batchId) {
         BatchJob job = batchJobRepository.findById(batchId).orElse(null);
