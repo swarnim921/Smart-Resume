@@ -314,14 +314,22 @@ public class BatchProcessingService {
         try {
             List<Map<String, Object>> allResults = new ArrayList<>();
             
-            // Format JDs payload
+            // Format JDs payload and save to job for frontend rendering
             List<Map<String, Object>> mlPayloadJds = new ArrayList<>();
+            List<Map<String, String>> jdsMetadata = new ArrayList<>();
             for (Map<String, String> jd : jds) {
                 Map<String, Object> jdObj = new HashMap<>();
                 jdObj.put("jobId", jd.get("filename")); // Use filename as jobId for fast mode
                 jdObj.put("jobDescriptionText", jd.get("text"));
                 mlPayloadJds.add(jdObj);
+
+                Map<String, String> meta = new HashMap<>();
+                meta.put("id", jd.get("filename"));
+                meta.put("name", jd.get("filename").replaceAll("(?i)\\.(pdf|txt|png|jpg|jpeg|doc|docx)$", ""));
+                jdsMetadata.add(meta);
             }
+            job.setJds(jdsMetadata);
+            batchJobRepository.save(job);
             
             int resumeChunkSize = 10;
             int jdChunkSize = 5;
