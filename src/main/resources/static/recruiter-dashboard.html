@@ -2211,6 +2211,7 @@
                 });
                 if (r.ok) {
                     showToast('Job deleted successfully');
+                    loadJobs('overview');
                     loadJobs('jobs');
                 } else {
                     showToast('Failed to delete job', true);
