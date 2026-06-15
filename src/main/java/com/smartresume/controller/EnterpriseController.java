@@ -277,38 +277,35 @@ public class EnterpriseController {
         }
     }
 
-    @PostMapping("/placement-screen-fast")
-    public ResponseEntity<?> placementScreenFast(@RequestBody Map<String, Object> payload) {
+    @PostMapping("/batch-save-results")
+    public ResponseEntity<?> batchSaveResults(@RequestBody Map<String, Object> mockJobMap) {
         try {
-            User systemUser = new User();
-            systemUser.setId("system_enterprise");
-
-            List<Map<String, String>> jds = (List<Map<String, String>>) payload.get("jds");
-            List<Map<String, String>> resumes = (List<Map<String, String>>) payload.get("resumes");
-
+            // Save the pre-computed results directly to the database
             BatchJob job = new BatchJob();
-            job.setStatus("PROCESSING");
-            job.setTotalResumes(resumes.size());
-            job.setTotalJds(jds.size());
-            job.setProcessedResumes(0);
+            job.setStatus("COMPLETED");
+            
+            Number totalRes = (Number) mockJobMap.get("totalResumes");
+            Number processedRes = (Number) mockJobMap.get("processedResumes");
+            Number totalJds = (Number) mockJobMap.get("totalJds");
+            
+            job.setTotalResumes(totalRes != null ? totalRes.intValue() : 0);
+            job.setProcessedResumes(processedRes != null ? processedRes.intValue() : 0);
+            job.setTotalJds(totalJds != null ? totalJds.intValue() : 0);
+            
+            job.setJds((List<Map<String, String>>) mockJobMap.get("jds"));
+            job.setResults((List<Map<String, Object>>) mockJobMap.get("results"));
+            
             batchJobRepository.save(job);
-
-            batchProcessingService.processPlacementBatchFromText(job.getId(), jds, resumes, systemUser);
-
-            return ResponseEntity.accepted().body(Map.of(
-                "batchId", job.getId(),
-                "status", "PROCESSING",
-                "message", "Fast matrix processing started locally."
-            ));
+            
+            return ResponseEntity.ok(Map.of("status", "SAVED", "batchId", job.getId()));
         } catch (Exception e) {
-            log.error("Fast placement screening failed: {}", e.getMessage(), e);
+            log.error("Failed to save batch results: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
 
-    @PostMapping("/batch-upload-vault")
-    public ResponseEntity<?> batchUploadVault(
-            @RequestParam("batchId") String batchId,
+    @PostMapping("/batch-upload-vault-only")
+    public ResponseEntity<?> batchUploadVaultOnly(
             @RequestParam(value = "jdFiles", required = false) MultipartFile[] jdFiles,
             @RequestParam(value = "resumes", required = false) MultipartFile[] resumes) {
         

@@ -2631,37 +2631,80 @@
                     document.getElementById('placementPbFill').style.width = Math.round((parsedCount/totalFiles)*100) + '%';
                 }
 
-                document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Uploading Extracted Text...';
+                document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Computing AI Matrix Locally...';
                 
-                // Send FAST payload
-                const payload = {
-                    jds: jdTexts,
-                    resumes: resumeTexts
+                // Format for Local ML Server
+                let mlPayloadJds = jdTexts.map(jd => ({
+                    jobId: jd.filename,
+                    jobDescriptionText: jd.text
+                }));
+                let mlPayloadApps = resumeTexts.map(res => ({
+                    applicationId: res.filename,
+                    resumeText: res.text
+                }));
+
+                const mlPayload = {
+                    jobDescriptions: mlPayloadJds,
+                    applications: mlPayloadApps
                 };
 
-                const fastRes = await fetch(`${API}/api/enterprise/placement-screen-fast`, {
+                // DIRECT LOCAL BYPASS
+                const mlRes = await fetch(`http://127.0.0.1:5000/api/ml/matrix-analyze`, {
                     method: 'POST',
-                    headers: { 
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(mlPayload)
                 });
 
-                if (fastRes.ok) {
-                    const data = await fastRes.json();
-                    document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> AI Matrix Processing...';
-                    document.getElementById('placementPbText').innerText = '0% Processed (AI Computing)';
-                    pollPlacementProgress(data.batchId);
+                if (mlRes.ok) {
+                    const mlData = await mlRes.json();
+                    const results = mlData.results || [];
+                    
+                    // Add candidateName fallback for UI rendering
+                    results.forEach(r => {
+                        r.candidateName = r.applicationId;
+                    });
 
-                    // BACKGROUND FIRE AND FORGET - Upload raw files
+                    // Build the fake job object to render the results table immediately
+                    const jdsMetadata = jdTexts.map(jd => ({
+                        id: jd.filename,
+                        name: jd.filename.replace(/\.[^/.]+$/, "")
+                    }));
+
+                    const mockJob = {
+                        status: 'COMPLETED',
+                        totalResumes: resumeTexts.length,
+                        processedResumes: resumeTexts.length,
+                        totalJds: jdTexts.length,
+                        jds: jdsMetadata,
+                        results: results
+                    };
+
+                    document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="check-circle" style="color:var(--success)"></i> Processing Complete!';
+                    document.getElementById('placementPbFill').style.width = '100%';
+                    document.getElementById('placementPbText').innerText = `100% Processed (${resumeTexts.length}/${resumeTexts.length} Resumes vs ${jdTexts.length} JDs)`;
+                    
+                    renderPlacementResults(mockJob);
+                    
+                    const finishBtn = document.getElementById('btn-placement-screen');
+                    finishBtn.disabled = false;
+                    finishBtn.innerHTML = `<i data-lucide="upload-cloud"></i> Upload & Matrix Search`;
+                    lucide.createIcons();
+                    showToast('✓ Placement Matrix Complete!');
+
+                    // BACKGROUND FIRE AND FORGET - Upload raw files and results to vault
                     const xhr = new XMLHttpRequest();
-                    xhr.open('POST', `${API}/api/enterprise/batch-upload-vault?batchId=${data.batchId}`, true);
+                    xhr.open('POST', `${API}/api/enterprise/batch-save-results`, true);
                     xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-                    xhr.send(formData); // Silent upload
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.send(JSON.stringify(mockJob)); // Save results metadata
+                    
+                    const fileXhr = new XMLHttpRequest();
+                    fileXhr.open('POST', `${API}/api/enterprise/batch-upload-vault-only`, true);
+                    fileXhr.setRequestHeader('Authorization', `Bearer ${token}`);
+                    fileXhr.send(formData); // Silent upload raw files
 
                 } else {
-                    throw new Error("Fast screening failed");
+                    throw new Error("Local ML Server failed. Is it running on port 5000?");
                 }
                 
             } catch (e) {
