@@ -1749,12 +1749,7 @@
                     if (appliedJobsMap.has(job.id) && appliedJobsMap.get(job.id).score) {
                         return appliedJobsMap.get(job.id).score; // Show real ATS score if already applied
                     }
-                    if (!globalProfile.skills || !globalProfile.skills.length) return 40;
-                    const jobText = ((job.title || '') + ' ' + (job.description || '') + ' ' + (job.requirements || '')).toLowerCase();
-                    let hits = 0;
-                    globalProfile.skills.forEach(s => { if (jobText.includes(s.toLowerCase())) hits++; });
-                    let score = 30 + (hits / Math.max(globalProfile.skills.length, 3)) * 70;
-                    return Math.floor(Math.min(98, score));
+                    return null;
                 };
 
                 el.innerHTML = jobs.slice(0, 3).map((j, i) => {
@@ -1764,9 +1759,9 @@
                     <div class="job-card col-4">
                         <div class="job-card-header">
                             <div class="company-logo">${j.company ? j.company[0].toUpperCase() : '💼'}</div>
-                            <div class="match-badge" id="rec-badge-${j.id}">
+                            <div class="match-badge" id="rec-badge-${j.id}" ${match ? '' : 'style="background:#f1f5f9; color:var(--muted)"'}>
                                 <i data-lucide="zap" style="width:14px"></i>
-                                ${match}% Match
+                                ${match ? match + '% Match' : 'Unanalyzed'}
                             </div>
                         </div>
                         <div class="job-info">
