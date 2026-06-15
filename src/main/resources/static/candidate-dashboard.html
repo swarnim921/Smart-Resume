@@ -1980,23 +1980,38 @@
             if (btn) { btn.textContent = 'Loading...'; btn.disabled = true; }
             try {
                 // Fetch Resume Text
-                const resReq = await fetch(`${API}/api/resumes/my-resume-text`, { headers: { 'Authorization': `Bearer ${token}` } });
+                let resReq;
+                try {
+                    resReq = await fetch(`${API}/api/resumes/my-resume-text`, { headers: { 'Authorization': `Bearer ${token}` } });
+                } catch(err) {
+                    throw new Error(`Java Backend Unreachable (Render might still be deploying): ${err.message}`);
+                }
                 const resData = await resReq.json();
                 if (!resReq.ok) throw new Error(resData.error || 'Failed to fetch resume text');
 
                 // Fetch Job
-                const jobReq = await fetch(`${API}/api/jobs/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                let jobReq;
+                try {
+                    jobReq = await fetch(`${API}/api/jobs/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                } catch(err) {
+                    throw new Error(`Java Backend Unreachable: ${err.message}`);
+                }
                 const jobData = await jobReq.json();
                 if (!jobReq.ok) throw new Error('Failed to fetch job');
 
                 const jobDesc = jobData.title + "\n" + (jobData.description||"") + "\n" + (jobData.requirements||"");
 
                 // Call local ML
-                const mlReq = await fetch(`http://127.0.0.1:5000/api/ml/analyze`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ resumeText: resData.text, jobDescription: jobDesc })
-                });
+                let mlReq;
+                try {
+                    mlReq = await fetch(`http://localhost:5000/api/ml/analyze`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ resumeText: resData.text, jobDescription: jobDesc })
+                    });
+                } catch(err) {
+                    throw new Error(`Local ML Server Unreachable. Please ensure Python is running on http://localhost:5000 : ${err.message}`);
+                }
                 const mlData = await mlReq.json();
                 if (!mlReq.ok) throw new Error('Local ML failed');
 
@@ -2054,11 +2069,21 @@
             lucide.createIcons();
 
             try {
-                const resReq = await fetch(`${API}/api/resumes/my-resume-text`, { headers: { 'Authorization': `Bearer ${token}` } });
+                let resReq;
+                try {
+                    resReq = await fetch(`${API}/api/resumes/my-resume-text`, { headers: { 'Authorization': `Bearer ${token}` } });
+                } catch(err) {
+                    throw new Error(`Java Backend Unreachable (Render might still be deploying): ${err.message}`);
+                }
                 const resData = await resReq.json();
                 if (!resReq.ok) throw new Error(resData.error || 'Failed to fetch resume text');
 
-                const jobsReq = await fetch(`${API}/api/jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                let jobsReq;
+                try {
+                    jobsReq = await fetch(`${API}/api/jobs`, { headers: { 'Authorization': `Bearer ${token}` } });
+                } catch(err) {
+                    throw new Error(`Java Backend Unreachable: ${err.message}`);
+                }
                 const allJobs = await jobsReq.json();
                 if (!jobsReq.ok) throw new Error('Failed to fetch jobs');
 
@@ -2072,14 +2097,19 @@
                     resumeText: resData.text
                 }];
 
-                const mlReq = await fetch(`http://127.0.0.1:5000/api/ml/matrix-analyze`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ jobDescriptions: mlPayloadJds, applications: mlPayloadApps })
-                });
+                let mlReq;
+                try {
+                    mlReq = await fetch(`http://localhost:5000/api/ml/matrix-analyze`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ jobDescriptions: mlPayloadJds, applications: mlPayloadApps })
+                    });
+                } catch(err) {
+                    throw new Error(`Local ML Server Unreachable. Please ensure Python is running on http://localhost:5000 : ${err.message}`);
+                }
                 
                 if (!mlReq.ok) {
-                    throw new Error('Failed to connect to Local ML Server at 127.0.0.1:5000');
+                    throw new Error('Failed to connect to Local ML Server at localhost:5000');
                 }
                 
                 const mlData = await mlReq.json();
