@@ -26,6 +26,7 @@ public class ResumeController {
     private final ResumeService resumeService;
     private final UserRepository userRepository;
     private final MLIntegrationService mlIntegrationService;
+    private final com.smartresume.repository.ResumeRepository resumeRepository;
 
     @PostMapping("/upload")
     public ResponseEntity<?> upload(
