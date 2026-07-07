@@ -330,6 +330,80 @@ public class EnterpriseController {
         }
     }
 
+    /**
+     * TEXT-BASED Batch Screening: Browser parses PDFs locally, sends only text.
+     * Memory-efficient: Java Backend receives ~2MB of text instead of ~50MB of PDFs.
+     */
+    @PostMapping("/batch-screen-text")
+    public ResponseEntity<?> batchScreenText(@RequestBody Map<String, Object> requestBody) {
+        try {
+            String jdText = (String) requestBody.get("jdText");
+            List<Map<String, String>> resumeTexts = (List<Map<String, String>>) requestBody.get("resumeTexts");
+
+            if (jdText == null || resumeTexts == null || resumeTexts.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Missing jdText or resumeTexts"));
+            }
+
+            log.info("TEXT-BASED batch screening: {} resumes received (pre-parsed by browser)", resumeTexts.size());
+
+            BatchJob job = new BatchJob();
+            job.setStatus("PROCESSING");
+            job.setTotalResumes(resumeTexts.size());
+            job.setProcessedResumes(0);
+            batchJobRepository.save(job);
+
+            // Fire async processing
+            batchProcessingService.processTextBatch(job.getId(), jdText, resumeTexts);
+
+            return ResponseEntity.accepted().body(Map.of(
+                "batchId", job.getId(),
+                "status", "PROCESSING",
+                "message", "Text batch received. Background ML processing started."
+            ));
+
+        } catch (Exception e) {
+            log.error("Text batch screening failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * TEXT-BASED Placement Matrix: Browser parses JDs + resumes locally, sends only text.
+     */
+    @PostMapping("/placement-screen-text")
+    public ResponseEntity<?> placementScreenText(@RequestBody Map<String, Object> requestBody) {
+        try {
+            List<Map<String, String>> jdTexts = (List<Map<String, String>>) requestBody.get("jdTexts");
+            List<Map<String, String>> resumeTexts = (List<Map<String, String>>) requestBody.get("resumeTexts");
+
+            if (jdTexts == null || resumeTexts == null || jdTexts.isEmpty() || resumeTexts.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Missing jdTexts or resumeTexts"));
+            }
+
+            log.info("TEXT-BASED placement matrix: {} JDs x {} resumes (pre-parsed by browser)", jdTexts.size(), resumeTexts.size());
+
+            BatchJob job = new BatchJob();
+            job.setStatus("PROCESSING");
+            job.setTotalResumes(resumeTexts.size());
+            job.setTotalJds(jdTexts.size());
+            job.setProcessedResumes(0);
+            batchJobRepository.save(job);
+
+            // Fire async processing
+            batchProcessingService.processTextPlacementBatch(job.getId(), jdTexts, resumeTexts);
+
+            return ResponseEntity.accepted().body(Map.of(
+                "batchId", job.getId(),
+                "status", "PROCESSING",
+                "message", "Placement text batch received. Matrix ML processing started."
+            ));
+
+        } catch (Exception e) {
+            log.error("Text placement screening failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/batch/{batchId}")
     public ResponseEntity<?> getBatchStatus(@PathVariable String batchId) {
         BatchJob job = batchJobRepository.findById(batchId).orElse(null);
@@ -347,3 +421,4 @@ public class EnterpriseController {
         return "";
     }
 }
+

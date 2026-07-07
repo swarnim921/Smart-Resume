@@ -2458,9 +2458,9 @@
             if (!resumesInput.files.length) return showToast('Please upload at least one Candidate Resume.', true);
 
             const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Processing Locally...';
+            btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Processing...';
             document.getElementById('file-ready-msg').style.display = 'none';
-            showToast(`Processing batch of ${resumesInput.files.length} resumes locally...`);
+            showToast(`Processing batch of ${resumesInput.files.length} resumes...`);
             lucide.createIcons();
             btn.disabled = true;
 
@@ -2468,10 +2468,10 @@
                 // Show Progress UI
                 document.getElementById('batchProgress').style.display = 'block';
                 document.getElementById('batchResults').style.display = 'none';
-                document.getElementById('batchProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Local Browser Parsing...';
-                document.getElementById('batchProgressDesc').innerText = 'Extracting text directly in your browser. No slow cloud uploads!';
+                document.getElementById('batchProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Parsing PDFs in Browser...';
+                document.getElementById('batchProgressDesc').innerText = 'Extracting text from files locally for fast processing...';
                 document.getElementById('pbFill').style.width = '0%';
-                document.getElementById('pbText').innerText = '0% Parsed locally';
+                document.getElementById('pbText').innerText = '0% Parsed';
                 lucide.createIcons();
 
                 // Helper to extract text from a single File (PDF or Text)
@@ -2492,82 +2492,50 @@
                             return fullText;
                         } catch(e) {
                             console.error("PDF parse error for " + file.name, e);
-                            return ""; // Fallback
+                            return "";
                         }
                     }
-                    return ""; // Ignoring images/docs for local parsing fallback
+                    return "";
                 };
 
                 const totalFiles = 1 + resumesInput.files.length;
                 let parsedCount = 0;
 
-                // 1. Parse JD
+                // 1. Parse JD locally
                 const jdText = await extractText(jdInput.files[0]);
                 parsedCount++;
                 document.getElementById('pbFill').style.width = Math.round((parsedCount/totalFiles)*100) + '%';
 
-                // 2. Parse Resumes
+                // 2. Parse Resumes locally
                 let resumeTexts = [];
                 for (let i = 0; i < resumesInput.files.length; i++) {
                     const text = await extractText(resumesInput.files[i]);
-                    resumeTexts.push({ filename: resumesInput.files[i].name, text: text });
+                    const candidateName = resumesInput.files[i].name.replace(/\.[^/.]+$/, "");
+                    resumeTexts.push({ candidateName: candidateName, text: text });
                     parsedCount++;
                     document.getElementById('pbFill').style.width = Math.round((parsedCount/totalFiles)*100) + '%';
                 }
 
-                document.getElementById('batchProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Computing AI Match Locally...';
-                document.getElementById('batchProgressDesc').innerText = 'Please wait while the AI analyzes all candidates against the JD.';
-                
-                // 3. Format for Local ML Server
-                let mlPayloadApps = resumeTexts.map(res => ({
-                    applicationId: res.filename,
-                    resumeText: res.text,
-                    jobDescription: jdText
-                }));
+                // 3. Send pre-extracted text to Java Backend (NOT raw PDFs)
+                document.getElementById('batchProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Sending to AI Server...';
+                document.getElementById('batchProgressDesc').innerText = 'Java Backend is forwarding text to ML Server for AI analysis...';
+                document.getElementById('pbFill').style.width = '0%';
+                document.getElementById('pbText').innerText = 'Starting ML processing...';
+                lucide.createIcons();
 
-                const mlPayload = {
-                    jobId: jdInput.files[0].name,
-                    applications: mlPayloadApps
-                };
-
-                // DIRECT LOCAL BYPASS
-                const mlRes = await fetch(`http://localhost:5000/api/ml/batch-analyze`, {
+                const response = await fetch(`${API}/api/enterprise/batch-screen-text`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(mlPayload)
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ jdText: jdText, resumeTexts: resumeTexts })
                 });
 
-                if (mlRes.ok) {
-                    const mlData = await mlRes.json();
-                    const results = mlData.results || [];
-                    
-                    // Add candidateName fallback for UI rendering
-                    results.forEach(r => {
-                        r.candidateName = r.applicationId.replace(/\.[^/.]+$/, ""); // Strip extension
-                    });
-
-                    // Build the fake job object to render the results table immediately
-                    const mockJob = {
-                        status: 'COMPLETED',
-                        totalResumes: resumeTexts.length,
-                        processedResumes: resumeTexts.length,
-                        results: results
-                    };
-
-                    document.getElementById('batchProgressTitle').innerHTML = '<i data-lucide="check-circle" style="color:var(--success)"></i> Processing Complete!';
-                    document.getElementById('pbFill').style.width = '100%';
-                    document.getElementById('pbText').innerText = `100% Processed (${resumeTexts.length} Resumes)`;
-                    
-                    document.getElementById('batchProgress').style.display = 'none';
-                    renderBatchResults(mockJob);
-                    showToast('✓ Batch Screening Complete!');
-                } else {
-                    throw new Error("Failed to connect to local ML Server at localhost:5000");
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.error || 'Batch screening failed');
                 }
 
-                btn.disabled = false;
-                btn.innerHTML = `<i data-lucide="play"></i> Run Batch Screening`;
-                lucide.createIcons();
+                const data = await response.json();
+                startPollingBatchJob(data.batchId);
 
             } catch (e) {
                 console.error(e);
@@ -2576,6 +2544,51 @@
                 btn.innerHTML = originalHtml;
                 document.getElementById('batchProgress').style.display = 'none';
             }
+        }
+
+        let pollInterval;
+        async function startPollingBatchJob(batchId) {
+            pollInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`${API}/api/enterprise/batch/${batchId}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const job = await res.json();
+                        
+                        let percent = 0;
+                        if (job.totalResumes > 0) {
+                            percent = Math.floor((job.processedResumes / job.totalResumes) * 100);
+                        }
+                        
+                        document.getElementById('pbFill').style.width = percent + '%';
+                        document.getElementById('pbText').innerText = `Processed ${job.processedResumes} / ${job.totalResumes} Resumes (${percent}%)`;
+                        
+                        if (job.status === 'COMPLETED') {
+                            clearInterval(pollInterval);
+                            document.getElementById('batchProgress').style.display = 'none';
+                            renderBatchResults(job);
+                            
+                            const btn = document.getElementById('btn-batch-screen');
+                            btn.disabled = false;
+                            btn.innerHTML = `<i data-lucide="play"></i> Run Batch Screening`;
+                            lucide.createIcons();
+                            showToast('✓ Batch Screening Complete!');
+                        } else if (job.status === 'FAILED') {
+                            clearInterval(pollInterval);
+                            document.getElementById('batchProgress').style.display = 'none';
+                            showToast('Batch processing failed.', true);
+                            
+                            const btn = document.getElementById('btn-batch-screen');
+                            btn.disabled = false;
+                            btn.innerHTML = `<i data-lucide="play"></i> Run Batch Screening`;
+                            lucide.createIcons();
+                        }
+                    }
+                } catch (e) {
+                    console.error("Polling error", e);
+                }
+            }, 3000);
         }
 
         function renderBatchResults(job) {
@@ -2695,90 +2708,44 @@
 
                 for (let i = 0; i < resumesInput.files.length; i++) {
                     const text = await extractText(resumesInput.files[i]);
-                    resumeTexts.push({ filename: resumesInput.files[i].name, text: text });
+                    const candidateName = resumesInput.files[i].name.replace(/\.[^/.]+$/, "");
+                    resumeTexts.push({ candidateName: candidateName, text: text });
                     parsedCount++;
                     document.getElementById('placementPbFill').style.width = Math.round((parsedCount/totalFiles)*100) + '%';
                 }
 
-                document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Computing AI Matrix Locally...';
-                
-                // Format for Local ML Server
-                let mlPayloadJds = jdTexts.map(jd => ({
-                    jobId: jd.filename,
-                    jobDescriptionText: jd.text
-                }));
-                let mlPayloadApps = resumeTexts.map(res => ({
-                    applicationId: res.filename,
-                    resumeText: res.text
+                // 3. Send pre-extracted text to Java Backend
+                document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Sending to AI Server...';
+                document.getElementById('placementPbFill').style.width = '0%';
+                document.getElementById('placementPbText').innerText = 'Java Backend forwarding to ML Server...';
+                lucide.createIcons();
+
+                // Format JD texts with names
+                let jdPayload = jdTexts.map(jd => ({
+                    name: jd.filename.replace(/\.[^/.]+$/, ""),
+                    text: jd.text
                 }));
 
-                const mlPayload = {
-                    jobDescriptions: mlPayloadJds,
-                    applications: mlPayloadApps
-                };
+                // Format resume texts with names
+                let resumePayload = resumeTexts;
 
-                // DIRECT LOCAL BYPASS
-                const mlRes = await fetch(`http://localhost:5000/api/ml/matrix-analyze`, {
+                const response = await fetch(`${API}/api/enterprise/placement-screen-text`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(mlPayload)
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ jdTexts: jdPayload, resumeTexts: resumePayload })
                 });
 
-                if (mlRes.ok) {
-                    const mlData = await mlRes.json();
-                    const results = mlData.results || [];
-                    
-                    // Add candidateName fallback for UI rendering
-                    results.forEach(r => {
-                        r.candidateName = r.applicationId;
-                    });
-
-                    // Build the fake job object to render the results table immediately
-                    const jdsMetadata = jdTexts.map(jd => ({
-                        id: jd.filename,
-                        name: jd.filename.replace(/\.[^/.]+$/, "")
-                    }));
-
-                    const mockJob = {
-                        status: 'COMPLETED',
-                        totalResumes: resumeTexts.length,
-                        processedResumes: resumeTexts.length,
-                        totalJds: jdTexts.length,
-                        jds: jdsMetadata,
-                        results: results
-                    };
-
-                    document.getElementById('placementProgressTitle').innerHTML = '<i data-lucide="check-circle" style="color:var(--success)"></i> Processing Complete!';
-                    document.getElementById('placementPbFill').style.width = '100%';
-                    document.getElementById('placementPbText').innerText = `100% Processed (${resumeTexts.length}/${resumeTexts.length} Resumes vs ${jdTexts.length} JDs)`;
-                    
-                    renderPlacementResults(mockJob);
-                    
-                    const finishBtn = document.getElementById('btn-placement-screen');
-                    finishBtn.disabled = false;
-                    finishBtn.innerHTML = `<i data-lucide="upload-cloud"></i> Upload & Matrix Search`;
-                    lucide.createIcons();
-                    showToast('✓ Placement Matrix Complete!');
-
-                    // BACKGROUND FIRE AND FORGET - Upload raw files and results to vault
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('POST', `${API}/api/enterprise/batch-save-results`, true);
-                    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    xhr.send(JSON.stringify(mockJob)); // Save results metadata
-                    
-                    const fileXhr = new XMLHttpRequest();
-                    fileXhr.open('POST', `${API}/api/enterprise/batch-upload-vault-only`, true);
-                    fileXhr.setRequestHeader('Authorization', `Bearer ${token}`);
-                    fileXhr.send(formData); // Silent upload raw files
-
-                } else {
-                    throw new Error("Local ML Server failed. Is it running on port 5000?");
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.error || 'Placement screening failed');
                 }
+
+                const data = await response.json();
+                pollPlacementProgress(data.batchId);
                 
             } catch (e) {
                 console.error(e);
-                showToast('Error connecting to API', true);
+                showToast('Error: ' + e.message, true);
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
                 lucide.createIcons();

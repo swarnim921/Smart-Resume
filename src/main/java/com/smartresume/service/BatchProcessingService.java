@@ -397,4 +397,179 @@ public class BatchProcessingService {
             batchJobRepository.save(job);
         }
     }
+
+    /**
+     * Process a batch of pre-extracted text (no PDF uploads needed).
+     * Browser parses PDFs locally and sends only text strings.
+     * This method chunks them and forwards to ML service.
+     */
+    @Async
+    public void processTextBatch(String batchId, String jdText, List<Map<String, String>> resumeTexts) {
+        log.info("Starting TEXT-BASED async batch processing for BatchJob: {}. {} resumes.", batchId, resumeTexts.size());
+
+        BatchJob job = batchJobRepository.findById(batchId).orElse(null);
+        if (job == null) {
+            log.error("BatchJob {} not found!", batchId);
+            return;
+        }
+
+        try {
+            int chunkSize = 10;
+            List<Map<String, Object>> allResults = new ArrayList<>();
+
+            for (int i = 0; i < resumeTexts.size(); i += chunkSize) {
+                int end = Math.min(i + chunkSize, resumeTexts.size());
+                List<Map<String, String>> chunk = resumeTexts.subList(i, end);
+
+                List<Map<String, Object>> mlPayloadApps = new ArrayList<>();
+                for (Map<String, String> resume : chunk) {
+                    Map<String, Object> appObj = new HashMap<>();
+                    appObj.put("applicationId", resume.get("candidateName"));
+                    appObj.put("resumeText", resume.get("text"));
+                    appObj.put("jobDescription", jdText);
+                    mlPayloadApps.add(appObj);
+                }
+
+                String url = mlServiceUrl + "/api/ml/batch-analyze";
+                Map<String, Object> request = new HashMap<>();
+                request.put("jobId", batchId);
+                request.put("applications", mlPayloadApps);
+
+                log.info("Sending text chunk {}-{} of {} to ML Service...", i + 1, end, resumeTexts.size());
+
+                try {
+                    ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+                    if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                        List<Map<String, Object>> chunkResults = (List<Map<String, Object>>) response.getBody().get("results");
+                        for (Map<String, Object> res : chunkResults) {
+                            res.put("candidateName", res.get("applicationId"));
+                            allResults.add(res);
+                        }
+                        log.info("Chunk {}-{} processed successfully by ML Service.", i + 1, end);
+                    }
+                } catch (Exception mlEx) {
+                    log.error("ML Service failed for text chunk {} to {}: {}", i, end, mlEx.getMessage());
+                    for (Map<String, String> resume : chunk) {
+                        Map<String, Object> fallbackRes = new HashMap<>();
+                        fallbackRes.put("applicationId", resume.get("candidateName"));
+                        fallbackRes.put("candidateName", resume.get("candidateName"));
+                        fallbackRes.put("matchScore", 0);
+                        fallbackRes.put("missingSkills", new ArrayList<>());
+                        allResults.add(fallbackRes);
+                    }
+                }
+
+                job.setProcessedResumes(end);
+                batchJobRepository.save(job);
+                // No delay needed — HF Spaces has no Cloudflare rate limiting
+            }
+
+            job.setStatus("COMPLETED");
+            allResults.sort((a, b) -> {
+                Number scoreA = (Number) a.get("matchScore");
+                Number scoreB = (Number) b.get("matchScore");
+                if (scoreA == null) scoreA = 0;
+                if (scoreB == null) scoreB = 0;
+                return Double.compare(scoreB.doubleValue(), scoreA.doubleValue());
+            });
+            job.setResults(allResults);
+            batchJobRepository.save(job);
+            log.info("TEXT-BASED BatchJob {} completed successfully. {} resumes processed.", batchId, allResults.size());
+
+        } catch (Exception e) {
+            log.error("Fatal error processing TEXT-BASED BatchJob {}: {}", batchId, e.getMessage(), e);
+            job.setStatus("FAILED");
+            batchJobRepository.save(job);
+        }
+    }
+
+    /**
+     * Process a many-to-many placement matrix from pre-extracted text.
+     * Browser parses PDFs locally and sends text strings for both JDs and resumes.
+     */
+    @Async
+    public void processTextPlacementBatch(String batchId, List<Map<String, String>> jdTexts, List<Map<String, String>> resumeTexts) {
+        log.info("Starting TEXT-BASED Placement Matrix for BatchJob: {}. {} JDs x {} resumes.", batchId, jdTexts.size(), resumeTexts.size());
+
+        BatchJob job = batchJobRepository.findById(batchId).orElse(null);
+        if (job == null) {
+            log.error("BatchJob {} not found!", batchId);
+            return;
+        }
+
+        try {
+            // Format JDs for ML
+            List<Map<String, Object>> mlPayloadJds = new ArrayList<>();
+            List<Map<String, String>> jdsMetadata = new ArrayList<>();
+            for (Map<String, String> jd : jdTexts) {
+                Map<String, Object> jdObj = new HashMap<>();
+                jdObj.put("jobId", jd.get("name"));
+                jdObj.put("jobDescriptionText", jd.get("text"));
+                mlPayloadJds.add(jdObj);
+
+                Map<String, String> meta = new HashMap<>();
+                meta.put("id", jd.get("name"));
+                meta.put("name", jd.get("name"));
+                jdsMetadata.add(meta);
+            }
+
+            int chunkSize = 10;
+            List<Map<String, Object>> allResults = new ArrayList<>();
+
+            for (int i = 0; i < resumeTexts.size(); i += chunkSize) {
+                int end = Math.min(i + chunkSize, resumeTexts.size());
+                List<Map<String, String>> chunk = resumeTexts.subList(i, end);
+
+                List<Map<String, Object>> mlPayloadApps = new ArrayList<>();
+                for (Map<String, String> resume : chunk) {
+                    Map<String, Object> appObj = new HashMap<>();
+                    appObj.put("applicationId", resume.get("candidateName"));
+                    appObj.put("resumeText", resume.get("text"));
+                    mlPayloadApps.add(appObj);
+                }
+
+                String url = mlServiceUrl + "/api/ml/matrix-analyze";
+                Map<String, Object> request = new HashMap<>();
+                request.put("jobDescriptions", mlPayloadJds);
+                request.put("applications", mlPayloadApps);
+
+                log.info("Sending placement text chunk {}-{} of {} to ML Service...", i + 1, end, resumeTexts.size());
+
+                try {
+                    ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+                    if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                        List<Map<String, Object>> chunkResults = (List<Map<String, Object>>) response.getBody().get("results");
+                        for (Map<String, Object> res : chunkResults) {
+                            res.put("candidateName", res.get("applicationId"));
+                            allResults.add(res);
+                        }
+                        log.info("Placement chunk {}-{} processed successfully.", i + 1, end);
+                    }
+                } catch (Exception mlEx) {
+                    log.error("ML Service failed for placement chunk {} to {}: {}", i, end, mlEx.getMessage());
+                    for (Map<String, String> resume : chunk) {
+                        Map<String, Object> fallbackRes = new HashMap<>();
+                        fallbackRes.put("applicationId", resume.get("candidateName"));
+                        fallbackRes.put("candidateName", resume.get("candidateName"));
+                        fallbackRes.put("matches", new ArrayList<>());
+                        allResults.add(fallbackRes);
+                    }
+                }
+
+                job.setProcessedResumes(end);
+                batchJobRepository.save(job);
+            }
+
+            job.setStatus("COMPLETED");
+            job.setJds(jdsMetadata);
+            job.setResults(allResults);
+            batchJobRepository.save(job);
+            log.info("TEXT-BASED Placement BatchJob {} completed successfully.", batchId);
+
+        } catch (Exception e) {
+            log.error("Fatal error processing TEXT-BASED Placement BatchJob {}: {}", batchId, e.getMessage(), e);
+            job.setStatus("FAILED");
+            batchJobRepository.save(job);
+        }
+    }
 }
