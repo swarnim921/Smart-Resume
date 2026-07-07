@@ -34,6 +34,9 @@ public class BatchProcessingService {
     @Value("${ml.service.url}")
     private String mlServiceUrl;
 
+    @Value("${hf.api.token:}")
+    private String hfApiToken;
+
     @Async
     public void processBatch(String batchId, String jdText, List<String> resumeIds, Map<String, String> candidateNames) {
         log.info("Starting async processing for BatchJob: {}", batchId);
@@ -71,7 +74,14 @@ public class BatchProcessingService {
                 request.put("applications", mlPayloadApps);
 
                 try {
-                    ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+                    org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+                    headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+                    headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                    if (hfApiToken != null && !hfApiToken.isEmpty()) {
+                        headers.set("Authorization", "Bearer " + hfApiToken);
+                    }
+                    org.springframework.http.HttpEntity<Map<String, Object>> entity = new org.springframework.http.HttpEntity<>(request, headers);
+                    ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
                     if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                         List<Map<String, Object>> chunkResults = (List<Map<String, Object>>) response.getBody().get("results");
                         for (Map<String, Object> res : chunkResults) {
@@ -186,7 +196,14 @@ public class BatchProcessingService {
                     request.put("applications", mlPayloadApps);
 
                     try {
-                        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+                        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+                        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+                        headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                        if (hfApiToken != null && !hfApiToken.isEmpty()) {
+                            headers.set("Authorization", "Bearer " + hfApiToken);
+                        }
+                        org.springframework.http.HttpEntity<Map<String, Object>> entity = new org.springframework.http.HttpEntity<>(request, headers);
+                        ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
                         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                             List<Map<String, Object>> chunkResults = (List<Map<String, Object>>) response.getBody().get("results");
                             
@@ -358,7 +375,14 @@ public class BatchProcessingService {
                     request.put("applications", mlPayloadApps);
 
                     try {
-                        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+                        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+                        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+                        headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                        if (hfApiToken != null && !hfApiToken.isEmpty()) {
+                            headers.set("Authorization", "Bearer " + hfApiToken);
+                        }
+                        org.springframework.http.HttpEntity<Map<String, Object>> entity = new org.springframework.http.HttpEntity<>(request, headers);
+                        ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
                         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                             List<Map<String, Object>> chunkResults = (List<Map<String, Object>>) response.getBody().get("results");
                             
@@ -438,7 +462,14 @@ public class BatchProcessingService {
                 log.info("Sending text chunk {}-{} of {} to ML Service...", i + 1, end, resumeTexts.size());
 
                 try {
-                    ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+                    org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+                    headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+                    headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                    if (hfApiToken != null && !hfApiToken.isEmpty()) {
+                        headers.set("Authorization", "Bearer " + hfApiToken);
+                    }
+                    org.springframework.http.HttpEntity<Map<String, Object>> entity = new org.springframework.http.HttpEntity<>(request, headers);
+                    ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
                     if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                         List<Map<String, Object>> chunkResults = (List<Map<String, Object>>) response.getBody().get("results");
                         for (Map<String, Object> res : chunkResults) {
@@ -536,7 +567,14 @@ public class BatchProcessingService {
                 log.info("Sending placement text chunk {}-{} of {} to ML Service...", i + 1, end, resumeTexts.size());
 
                 try {
-                    ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+                    org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+                    headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+                    headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                    if (hfApiToken != null && !hfApiToken.isEmpty()) {
+                        headers.set("Authorization", "Bearer " + hfApiToken);
+                    }
+                    org.springframework.http.HttpEntity<Map<String, Object>> entity = new org.springframework.http.HttpEntity<>(request, headers);
+                    ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
                     if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                         List<Map<String, Object>> chunkResults = (List<Map<String, Object>>) response.getBody().get("results");
                         for (Map<String, Object> res : chunkResults) {

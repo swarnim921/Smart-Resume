@@ -18,6 +18,9 @@ public class MLIntegrationService {
     @Value("${ml.service.url:http://localhost:5000}")
     private String mlServiceUrl;
 
+    @Value("${hf.api.token:}")
+    private String hfApiToken;
+
     private final RestTemplate restTemplate;
 
     public MLIntegrationService() {
@@ -50,6 +53,9 @@ public class MLIntegrationService {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                if (hfApiToken != null && !hfApiToken.isEmpty()) {
+                    headers.set("Authorization", "Bearer " + hfApiToken);
+                }
                 HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
                 ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
@@ -102,6 +108,9 @@ public class MLIntegrationService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            if (hfApiToken != null && !hfApiToken.isEmpty()) {
+                headers.set("Authorization", "Bearer " + hfApiToken);
+            }
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
             ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
@@ -132,6 +141,9 @@ public class MLIntegrationService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            if (hfApiToken != null && !hfApiToken.isEmpty()) {
+                headers.set("Authorization", "Bearer " + hfApiToken);
+            }
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
 
             ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
@@ -165,6 +177,9 @@ public class MLIntegrationService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            if (hfApiToken != null && !hfApiToken.isEmpty()) {
+                headers.set("Authorization", "Bearer " + hfApiToken);
+            }
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
 
             ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
@@ -204,6 +219,9 @@ public class MLIntegrationService {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                if (hfApiToken != null && !hfApiToken.isEmpty()) {
+                    headers.set("Authorization", "Bearer " + hfApiToken);
+                }
                 HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
 
                 ResponseEntity<Map<String, Object>> response = restTemplate.postForEntity(url, entity, (Class<Map<String, Object>>) (Class<?>) Map.class);
