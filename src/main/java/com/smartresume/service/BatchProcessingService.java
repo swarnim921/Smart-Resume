@@ -438,7 +438,7 @@ public class BatchProcessingService {
         }
 
         try {
-            int chunkSize = 25;
+            int chunkSize = 50;
             List<Map<String, Object>> allResults = new ArrayList<>();
 
             for (int i = 0; i < resumeTexts.size(); i += chunkSize) {
@@ -544,7 +544,7 @@ public class BatchProcessingService {
                 jdsMetadata.add(meta);
             }
 
-            int chunkSize = 25;
+            int chunkSize = 50;
             List<Map<String, Object>> allResults = new ArrayList<>();
 
             for (int i = 0; i < resumeTexts.size(); i += chunkSize) {
