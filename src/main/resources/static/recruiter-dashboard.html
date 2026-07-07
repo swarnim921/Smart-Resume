@@ -1394,7 +1394,10 @@
                     <div class="dashboard-grid" style="margin-top:16px;">
                         <div class="col-12" style="margin-bottom: 16px;">
                             <label class="form-label">1. Job Description File (TXT, PDF, DOC, Image) *</label>
-                            <input type="file" id="batch-jd-input" accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" class="form-input">
+                            <input type="file" id="batch-jd-input" accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" class="form-input" onchange="document.getElementById('batch-jd-ready-msg').style.display='block'; document.getElementById('batch-jd-ready-text').innerText = '1 JD selected and ready to upload!'">
+                            <div id="batch-jd-ready-msg" style="display:none; margin-top:12px; padding:12px; background:rgba(16, 185, 129, 0.1); border:1px solid var(--success); border-radius:8px; color:var(--success); font-weight:500;">
+                                <i data-lucide="check-circle" style="width:16px; margin-right:6px; vertical-align:text-bottom;"></i> <span id="batch-jd-ready-text"></span>
+                            </div>
                         </div>
                         <div class="col-12" style="margin-bottom: 16px;">
                             <label class="form-label">2. Candidate Resumes (Multiple files allowed) *</label>
@@ -1437,7 +1440,10 @@
                     <div class="dashboard-grid" style="margin-top:16px;">
                         <div class="col-12" style="margin-bottom: 16px;">
                             <label class="form-label">1. Job Description Files (Multiple files allowed) *</label>
-                            <input type="file" id="placement-jd-input" multiple accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" class="form-input">
+                            <input type="file" id="placement-jd-input" multiple accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" class="form-input" onchange="document.getElementById('placement-jd-ready-msg').style.display='block'; document.getElementById('placement-jd-ready-text').innerText = this.files.length + ' JDs selected and ready to upload!'">
+                            <div id="placement-jd-ready-msg" style="display:none; margin-top:12px; padding:12px; background:rgba(16, 185, 129, 0.1); border:1px solid var(--success); border-radius:8px; color:var(--success); font-weight:500;">
+                                <i data-lucide="check-circle" style="width:16px; margin-right:6px; vertical-align:text-bottom;"></i> <span id="placement-jd-ready-text"></span>
+                            </div>
                         </div>
                         <div class="col-12" style="margin-bottom: 16px;">
                             <label class="form-label">2. Candidate Resumes (Multiple files allowed) *</label>
