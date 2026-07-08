@@ -2428,18 +2428,21 @@
             document.getElementById('overview-slots').innerText = totalSlots;
             
             if (totalSlots === 0 && totalInterviewers === 0) {
-                document.getElementById('overview-utilization').innerText = '--';
+                document.getElementById('overview-utilization').innerText = 'Not Ready';
                 document.getElementById('overview-util-bar').style.width = '0%';
             } else {
                 document.getElementById('overview-utilization').innerText = utilization + '%';
                 document.getElementById('overview-util-bar').style.width = utilization + '%';
             }
 
+            let isAnyPanelReady = false;
+
             container.innerHTML = panels.map((p, pi) => {
                 const emails = p.interviewerEmails || [];
                 const tokenHtml = emails.map(e => `<div style="display:inline-flex; align-items:center; background:#eff6ff; color:#1d4ed8; padding:4px 8px; border-radius:16px; font-size:12px; font-weight:600; margin:0 6px 6px 0;">${e.split('@')[0]} <i data-lucide="check" style="width:12px; margin-left:4px;"></i></div>`).join('');
                 
                 const isReady = emails.length > 0 && (p.slots || []).length > 0;
+                if (isReady) isAnyPanelReady = true;
                 const statusBadge = isReady 
                     ? `<span style="background:#dcfce7; color:#16a34a; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600; display:inline-flex; align-items:center;"><i data-lucide="check" style="width:12px; margin-right:4px;"></i> Ready</span>` 
                     : `<span style="background:#fef3c7; color:#d97706; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600; display:inline-flex; align-items:center;"><i data-lucide="alert-triangle" style="width:12px; margin-right:4px;"></i> Incomplete</span>`;
@@ -2489,6 +2492,18 @@
                     </div>
                 `
             }).join('');
+            
+            const asBtn = document.getElementById('btn-auto-schedule');
+            if (isAnyPanelReady) {
+                asBtn.disabled = false;
+                asBtn.title = "";
+                asBtn.style.opacity = "1";
+            } else {
+                asBtn.disabled = true;
+                asBtn.title = "Add interviewers and at least one time slot to enable scheduling.";
+                asBtn.style.opacity = "0.5";
+            }
+            
             lucide.createIcons();
         }
 
