@@ -2562,8 +2562,12 @@
                 }
 
                 // 3. Send pre-extracted text to Java Backend (NOT raw PDFs)
-                document.getElementById('batchProgressTitle').innerHTML = '<i data-lucide="loader" class="spin"></i> Sending to AI Server...';
-                document.getElementById('batchProgressDesc').innerText = 'Java Backend is forwarding text to ML Server for AI analysis...';
+                const jdName = jdInput.files[0].name;
+                document.getElementById('batchProgressTitle').innerHTML = '<i data-lucide="check-circle-2" style="color:var(--success);"></i> Local Parsing Complete';
+                document.getElementById('batchProgressDesc').innerHTML = `
+                    <div style="margin-top: 8px; color: var(--text); font-weight: 500;">Sending extracted text to AI Engine...</div>
+                    <div style="margin-top: 4px; font-size: 13px; color: var(--muted);">Analyzing against: <strong>${jdName}</strong></div>
+                `;
                 document.getElementById('pbFill').style.width = '0%';
                 document.getElementById('pbText').innerText = 'Starting ML processing...';
                 lucide.createIcons();
@@ -2619,16 +2623,23 @@
                                     etaText = `ETA: ~${m} minute(s) ${s} seconds`;
                                 }
                             } else if (job.processedResumes === job.totalResumes) {
-                                etaText = "Finishing...";
+                                const cycle = Math.floor(Date.now() / 2000) % 3;
+                                if (cycle === 0) etaText = "Generating rankings...";
+                                else if (cycle === 1) etaText = "Preparing CSV...";
+                                else etaText = "Building recruiter dashboard...";
                             }
                         }
+                        
+                        const batchStart = Math.min(job.processedResumes + 1, job.totalResumes);
+                        const batchEnd = Math.min(job.processedResumes + 50, job.totalResumes);
+                        const batchInfo = job.processedResumes < job.totalResumes ? `<span style="font-weight:400; font-size:12px; margin-left:8px; padding:2px 6px; background:#f1f5f9; border-radius:4px;">Current Batch: ${batchStart}–${batchEnd}</span>` : '';
                         
                         document.getElementById('pbFill').style.width = percent + '%';
                         document.getElementById('pbText').innerHTML = `
                             <div style="display:flex; justify-content:space-between; width:100%; font-weight:600; font-size:14px; margin-top:8px;">
-                                <div style="display:flex; gap:16px;">
+                                <div style="display:flex; align-items:center; gap:12px;">
                                     <span style="color:var(--accent);">${percent}%</span>
-                                    <span style="color:var(--muted);">${job.processedResumes} / ${job.totalResumes} resumes processed</span>
+                                    <span style="color:var(--muted);">${job.processedResumes} / ${job.totalResumes} resumes ${batchInfo}</span>
                                 </div>
                                 <span style="color:var(--muted);">${etaText}</span>
                             </div>
