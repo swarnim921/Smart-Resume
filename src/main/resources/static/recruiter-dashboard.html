@@ -2833,7 +2833,7 @@
                                                 // Find score for this JD
                                                 const match = (r.matches || []).find(m => m.jobId === jd.id);
                                                 if (!match) return `<td style="padding: 16px 12px; text-align:center;">-</td>`;
-                                                const color = match.matchScore >= 75 ? 'var(--success)' : (match.matchScore >= 50 ? 'var(--warning)' : 'var(--danger)');
+                                                const color = match.matchScore >= 80 ? 'var(--success)' : (match.matchScore >= 60 ? 'var(--warning)' : 'var(--danger)');
                                                 
                                                 // Escape data for onclick
                                                 const escapedSkills = (match.missingSkills || []).map(s => s.replace(/'/g, "\\'").replace(/"/g, '&quot;')).join(', ');
