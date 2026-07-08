@@ -2855,50 +2855,258 @@
             }, 3000);
         }
 
+        function getHeatmapColor(score) {
+            if (score >= 90) return 'var(--success)';
+            if (score >= 70) return '#eab308'; // yellow
+            if (score >= 50) return '#f97316'; // orange
+            return 'var(--danger)'; // red
+        }
+
+        function switchPlacementTab(tabId) {
+            if (tabId === 'ranked') {
+                document.getElementById('tab-ranked').style.borderBottomColor = 'var(--primary)';
+                document.getElementById('tab-ranked').style.color = 'var(--primary)';
+                document.getElementById('tab-matrix').style.borderBottomColor = 'transparent';
+                document.getElementById('tab-matrix').style.color = 'var(--muted)';
+                document.getElementById('placement-ranked-view').style.display = 'block';
+                document.getElementById('placement-matrix-view').style.display = 'none';
+            } else {
+                document.getElementById('tab-matrix').style.borderBottomColor = 'var(--primary)';
+                document.getElementById('tab-matrix').style.color = 'var(--primary)';
+                document.getElementById('tab-ranked').style.borderBottomColor = 'transparent';
+                document.getElementById('tab-ranked').style.color = 'var(--muted)';
+                document.getElementById('placement-matrix-view').style.display = 'block';
+                document.getElementById('placement-ranked-view').style.display = 'none';
+            }
+        }
+
         function renderPlacementResults(job) {
             window.currentPlacementJob = job;
             const data = job.results || [];
             const jds = job.jds || [];
             
             document.getElementById('placementResults').style.display = 'block';
+            
+            // Generate JD options for ranked view
+            const jdOptions = jds.map((jd, i) => `<option value="${jd.id}" ${i === 0 ? 'selected' : ''}>${jd.name}</option>`).join('');
+
             document.getElementById('placementResults').innerHTML = `
                 <div class="card" id="placement-results-card">
                     <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-                        <div class="card-title"><i data-lucide="network"></i> Many-to-Many Matrix Results</div>
+                        <div class="card-title"><i data-lucide="network"></i> Placement Cell Results</div>
                         <button class="btn btn-o" onclick="exportPlacementCSV()"><i data-lucide="download"></i> Export CSV Report</button>
                     </div>
-                    <div style="overflow-x: auto; overflow-y: auto; max-height: 600px; margin-top: 16px;">
-                        <table style="width: 100%; text-align: left; border-collapse: collapse; min-width: 800px;">
-                            <thead>
-                                <tr style="border-bottom: 2px solid var(--border);">
-                                    <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Candidate</th>
-                                    ${jds.map(jd => `<th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase; text-align:center;">${jd.name}</th>`).join('')}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.map((r, index) => {
-                                    return `
-                                        <tr style="border-bottom: 1px solid var(--border);">
-                                            <td style="padding: 16px 12px; font-weight: 700;">${r.candidateName || 'Candidate'}</td>
-                                            ${jds.map(jd => {
-                                                // Find score for this JD
-                                                const match = (r.matches || []).find(m => m.jobId === jd.id);
-                                                if (!match) return `<td style="padding: 16px 12px; text-align:center;">-</td>`;
-                                                const color = match.matchScore >= 80 ? 'var(--success)' : (match.matchScore >= 60 ? 'var(--warning)' : 'var(--danger)');
-                                                
-                                                // Escape data for onclick
-                                                const escapedSkills = (match.missingSkills || []).map(s => s.replace(/'/g, "\\'").replace(/"/g, '&quot;')).join(', ');
-                                                const escapedCandidate = (r.candidateName || 'Candidate').replace(/'/g, "\\'");
-                                                const escapedJd = (jd.name || 'Job').replace(/'/g, "\\'");
-                                                
-                                                return `<td style="padding: 16px 12px; text-align:center; font-weight:600; color:${color}; cursor:pointer;" onclick="showMatrixAnalysis('${escapedCandidate}', '${escapedJd}', ${match.matchScore}, '${escapedSkills}', '${color}')" title="Click for Analysis Report">${match.matchScore}%</td>`;
-                                            }).join('')}
-                                        </tr>`;
-                                }).join('')}
-                            </tbody>
-                        </table>
+                    
+                    <div style="display:flex; border-bottom:1px solid var(--border); margin-top:16px;">
+                        <button id="tab-ranked" onclick="switchPlacementTab('ranked')" style="padding:12px 24px; background:none; border:none; border-bottom:2px solid var(--primary); color:var(--primary); font-weight:600; cursor:pointer;">Ranked Candidates</button>
+                        <button id="tab-matrix" onclick="switchPlacementTab('matrix')" style="padding:12px 24px; background:none; border:none; border-bottom:2px solid transparent; color:var(--muted); font-weight:600; cursor:pointer;">Comparison Matrix</button>
+                    </div>
+
+                    <!-- RANKED VIEW -->
+                    <div id="placement-ranked-view" style="padding-top: 24px;">
+                        <div style="display:flex; gap:16px; margin-bottom: 24px; flex-wrap:wrap;">
+                            <div style="flex:1; min-width:250px;">
+                                <label style="font-size:12px; font-weight:600; color:var(--muted); margin-bottom:4px; display:block;">Select Job Description</label>
+                                <select id="rankedJdSelect" onchange="renderRankedList()" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px; font-weight:500; cursor:pointer;">
+                                    ${jdOptions}
+                                </select>
+                            </div>
+                            <div style="flex:1; min-width:200px;">
+                                <label style="font-size:12px; font-weight:600; color:var(--muted); margin-bottom:4px; display:block;">Search Candidate</label>
+                                <input type="text" id="rankedSearch" oninput="renderRankedList()" placeholder="Type name..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px;">
+                            </div>
+                            <div style="width:150px;">
+                                <label style="font-size:12px; font-weight:600; color:var(--muted); margin-bottom:4px; display:block;">Sort By</label>
+                                <select id="rankedSort" onchange="renderRankedList()" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px; cursor:pointer;">
+                                    <option value="desc">Highest Match</option>
+                                    <option value="asc">Lowest Match</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="rankedStats" style="display:flex; gap:24px; margin-bottom: 24px; padding:16px; background:#f8fafc; border-radius:8px;">
+                            <!-- Stats injected here -->
+                        </div>
+
+                        <div id="rankedTopCandidate" style="margin-bottom: 24px;">
+                            <!-- Top candidate injected here -->
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--border);">
+                                        <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Rank</th>
+                                        <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Candidate</th>
+                                        <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Match Score</th>
+                                        <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Missing Skills</th>
+                                        <th style="padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase; text-align:center;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rankedTableBody">
+                                    <!-- Rows injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- MATRIX VIEW -->
+                    <div id="placement-matrix-view" style="display:none; padding-top:24px;">
+                        <div style="overflow-x: auto; overflow-y: auto; max-height: 600px;">
+                            <table style="width: 100%; text-align: left; border-collapse: separate; border-spacing: 0; min-width: 800px;">
+                                <thead>
+                                    <tr>
+                                        <th style="position: sticky; top: 0; left: 0; z-index: 11; background: white; border-bottom: 2px solid var(--border); padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase;">Candidate</th>
+                                        ${jds.map(jd => `<th style="position: sticky; top: 0; z-index: 10; background: white; border-bottom: 2px solid var(--border); padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase; text-align:center;">${jd.name}</th>`).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.map((r, index) => {
+                                        return `
+                                            <tr>
+                                                <td style="position: sticky; left: 0; z-index: 5; background: white; border-bottom: 1px solid var(--border); padding: 16px 12px; font-weight: 700;">${r.candidateName || 'Candidate'}</td>
+                                                ${jds.map(jd => {
+                                                    const match = (r.matches || []).find(m => m.jobId === jd.id);
+                                                    if (!match) return `<td style="border-bottom: 1px solid var(--border); padding: 16px 12px; text-align:center;">-</td>`;
+                                                    const color = getHeatmapColor(match.matchScore);
+                                                    const escapedSkills = (match.missingSkills || []).map(s => s.replace(/'/g, "\\'").replace(/"/g, '&quot;')).join(', ');
+                                                    const escapedCandidate = (r.candidateName || 'Candidate').replace(/'/g, "\\'");
+                                                    const escapedJd = (jd.name || 'Job').replace(/'/g, "\\'");
+                                                    return `<td style="border-bottom: 1px solid var(--border); padding: 16px 12px; text-align:center; font-weight:600; color:${color}; cursor:pointer;" onclick="showMatrixAnalysis('${escapedCandidate}', '${escapedJd}', ${match.matchScore}, '${escapedSkills}', '${color}')" title="Click for Analysis Report">${match.matchScore}%</td>`;
+                                                }).join('')}
+                                            </tr>`;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>`;
+            
+            lucide.createIcons();
+            renderRankedList(); // Initialize ranked view
+        }
+
+        function renderRankedList() {
+            const job = window.currentPlacementJob;
+            if (!job) return;
+
+            const selectedJdId = document.getElementById('rankedJdSelect').value;
+            const selectedJd = job.jds.find(j => j.id === selectedJdId) || job.jds[0];
+            const searchQuery = (document.getElementById('rankedSearch').value || '').toLowerCase();
+            const sortOrder = document.getElementById('rankedSort').value || 'desc';
+
+            // Extract candidates for this JD
+            let candidates = [];
+            job.results.forEach(r => {
+                const match = (r.matches || []).find(m => m.jobId === selectedJdId);
+                if (match) {
+                    candidates.push({
+                        name: r.candidateName || 'Candidate',
+                        score: match.matchScore || 0,
+                        missingSkills: match.missingSkills || []
+                    });
+                }
+            });
+
+            // Filter
+            if (searchQuery) {
+                candidates = candidates.filter(c => c.name.toLowerCase().includes(searchQuery));
+            }
+
+            // Sort
+            candidates.sort((a, b) => sortOrder === 'desc' ? b.score - a.score : a.score - b.score);
+
+            // Stats
+            let sum = 0, high = 0, low = 100;
+            candidates.forEach(c => {
+                sum += c.score;
+                if (c.score > high) high = c.score;
+                if (c.score < low) low = c.score;
+            });
+            const avg = candidates.length > 0 ? Math.round(sum / candidates.length) : 0;
+            if (candidates.length === 0) low = 0;
+
+            document.getElementById('rankedStats').innerHTML = `
+                <div style="flex:1;">
+                    <div style="font-size:12px; color:var(--muted); font-weight:600;">Candidates</div>
+                    <div style="font-size:20px; font-weight:700; color:var(--text);">${candidates.length}</div>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:12px; color:var(--muted); font-weight:600;">Average Match</div>
+                    <div style="font-size:20px; font-weight:700; color:var(--text);">${avg}%</div>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:12px; color:var(--muted); font-weight:600;">Highest</div>
+                    <div style="font-size:20px; font-weight:700; color:var(--success);">${high}%</div>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:12px; color:var(--muted); font-weight:600;">Lowest</div>
+                    <div style="font-size:20px; font-weight:700; color:var(--danger);">${low}%</div>
+                </div>
+            `;
+
+            // Top Candidate
+            if (candidates.length > 0 && sortOrder === 'desc') {
+                const top = candidates[0];
+                const escapedSkills = top.missingSkills.map(s => s.replace(/'/g, "\\'").replace(/"/g, '&quot;')).join(', ');
+                const escapedName = top.name.replace(/'/g, "\\'");
+                const escapedJd = selectedJd.name.replace(/'/g, "\\'");
+                const color = getHeatmapColor(top.score);
+                
+                document.getElementById('rankedTopCandidate').innerHTML = `
+                    <div style="border:1px solid var(--border); border-radius:8px; padding:16px; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(to right, #f8fafc, white);">
+                        <div>
+                            <div style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:4px;"><i data-lucide="star" style="width:14px; height:14px; display:inline-block; margin-bottom:-2px;"></i> Top Candidate</div>
+                            <div style="font-size:18px; font-weight:700;">${top.name}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:24px;">
+                            <button class="btn" style="padding:8px 16px; font-size:13px;" onclick="showMatrixAnalysis('${escapedName}', '${escapedJd}', ${top.score}, '${escapedSkills}', '${color}')">
+                                View Profile
+                            </button>
+                            <div style="text-align:right;">
+                                <div style="font-size:24px; font-weight:800; color:${color};">${top.score}%</div>
+                                <div style="font-size:12px; font-weight:600; color:var(--muted);">Match Score</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                document.getElementById('rankedTopCandidate').innerHTML = '';
+            }
+
+            // Table
+            const tbody = document.getElementById('rankedTableBody');
+            if (candidates.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="padding:24px; text-align:center; color:var(--muted);">No candidates found.</td></tr>`;
+            } else {
+                tbody.innerHTML = candidates.map((c, i) => {
+                    let rankIcon = `#${i + 1}`;
+                    if (sortOrder === 'desc') {
+                        if (i === 0) rankIcon = '🥇 #1';
+                        else if (i === 1) rankIcon = '🥈 #2';
+                        else if (i === 2) rankIcon = '🥉 #3';
+                    }
+
+                    const escapedSkills = c.missingSkills.map(s => s.replace(/'/g, "\\'").replace(/"/g, '&quot;')).join(', ');
+                    const escapedName = c.name.replace(/'/g, "\\'");
+                    const escapedJd = selectedJd.name.replace(/'/g, "\\'");
+                    const color = getHeatmapColor(c.score);
+
+                    return `
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 16px 12px; font-weight: 700; color:var(--muted);">${rankIcon}</td>
+                            <td style="padding: 16px 12px; font-weight: 600;">${c.name}</td>
+                            <td style="padding: 16px 12px; font-weight: 700; color:${color};">${c.score}%</td>
+                            <td style="padding: 16px 12px; font-size:13px; color:var(--muted);">${c.missingSkills.join(', ') || 'None'}</td>
+                            <td style="padding: 16px 12px; text-align:center;">
+                                <button class="btn btn-o" style="padding:6px 12px; font-size:12px;" onclick="showMatrixAnalysis('${escapedName}', '${escapedJd}', ${c.score}, '${escapedSkills}', '${color}')">
+                                    <i data-lucide="eye" style="width:14px; margin-right:4px;"></i> View
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
             lucide.createIcons();
         }
 
