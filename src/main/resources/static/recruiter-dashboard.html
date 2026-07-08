@@ -1122,7 +1122,7 @@
             outline: none;
         }
         .btn-p {
-            background: var(--primary);
+            background: var(--accent);
             color: white;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
         }
@@ -1593,7 +1593,7 @@
                 
                 <div style="text-align:center; margin: 1.5rem 0;">
                     <div class="form-label">Overall Match Score</div>
-                    <div style="font-size:32px; font-weight:800; color:var(--primary)" id="maScore">-</div>
+                    <div style="font-size:32px; font-weight:800; color:var(--accent)" id="maScore">-</div>
                 </div>
 
                 <div>
@@ -2899,15 +2899,15 @@
 
         function switchPlacementTab(tabId) {
             if (tabId === 'ranked') {
-                document.getElementById('tab-ranked').style.borderBottomColor = 'var(--primary)';
-                document.getElementById('tab-ranked').style.color = 'var(--primary)';
+                document.getElementById('tab-ranked').style.borderBottomColor = 'var(--accent)';
+                document.getElementById('tab-ranked').style.color = 'var(--accent)';
                 document.getElementById('tab-matrix').style.borderBottomColor = 'transparent';
                 document.getElementById('tab-matrix').style.color = 'var(--muted)';
                 document.getElementById('placement-ranked-view').style.display = 'block';
                 document.getElementById('placement-matrix-view').style.display = 'none';
             } else {
-                document.getElementById('tab-matrix').style.borderBottomColor = 'var(--primary)';
-                document.getElementById('tab-matrix').style.color = 'var(--primary)';
+                document.getElementById('tab-matrix').style.borderBottomColor = 'var(--accent)';
+                document.getElementById('tab-matrix').style.color = 'var(--accent)';
                 document.getElementById('tab-ranked').style.borderBottomColor = 'transparent';
                 document.getElementById('tab-ranked').style.color = 'var(--muted)';
                 document.getElementById('placement-matrix-view').style.display = 'block';
@@ -2933,7 +2933,7 @@
                     </div>
                     
                     <div style="display:flex; border-bottom:1px solid var(--border); margin-top:16px;">
-                        <button id="tab-ranked" onclick="switchPlacementTab('ranked')" style="padding:12px 24px; background:none; border:none; border-bottom:2px solid var(--primary); color:var(--primary); font-weight:600; cursor:pointer;">Ranked Candidates</button>
+                        <button id="tab-ranked" onclick="switchPlacementTab('ranked')" style="padding:12px 24px; background:none; border:none; border-bottom:2px solid var(--accent); color:var(--accent); font-weight:600; cursor:pointer;">Ranked Candidates</button>
                         <button id="tab-matrix" onclick="switchPlacementTab('matrix')" style="padding:12px 24px; background:none; border:none; border-bottom:2px solid transparent; color:var(--muted); font-weight:600; cursor:pointer;">Comparison Matrix</button>
                     </div>
 
@@ -3091,7 +3091,7 @@
                 document.getElementById('rankedTopCandidate').innerHTML = `
                     <div style="border:1px solid var(--border); border-radius:8px; padding:16px; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(to right, #f8fafc, white);">
                         <div>
-                            <div style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:4px;"><i data-lucide="star" style="width:14px; height:14px; display:inline-block; margin-bottom:-2px;"></i> Top Candidate</div>
+                            <div style="font-size:12px; font-weight:700; color:var(--accent); text-transform:uppercase; margin-bottom:4px;"><i data-lucide="star" style="width:14px; height:14px; display:inline-block; margin-bottom:-2px;"></i> Top Candidate</div>
                             <div style="font-size:18px; font-weight:700;">${top.name}</div>
                         </div>
                         <div style="display:flex; align-items:center; gap:24px;">
