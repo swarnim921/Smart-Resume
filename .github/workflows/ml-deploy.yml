@@ -30,6 +30,18 @@ jobs:
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_SPACE_NAME: ${{ secrets.HF_SPACE_NAME }}
         run: |
-          # Use Hugging Face CLI to upload the ml-service directory to the root of the space
-          hf auth login --token $HF_TOKEN --add-to-git-credential
-          hf upload $HF_USERNAME/$HF_SPACE_NAME ./ml-service . --repo-type=space --commit-message="Automated deployment from GitHub Actions"
+          # Use standard git to push the ml-service folder to Hugging Face
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          
+          # Clone the Hugging Face space
+          git clone https://$HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HF_USERNAME/$HF_SPACE_NAME hf-space
+          
+          # Copy ml-service files into the cloned space
+          cp -r ./ml-service/* hf-space/
+          
+          # Push changes
+          cd hf-space
+          git add .
+          git commit -m "Automated deployment from GitHub Actions" || echo "No changes to commit"
+          git push
