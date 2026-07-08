@@ -354,7 +354,8 @@ def analyze_matrix_match(resume_texts, jd_texts):
                 "jdIndex": j,
                 "matchScore": round(final_score, 1),
                 "semanticScore": round(sem_score, 1),
-                "keywordScore": round(kw_score, 1)
+                "keywordScore": round(kw_score, 1),
+                "missingSkills": missing_tech + missing_soft
             })
         final_scores.append(res_scores)
 
