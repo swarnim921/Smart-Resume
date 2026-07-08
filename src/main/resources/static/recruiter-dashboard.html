@@ -1557,17 +1557,19 @@
                 <div class="modal-title">📧 Email Preview</div>
                 <button class="close-btn" onclick="closePreview()">✕</button>
             </div>
-            <div style="font-size:13px;color:var(--muted);margin-bottom:0.75rem">This email will be sent to the
-                candidate. Confirm to proceed.</div>
-            <div><span class="form-label">Subject:</span>
-                <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:0.25rem" id="previewSubj">—
+            <div style="padding: 24px 32px;">
+                <div style="font-size:13px;color:var(--muted);margin-bottom:0.75rem">This email will be sent to the
+                    candidate. Confirm to proceed.</div>
+                <div><span class="form-label">Subject:</span>
+                    <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:0.25rem" id="previewSubj">—
+                    </div>
                 </div>
-            </div>
-            <div class="preview-box" id="previewBody">—</div>
-            <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
-                <button class="btn btn-p" style="flex:1" onclick="confirmStatusUpdate()">✅ Send & Update
-                    Status</button>
-                <button class="btn btn-o" style="flex:1" onclick="closePreview()">Cancel</button>
+                <div class="preview-box" id="previewBody">—</div>
+                <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
+                    <button class="btn btn-p" style="flex:1" onclick="confirmStatusUpdate()">✅ Send & Update
+                        Status</button>
+                    <button class="btn btn-o" style="flex:1" onclick="closePreview()">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1579,32 +1581,34 @@
                 <div class="modal-title"><i data-lucide="bar-chart-2"></i> Match Analysis Report</div>
                 <button class="close-btn" onclick="closeMatrixAnalysis()">×</button>
             </div>
-            <div style="margin-top: 1rem;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+            <div style="padding: 24px 32px;">
+                <div style="margin-top: 0.5rem;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                        <div>
+                            <div class="form-label">Candidate</div>
+                            <div style="font-weight:600; font-size:15px;" id="maCandidateName">-</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div class="form-label">Job Role</div>
+                            <div style="font-weight:600; font-size:15px;" id="maJobName">-</div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align:center; margin: 1.5rem 0;">
+                        <div class="form-label">Overall Match Score</div>
+                        <div style="font-size:32px; font-weight:800; color:var(--accent)" id="maScore">-</div>
+                    </div>
+    
                     <div>
-                        <div class="form-label">Candidate</div>
-                        <div style="font-weight:600; font-size:15px;" id="maCandidateName">-</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div class="form-label">Job Role</div>
-                        <div style="font-weight:600; font-size:15px;" id="maJobName">-</div>
+                        <div class="form-label" style="color:var(--danger)"><i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Missing Skills (Gap Analysis)</div>
+                        <div id="maMissingSkills" style="margin-top:0.5rem; display:flex; flex-wrap:wrap; gap:8px;">
+                            <!-- Badges go here -->
+                        </div>
                     </div>
                 </div>
-                
-                <div style="text-align:center; margin: 1.5rem 0;">
-                    <div class="form-label">Overall Match Score</div>
-                    <div style="font-size:32px; font-weight:800; color:var(--accent)" id="maScore">-</div>
+                <div style="display:flex; justify-content:flex-end; margin-top:1.5rem">
+                    <button class="btn btn-p" onclick="closeMatrixAnalysis()">Done</button>
                 </div>
-
-                <div>
-                    <div class="form-label" style="color:var(--danger)"><i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Missing Skills (Gap Analysis)</div>
-                    <div id="maMissingSkills" style="margin-top:0.5rem; display:flex; flex-wrap:wrap; gap:8px;">
-                        <!-- Badges go here -->
-                    </div>
-                </div>
-            </div>
-            <div style="display:flex; justify-content:flex-end; margin-top:1.5rem">
-                <button class="btn btn-p" onclick="closeMatrixAnalysis()">Done</button>
             </div>
         </div>
     </div>
