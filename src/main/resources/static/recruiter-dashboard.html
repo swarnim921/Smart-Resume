@@ -1431,9 +1431,14 @@
                             <div style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase;">Time Slots</div>
                             <div id="overview-slots" style="font-size: 24px; font-weight: 700; color: var(--text); margin-top: 4px;">0</div>
                         </div>
-                        <div class="col-4 card" style="padding: 16px; text-align: center; background: #f8fafc; border: 1px solid var(--border);">
-                            <div style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase;">Panel Utilization</div>
-                            <div id="overview-utilization" style="font-size: 24px; font-weight: 700; color: var(--primary); margin-top: 4px;">0%</div>
+                        <div class="col-4 card" style="padding: 16px; background: #f8fafc; border: 1px solid var(--border);">
+                            <div style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; margin-bottom: 8px;">Panel Utilization</div>
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-right: 12px;">
+                                    <div id="overview-util-bar" style="height: 100%; width: 0%; background: var(--primary); transition: width 0.3s ease;"></div>
+                                </div>
+                                <div id="overview-utilization" style="font-size: 18px; font-weight: 700; color: var(--primary);">--</div>
+                            </div>
                         </div>
                     </div>
 
@@ -2421,18 +2426,44 @@
             document.getElementById('overview-interviewers').innerText = totalInterviewers;
             document.getElementById('overview-candidates').innerText = currentJobCandidates;
             document.getElementById('overview-slots').innerText = totalSlots;
-            document.getElementById('overview-utilization').innerText = utilization + '%';
+            
+            if (totalSlots === 0 && totalInterviewers === 0) {
+                document.getElementById('overview-utilization').innerText = '--';
+                document.getElementById('overview-util-bar').style.width = '0%';
+            } else {
+                document.getElementById('overview-utilization').innerText = utilization + '%';
+                document.getElementById('overview-util-bar').style.width = utilization + '%';
+            }
 
             container.innerHTML = panels.map((p, pi) => {
                 const emails = p.interviewerEmails || [];
                 const tokenHtml = emails.map(e => `<div style="display:inline-flex; align-items:center; background:#eff6ff; color:#1d4ed8; padding:4px 8px; border-radius:16px; font-size:12px; font-weight:600; margin:0 6px 6px 0;">${e.split('@')[0]} <i data-lucide="check" style="width:12px; margin-left:4px;"></i></div>`).join('');
                 
+                const isReady = emails.length > 0 && (p.slots || []).length > 0;
+                const statusBadge = isReady 
+                    ? `<span style="background:#dcfce7; color:#16a34a; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600; display:inline-flex; align-items:center;"><i data-lucide="check" style="width:12px; margin-right:4px;"></i> Ready</span>` 
+                    : `<span style="background:#fef3c7; color:#d97706; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600; display:inline-flex; align-items:center;"><i data-lucide="alert-triangle" style="width:12px; margin-right:4px;"></i> Incomplete</span>`;
+
+                const slotsHtml = (p.slots || []).length > 0 
+                    ? (p.slots || []).map((s, si) => `
+                        <div style="display:flex; gap:10px; margin-bottom:10px">
+                            <input type="datetime-local" class="form-input" value="${s.dateTime ? s.dateTime.substring(0, 16) : ''}" onchange="panels[${pi}].slots[${si}].dateTime = this.value">
+                            <button class="btn btn-outline" style="padding:8px; border-color:#fecaca; color:var(--danger);" onclick="panels[${pi}].slots.splice(${si},1); renderPanels()">
+                                <i data-lucide="x" style="width:14px; height:14px;"></i>
+                            </button>
+                        </div>
+                    `).join('')
+                    : `<div style="padding: 16px; text-align: center; border: 1px dashed var(--border); border-radius: 8px; margin-bottom: 12px; color: var(--muted); font-size: 13px;">No time slots added yet.<br>Click "Add Time Slot" to begin.</div>`;
+
                 return `
                     <div class="card" style="border:1px solid var(--border); animation: fadeIn 0.3s ease-out;">
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:16px; margin-bottom:16px;">
-                            <h4 style="font-weight:700; color:var(--text); margin:0; display:flex; align-items:center; gap:8px;">
-                                <i data-lucide="users" style="width:18px; color:var(--primary);"></i> Technical Panel ${pi + 1}
-                            </h4>
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <h4 style="font-weight:700; color:var(--text); margin:0; display:flex; align-items:center; gap:8px;">
+                                    <i data-lucide="users" style="width:18px; color:var(--primary);"></i> Technical Panel ${pi + 1}
+                                </h4>
+                                ${statusBadge}
+                            </div>
                             <button class="btn btn-outline" style="padding:6px 12px; color:var(--danger); border-color:#fecaca;" onclick="panels.splice(${pi},1); renderPanels()">
                                 <i data-lucide="trash-2" style="width:14px; margin-right:4px;"></i> Delete Panel
                             </button>
@@ -2441,7 +2472,7 @@
                         <div style="display:flex; gap:32px;">
                             <!-- Left: Interviewers -->
                             <div style="flex:1;">
-                                <label class="form-label" style="font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase;">Interviewers (Comma Separated)</label>
+                                <label class="form-label" style="font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase;">Interviewers</label>
                                 <input type="text" class="form-input p-emails" placeholder="e.g. John Doe, jane@company.com" value="${emails.join(', ')}" style="margin-bottom:12px;" onchange="syncEmails(${pi}, this.value)">
                                 <div>${tokenHtml}</div>
                             </div>
@@ -2449,14 +2480,7 @@
                             <!-- Right: Time Slots -->
                             <div style="flex:1; border-left:1px solid var(--border); padding-left:32px;">
                                 <label class="form-label" style="font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase;">Available Time Slots</label>
-                                ${(p.slots || []).map((s, si) => `
-                                    <div style="display:flex; gap:10px; margin-bottom:10px">
-                                        <input type="datetime-local" class="form-input" value="${s.dateTime ? s.dateTime.substring(0, 16) : ''}" onchange="panels[${pi}].slots[${si}].dateTime = this.value">
-                                        <button class="btn btn-outline" style="padding:8px; border-color:#fecaca; color:var(--danger);" onclick="panels[${pi}].slots.splice(${si},1); renderPanels()">
-                                            <i data-lucide="x" style="width:14px; height:14px;"></i>
-                                        </button>
-                                    </div>
-                                `).join('')}
+                                ${slotsHtml}
                                 <button class="btn btn-outline" style="width:100%; font-size:13px; margin-top:4px; justify-content:center; border-style:dashed;" onclick="panels[${pi}].slots.push({dateTime:''}); renderPanels()">
                                     <i data-lucide="plus" style="width:14px; margin-right:4px;"></i> Add Time Slot
                                 </button>
