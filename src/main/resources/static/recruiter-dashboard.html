@@ -2554,6 +2554,7 @@
 
         let pollInterval;
         async function startPollingBatchJob(batchId) {
+            const startTime = Date.now();
             pollInterval = setInterval(async () => {
                 try {
                     const res = await fetch(`${API}/api/enterprise/batch/${batchId}`, {
@@ -2563,12 +2564,36 @@
                         const job = await res.json();
                         
                         let percent = 0;
+                        let etaText = "Calculating ETA...";
                         if (job.totalResumes > 0) {
                             percent = Math.floor((job.processedResumes / job.totalResumes) * 100);
+                            if (job.processedResumes > 0 && job.processedResumes < job.totalResumes) {
+                                const elapsed = (Date.now() - startTime) / 1000;
+                                const timePerResume = elapsed / job.processedResumes;
+                                const remaining = job.totalResumes - job.processedResumes;
+                                const etaSecs = Math.round(remaining * timePerResume);
+                                if (etaSecs < 60) {
+                                    etaText = `ETA: ~${etaSecs} seconds`;
+                                } else {
+                                    const m = Math.floor(etaSecs / 60);
+                                    const s = etaSecs % 60;
+                                    etaText = `ETA: ~${m} minute(s) ${s} seconds`;
+                                }
+                            } else if (job.processedResumes === job.totalResumes) {
+                                etaText = "Finishing...";
+                            }
                         }
                         
                         document.getElementById('pbFill').style.width = percent + '%';
-                        document.getElementById('pbText').innerText = `Processed ${job.processedResumes} / ${job.totalResumes} Resumes (${percent}%)`;
+                        document.getElementById('pbText').innerHTML = `
+                            <div style="display:flex; justify-content:space-between; width:100%; font-weight:600; font-size:14px; margin-top:8px;">
+                                <div style="display:flex; gap:16px;">
+                                    <span style="color:var(--accent);">${percent}%</span>
+                                    <span style="color:var(--muted);">${job.processedResumes} / ${job.totalResumes} resumes processed</span>
+                                </div>
+                                <span style="color:var(--muted);">${etaText}</span>
+                            </div>
+                        `;
                         
                         if (job.status === 'COMPLETED') {
                             clearInterval(pollInterval);
@@ -2760,6 +2785,7 @@
         }
 
         function pollPlacementProgress(batchId) {
+            const startTime = Date.now();
             const pollInterval = setInterval(async () => {
                 try {
                     const res = await fetch(`${API}/api/enterprise/batch/${batchId}`, {
@@ -2773,8 +2799,33 @@
                         const processed = job.processedResumes || 0;
                         const pct = Math.round((processed / total) * 100);
                         
+                        let etaText = "Calculating ETA...";
+                        if (processed > 0 && processed < total) {
+                            const elapsed = (Date.now() - startTime) / 1000;
+                            const timePerResume = elapsed / processed;
+                            const remaining = total - processed;
+                            const etaSecs = Math.round(remaining * timePerResume);
+                            if (etaSecs < 60) {
+                                etaText = `ETA: ~${etaSecs} seconds`;
+                            } else {
+                                const m = Math.floor(etaSecs / 60);
+                                const s = etaSecs % 60;
+                                etaText = `ETA: ~${m} minute(s) ${s} seconds`;
+                            }
+                        } else if (processed === total) {
+                            etaText = "Finishing...";
+                        }
+                        
                         document.getElementById('placementPbFill').style.width = pct + '%';
-                        document.getElementById('placementPbText').innerText = `${pct}% Processed (${processed}/${total} Resumes vs ${job.totalJds} JDs)`;
+                        document.getElementById('placementPbText').innerHTML = `
+                            <div style="display:flex; justify-content:space-between; width:100%; font-weight:600; font-size:14px; margin-top:8px;">
+                                <div style="display:flex; gap:16px;">
+                                    <span style="color:var(--accent);">${pct}%</span>
+                                    <span style="color:var(--muted);">${processed} / ${total} resumes processed vs ${job.totalJds} JDs</span>
+                                </div>
+                                <span style="color:var(--muted);">${etaText}</span>
+                            </div>
+                        `;
                         
                         if (job.status === 'COMPLETED') {
                             clearInterval(pollInterval);
