@@ -1,0 +1,35 @@
+name: Sync ML Service to Hugging Face Spaces
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ml-service/**'
+      - '.github/workflows/ml-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Hugging Face CLI
+        run: pip install -U "huggingface_hub[cli]"
+
+      - name: Deploy to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: ${{ secrets.HF_USERNAME }}
+          HF_SPACE_NAME: ${{ secrets.HF_SPACE_NAME }}
+        run: |
+          # Use Hugging Face CLI to upload the ml-service directory to the root of the space
+          huggingface-cli login --token $HF_TOKEN --add-to-git-credential
+          huggingface-cli upload $HF_USERNAME/$HF_SPACE_NAME ./ml-service . --repo-type=space --commit-message="Automated deployment from GitHub Actions"
