@@ -1413,6 +1413,20 @@
                     </div>
                 </div>
                 <div id="panel-builder" style="display:none; margin-top: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h2 style="font-size: 18px; font-weight: 700; color: var(--text);">Configure Interview Panels</h2>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-outline" onclick="addPanel()">
+                                <i data-lucide="plus" style="width:14px; margin-right:4px;"></i> Add Panel
+                            </button>
+                            <button class="btn btn-outline" onclick="autoSchedule()" id="btn-auto-schedule" style="color:var(--primary); border-color:var(--primary);">
+                                <i data-lucide="calendar" style="width:14px; margin-right:4px;"></i> Auto-Schedule
+                            </button>
+                            <button class="btn btn-p" onclick="savePanels()">
+                                <i data-lucide="save" style="width:14px; margin-right:4px;"></i> Save Panels
+                            </button>
+                        </div>
+                    </div>
                     <div id="panels-list" class="dashboard-grid"></div>
                 </div>
             </div>
@@ -2401,9 +2415,39 @@
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify(updated)
                 });
-                if (r.ok) alert('Interview panels saved successfully!');
-            } catch (e) { alert('Failed to save panels'); }
+                if (r.ok) showToast('✓ Interview panels saved successfully!');
+            } catch (e) { showToast('Failed to save panels', true); }
         }
+
+        async function autoSchedule() {
+            if (!panelJobId) return;
+            const btn = document.getElementById('btn-auto-schedule');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:14px; margin-right:4px;"></i> Scheduling...';
+            btn.disabled = true;
+            lucide.createIcons();
+
+            try {
+                const r = await fetch(`${API}/api/interviews/auto-schedule/${panelJobId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await r.json();
+                if (r.ok) {
+                    showToast(`✓ Auto-scheduled successfully! Scheduled ${data.scheduled || 0} candidates.`);
+                    loadPanelJob(); // refresh view
+                } else {
+                    showToast(`Failed: ${data.error}`, true);
+                }
+            } catch (e) {
+                showToast(`Failed: ${e.message}`, true);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+
 
         // ===================== ANALYTICS =====================
         async function loadAnalytics() {
