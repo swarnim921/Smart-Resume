@@ -1269,7 +1269,7 @@
                             <i data-lucide="upload-cloud" style="width:16px"></i> Auto-Fill from JD
                         </button>
                         <input type="file" id="jd-upload-input" accept=".txt,.pdf,.png,.jpg,.jpeg,.doc,.docx" style="display:none" onchange="parseJdFile(this)">
-                        <button type="button" class="apply-btn" style="padding:10px 24px;"
+                        <button type="button" class="btn btn-p" style="padding:10px 24px;"
                             onclick="document.querySelector('#post-form-submit').click()">
                             <i data-lucide="send"
                                 style="width:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Post
@@ -1328,7 +1328,7 @@
 
                             <!-- Submit Button -->
                             <div class="col-12" style="margin-top: 12px; padding-bottom: 20px;">
-                                <button type="submit" id="post-form-submit" class="apply-btn"
+                                <button type="submit" id="post-form-submit" class="btn btn-p"
                                     style="width: 100%; height: 52px; font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">
                                     Publish Job Vacancy Now
                                 </button>
@@ -1407,7 +1407,7 @@
                             </div>
                         </div>
                         <div class="col-12">
-                            <button type="button" class="apply-btn" onclick="runBatchScreening()" id="btn-batch-screen">
+                            <button type="button" class="btn btn-p" onclick="runBatchScreening()" id="btn-batch-screen">
                                 <i data-lucide="upload-cloud" style="width:16px; margin-right:4px;"></i> Upload & Run Batch Screening
                             </button>
                         </div>
@@ -1453,7 +1453,7 @@
                             </div>
                         </div>
                         <div class="col-12">
-                            <button type="button" class="apply-btn" onclick="runPlacementScreening()" id="btn-placement-screen">
+                            <button type="button" class="btn btn-p" onclick="runPlacementScreening()" id="btn-placement-screen">
                                 <i data-lucide="upload-cloud" style="width:16px; margin-right:4px;"></i> Upload & Matrix Search
                             </button>
                         </div>
@@ -1677,7 +1677,7 @@
                                     <p style="color:var(--muted); margin-bottom:24px; max-width:400px; margin-left:auto; margin-right:auto">
                                         Start hiring by posting your first job vacancy. Define your custom pipeline and let AI filter the best talent.
                                     </p>
-                                    <button class="apply-btn" style="height:44px; padding:0 32px" onclick="showSection('post')">Post Job Now</button>
+                                    <button class="btn btn-p" style="height:44px; padding:0 32px" onclick="showSection('post')">Post Job Now</button>
                                 </div>
                             </div>`;
                     lucide.createIcons();
@@ -1708,13 +1708,13 @@
                                             <span>Applications</span>
                                         </div>
                                         <div style="display:flex; gap:8px;">
-                                            <button class="apply-btn" style="background:var(--bg); color:var(--text); border:1px solid var(--border); padding:8px;" onclick="editJob('${j.id}')" title="Edit Job">
+                                            <button class="btn btn-p" style="background:var(--bg); color:var(--text); border:1px solid var(--border); padding:8px;" onclick="editJob('${j.id}')" title="Edit Job">
                                                 <i data-lucide="edit-3" style="width:16px"></i>
                                             </button>
-                                            <button class="apply-btn" style="background:var(--danger-light); color:var(--danger); border:1px solid var(--danger-light); padding:8px;" onclick="deleteJob('${j.id}','${(j.title || '').replace(/'/g, "\\'")}')" title="Delete Job">
+                                            <button class="btn btn-p" style="background:var(--danger-light); color:var(--danger); border:1px solid var(--danger-light); padding:8px;" onclick="deleteJob('${j.id}','${(j.title || '').replace(/'/g, "\\'")}')" title="Delete Job">
                                                 <i data-lucide="trash-2" style="width:16px"></i>
                                             </button>
-                                            <button class="apply-btn" onclick="viewApps('${j.id}','${(j.title || '').replace(/'/g, "\\'")}')">
+                                            <button class="btn btn-p" onclick="viewApps('${j.id}','${(j.title || '').replace(/'/g, "\\'")}')">
                                                 Manage
                                             </button>
                                         </div>
@@ -2047,7 +2047,7 @@
                 const curIdx = keys.indexOf(status);
                 if (curIdx < keys.length - 1) {
                     const next = pipeline[curIdx + 1];
-                    btns += `<button class="apply-btn" onclick="doStatusUpdate('${appId}','${next.stageKey}')">Move to ${next.stageName}</button>`;
+                    btns += `<button class="btn btn-p" onclick="doStatusUpdate('${appId}','${next.stageKey}')">Move to ${next.stageName}</button>`;
                 }
             } else {
                 const forwardFlows = {
@@ -2057,7 +2057,7 @@
                     INTERVIEW: { s: 'OFFERED', l: 'Generate Offer' }
                 };
                 const f = forwardFlows[status];
-                if (f) btns += `<button class="apply-btn" onclick="doStatusUpdate('${appId}','${f.s}')">${f.l}</button>`;
+                if (f) btns += `<button class="btn btn-p" onclick="doStatusUpdate('${appId}','${f.s}')">${f.l}</button>`;
             }
 
             // 2. Move Backward (Secondary action)
@@ -2631,7 +2631,7 @@
                 <div class="card" id="batch-results-card">
                     <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
                         <div class="card-title"><i data-lucide="bar-chart-2"></i> ML Screening Results</div>
-                        <button class="apply-btn" onclick="exportBatchToCsv()" style="font-size:13px; padding:6px 16px; background:var(--success);">
+                        <button class="btn btn-p" onclick="exportBatchToCsv()" style="font-size:13px; padding:6px 16px; background:var(--success);">
                             <i data-lucide="download" style="width:14px; margin-right:4px;"></i> Export CSV
                         </button>
                     </div>
