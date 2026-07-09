@@ -219,13 +219,16 @@ TalentSync uses modern authentication mechanisms:
 | `/api/auth/signin` | POST | Authenticate and receive JWT |
 | `/api/resumes/upload` | POST | Upload resume to GridFS |
 | `/api/applications/apply` | POST | Submit application with match analysis |
+| `/api/enterprise/placement` | GET | Generate Batch Placement Matrix |
+| `/api/enterprise/schedule` | POST | Auto-schedule interviews for a panel |
+| `/api/jobs/my-jobs` | GET | Fetch recruiter's active jobs |
 | `/api/ml/analyze` | POST | (ML) Analyze resume-JD match percentage |
 
 ---
 
 ## 🌍 Deployment
 *   **Backend**: Deployed on [Render](https://render.com) (Spring Boot + Docker).
-*   **ML Service**: Deployed on [Render](https://render.com) (Flask).
+*   **ML Service**: Hosted on [Hugging Face Spaces](https://huggingface.co/) via `Dockerfile.hf` (Flask Server).
 *   **Frontend**: Hosted as static content or on [Vercel](https://vercel.com).
 
 ---
