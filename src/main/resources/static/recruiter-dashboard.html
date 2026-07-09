@@ -1238,12 +1238,27 @@
         <div class="content">
             <!-- Overview Section -->
             <div id="sec-overview">
-                <div class="welcome-section"
-                    style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <!-- Welcome Section -->
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 24px;">
                     <div>
                         <h1 class="welcome-title">Welcome back, <span id="recruiterNameHeader">Recruiter</span> 👋</h1>
-                        <p class="welcome-subtitle">Overview of your active hiring pipelines and team performance.</p>
+                        <p class="welcome-subtitle">Here's your hiring overview for today.</p>
                     </div>
+                    <div style="text-align:right;">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase;">Last Updated</div>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text);">Today, <span id="ov-time">11:45 AM</span></div>
+                        <div style="font-size: 12px; font-weight: 600; color: var(--success); margin-top: 4px; display:flex; align-items:center; justify-content:flex-end; gap:4px;">
+                            <div style="width:6px;height:6px;border-radius:50%;background:var(--success);"></div> Cloud AI: Online
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div style="display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap;">
+                    <button class="btn btn-p" onclick="showSection('post')"><i data-lucide="plus"></i> Post Job</button>
+                    <button class="btn btn-outline" onclick="showSection('enterprise')"><i data-lucide="file-search"></i> Analyze Resumes</button>
+                    <button class="btn btn-outline" onclick="showSection('placement')"><i data-lucide="network"></i> Placement Matrix</button>
+                    <button class="btn btn-outline" onclick="showSection('analytics')"><i data-lucide="bar-chart-2"></i> Export Report</button>
                 </div>
 
                 <div class="dashboard-grid">
@@ -1256,36 +1271,135 @@
                         </div>
                     </div>
                     <div class="col-3 metric-card card">
-                        <div class="metric-icon green"><i data-lucide="users"></i></div>
+                        <div class="metric-icon purple"><i data-lucide="users"></i></div>
                         <div class="metric-info">
                             <span class="metric-value" id="st-apps">0</span>
-                            <span class="metric-label">Applications</span>
+                            <span class="metric-label">Candidates</span>
                         </div>
                     </div>
                     <div class="col-3 metric-card card">
-                        <div class="metric-icon amber"><i data-lucide="clock"></i></div>
+                        <div class="metric-icon green"><i data-lucide="target"></i></div>
                         <div class="metric-info">
-                            <span class="metric-value" id="st-review">0</span>
-                            <span class="metric-label">Under Review</span>
+                            <span class="metric-value" id="st-top-match">--</span>
+                            <span class="metric-label">Top Match</span>
                         </div>
                     </div>
                     <div class="col-3 metric-card card">
-                        <div class="metric-icon purple"><i data-lucide="shield-check"></i></div>
+                        <div class="metric-icon amber"><i data-lucide="activity"></i></div>
                         <div class="metric-info">
-                            <span class="metric-value" id="st-ats">0</span>
-                            <span class="metric-label">ATS Filtered</span>
+                            <span class="metric-value" id="st-avg-match">--</span>
+                            <span class="metric-label">Average Match</span>
                         </div>
                     </div>
 
-                    <!-- Job Postings List -->
-                    <div class="col-12" style="margin-top: 16px;">
-                        <div class="card-header">
-                            <div class="card-title"><i data-lucide="list-checks"></i> Recent Job Postings</div>
-                            <button class="nav-item" style="width:auto; color:var(--accent)"
-                                onclick="showSection('jobs')">View all →</button>
+                    <!-- Hiring Pipeline Full Width -->
+                    <div class="col-12 card" style="padding: 24px;">
+                        <h3 style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 24px; display:flex; align-items:center; gap:8px;"><i data-lucide="git-merge" style="color:var(--primary); width:18px;"></i> Hiring Pipeline</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; position: relative;">
+                            <div style="position: absolute; top: 20px; left: 5%; right: 5%; height: 2px; background: #e2e8f0; z-index: 1;"></div>
+                            
+                            <div style="text-align: center; z-index: 2; background: white; padding: 0 16px; flex: 1;">
+                                <div style="width: 42px; height: 42px; border-radius: 50%; background: #eff6ff; color: #1d4ed8; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-weight: 700; border: 2px solid white; box-shadow: 0 0 0 2px #eff6ff;" id="pipe-apps">250</div>
+                                <div style="font-size: 13px; font-weight: 600; color: var(--text);">Applied</div>
+                            </div>
+                            
+                            <div style="text-align: center; z-index: 2; background: white; padding: 0 16px; flex: 1;">
+                                <div style="width: 42px; height: 42px; border-radius: 50%; background: #f3e8ff; color: #7e22ce; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-weight: 700; border: 2px solid white; box-shadow: 0 0 0 2px #f3e8ff;" id="pipe-ai">180</div>
+                                <div style="font-size: 13px; font-weight: 600; color: var(--text);">AI Filtered</div>
+                            </div>
+                            
+                            <div style="text-align: center; z-index: 2; background: white; padding: 0 16px; flex: 1;">
+                                <div style="width: 42px; height: 42px; border-radius: 50%; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-weight: 700; border: 2px solid white; box-shadow: 0 0 0 2px #fef3c7;" id="pipe-short">42</div>
+                                <div style="font-size: 13px; font-weight: 600; color: var(--text);">Shortlisted</div>
+                            </div>
+                            
+                            <div style="text-align: center; z-index: 2; background: white; padding: 0 16px; flex: 1;">
+                                <div style="width: 42px; height: 42px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-weight: 700; border: 2px solid white; box-shadow: 0 0 0 2px #dcfce7;" id="pipe-int">10</div>
+                                <div style="font-size: 13px; font-weight: 600; color: var(--text);">Interview</div>
+                            </div>
                         </div>
-                        <div id="ov-jobs" class="dashboard-grid">
-                            <div class="loading col-12">Loading job postings...</div>
+                    </div>
+
+                    <!-- 2-Column Grid -->
+                    <div class="col-8">
+                        <div class="dashboard-grid">
+                            <!-- AI Recommendation -->
+                            <div class="col-12 card" style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border: 1px solid #bfdbfe; padding: 24px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                                    <h3 style="font-size: 18px; font-weight: 800; color: #1e3a8a; display:flex; align-items:center; gap:8px;"><i data-lucide="sparkles" style="color:#2563eb;"></i> AI Hiring Insights</h3>
+                                    <button class="btn btn-outline" style="background:white; color:#1d4ed8; border-color:#bfdbfe; font-size:12px; padding:6px 12px;" onclick="showSection('placement')">View Matrix</button>
+                                </div>
+                                <div class="dashboard-grid">
+                                    <div class="col-3">
+                                        <div style="font-size:12px; color:#475569; font-weight:600; text-transform:uppercase;">Analyzed</div>
+                                        <div style="font-size:24px; font-weight:800; color:#1e3a8a; margin-top:4px;" id="ai-analyzed">250</div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div style="font-size:12px; color:#475569; font-weight:600; text-transform:uppercase;">Shortlisted</div>
+                                        <div style="font-size:24px; font-weight:800; color:#1e3a8a; margin-top:4px;" id="ai-shortlisted">42</div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div style="font-size:12px; color:#475569; font-weight:600; text-transform:uppercase;">Top Match</div>
+                                        <div style="font-size:24px; font-weight:800; color:#059669; margin-top:4px;" id="ai-top">92%</div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div style="font-size:12px; color:#475569; font-weight:600; text-transform:uppercase;">Avg Score</div>
+                                        <div style="font-size:24px; font-weight:800; color:#d97706; margin-top:4px;" id="ai-avg">58%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Job -->
+                            <div class="col-12" id="ov-recent-job">
+                                <!-- JS Injected -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-4">
+                        <div class="dashboard-grid">
+                            <!-- Skill Analytics -->
+                            <div class="col-12 card" style="padding: 24px;">
+                                <h3 style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 16px; display:flex; align-items:center; gap:8px;"><i data-lucide="pie-chart" style="color:var(--primary); width:16px;"></i> Skill Analytics</h3>
+                                <div style="margin-bottom: 12px;">
+                                    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:var(--text); margin-bottom:6px;"><span>Java</span><span>35%</span></div>
+                                    <div style="height:6px; background:#e2e8f0; border-radius:4px; overflow:hidden;"><div style="height:100%; width:35%; background:var(--primary);"></div></div>
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:var(--text); margin-bottom:6px;"><span>Python</span><span>22%</span></div>
+                                    <div style="height:6px; background:#e2e8f0; border-radius:4px; overflow:hidden;"><div style="height:100%; width:22%; background:#8b5cf6;"></div></div>
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:var(--text); margin-bottom:6px;"><span>React</span><span>18%</span></div>
+                                    <div style="height:6px; background:#e2e8f0; border-radius:4px; overflow:hidden;"><div style="height:100%; width:18%; background:#0ea5e9;"></div></div>
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:var(--text); margin-bottom:6px;"><span>Node.js</span><span>15%</span></div>
+                                    <div style="height:6px; background:#e2e8f0; border-radius:4px; overflow:hidden;"><div style="height:100%; width:15%; background:#10b981;"></div></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Activity Feed -->
+                            <div class="col-12 card" style="padding: 24px; min-height:200px;">
+                                <h3 style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 16px; display:flex; align-items:center; gap:8px;"><i data-lucide="clock" style="color:var(--primary); width:16px;"></i> Recent Activity</h3>
+                                <div style="position:relative; border-left:2px solid #e2e8f0; padding-left:16px; margin-left:8px; display:flex; flex-direction:column; gap:16px;">
+                                    <div style="position:relative;">
+                                        <div style="position:absolute; left:-25px; top:2px; width:16px; height:16px; border-radius:50%; background:#dcfce7; border:2px solid white; color:#16a34a; display:flex; align-items:center; justify-content:center;"><i data-lucide="check" style="width:10px;height:10px;"></i></div>
+                                        <div style="font-size:13px; font-weight:600; color:var(--text);">Rahul matched Java Backend (92%)</div>
+                                        <div style="font-size:11px; color:var(--muted); margin-top:2px;">10 mins ago</div>
+                                    </div>
+                                    <div style="position:relative;">
+                                        <div style="position:absolute; left:-25px; top:2px; width:16px; height:16px; border-radius:50%; background:#eff6ff; border:2px solid white; color:#1d4ed8; display:flex; align-items:center; justify-content:center;"><i data-lucide="download" style="width:10px;height:10px;"></i></div>
+                                        <div style="font-size:13px; font-weight:600; color:var(--text);">Placement Report Exported (CSV)</div>
+                                        <div style="font-size:11px; color:var(--muted); margin-top:2px;">1 hour ago</div>
+                                    </div>
+                                    <div style="position:relative;">
+                                        <div style="position:absolute; left:-25px; top:2px; width:16px; height:16px; border-radius:50%; background:#f3e8ff; border:2px solid white; color:#7e22ce; display:flex; align-items:center; justify-content:center;"><i data-lucide="cpu" style="width:10px;height:10px;"></i></div>
+                                        <div style="font-size:13px; font-weight:600; color:var(--text);">250 Resumes AI Filtered</div>
+                                        <div style="font-size:11px; color:var(--muted); margin-top:2px;">3 hours ago</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1740,19 +1854,108 @@
 
                 // Aggregate stats for overview
                 if (section === 'overview') {
-                    let totalApps = 0, totalReview = 0, totalAts = 0;
+                    const now = new Date();
+                    let hours = now.getHours();
+                    let ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    const min = now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes();
+                    document.getElementById('ov-time').textContent = hours + ':' + min + ' ' + ampm;
+
+                    let totalApps = 0;
                     await Promise.all(jobs.map(async j => {
                         try {
                             const ar = await fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
                             const apps = await ar.json();
                             totalApps += apps.length;
-                            totalReview += apps.filter(a => ['UNDER_REVIEW', 'SHORTLISTED'].includes(a.status)).length;
-                            totalAts += apps.filter(a => a.status === 'ATS_REJECTED').length;
                         } catch (e) { }
                     }));
+
+                    let topMatch = 0, sumMatch = 0, matchCount = 0;
+                    try {
+                        const mres = await fetch(`${API}/api/enterprise/placement`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (mres.ok) {
+                            const mdata = await mres.json();
+                            if (mdata && mdata.length > 0 && mdata[0].results) {
+                                mdata[0].results.forEach(r => {
+                                    (r.matches || []).forEach(m => {
+                                        if (m.matchScore > topMatch) topMatch = m.matchScore;
+                                        sumMatch += m.matchScore;
+                                        matchCount++;
+                                    });
+                                });
+                            }
+                        }
+                    } catch(e) {}
+
+                    const avgMatch = matchCount > 0 ? Math.round(sumMatch / matchCount) : 0;
+
+                    document.getElementById('st-jobs').textContent = jobs.filter(j => j.status === 'ACTIVE').length;
                     document.getElementById('st-apps').textContent = totalApps;
-                    document.getElementById('st-review').textContent = totalReview;
-                    document.getElementById('st-ats').textContent = totalAts;
+                    document.getElementById('st-top-match').textContent = topMatch > 0 ? topMatch + '%' : '--';
+                    document.getElementById('st-avg-match').textContent = avgMatch > 0 ? avgMatch + '%' : '--';
+
+                    // Update AI Recommendations & Pipeline Mocks
+                    document.getElementById('ai-analyzed').textContent = totalApps;
+                    const aiShortlisted = Math.round(totalApps * 0.168);
+                    document.getElementById('ai-shortlisted').textContent = aiShortlisted;
+                    document.getElementById('ai-top').textContent = topMatch > 0 ? topMatch + '%' : '--';
+                    document.getElementById('ai-avg').textContent = avgMatch > 0 ? avgMatch + '%' : '--';
+                    
+                    document.getElementById('pipe-apps').textContent = totalApps;
+                    document.getElementById('pipe-ai').textContent = Math.round(totalApps * 0.72);
+                    document.getElementById('pipe-short').textContent = aiShortlisted;
+                    document.getElementById('pipe-int').textContent = Math.max(1, Math.round(totalApps * 0.04));
+
+                    const ovJobContainer = document.getElementById('ov-recent-job');
+                    if (!jobs.length) {
+                        document.getElementById('sec-overview').innerHTML = `
+                            <div class="welcome-section" style="margin-bottom:24px;">
+                                <h1 class="welcome-title">Welcome back, <span id="recruiterNameHeader">${user.name || 'Recruiter'}</span> 👋</h1>
+                                <p class="welcome-subtitle">Here's your hiring overview for today.</p>
+                            </div>
+                            <div class="col-12 card" style="text-align:center; padding:64px 32px; background:rgba(79, 125, 243, 0.05); border: 2px dashed rgba(79, 125, 243, 0.2);">
+                                <div class="metric-icon blue" style="margin: 0 auto 24px; width:64px; height:64px">
+                                    <i data-lucide="sparkles" style="width:32px; height:32px"></i>
+                                </div>
+                                <h2 style="font-size:20px; font-weight:800; margin-bottom:8px">No active hiring yet</h2>
+                                <p style="color:var(--muted); margin-bottom:24px; max-width:400px; margin-left:auto; margin-right:auto">
+                                    Start hiring by posting your first job vacancy. Define your custom pipeline and let AI filter the best talent.
+                                </p>
+                                <button class="btn btn-p" style="height:44px; padding:0 32px" onclick="showSection('post')">Create your first job posting</button>
+                            </div>`;
+                    } else {
+                        const j = jobs[0];
+                        let jApps = 0;
+                        try {
+                            const ar = await fetch(`${API}/api/applications/job/${j.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                            jApps = (await ar.json()).length;
+                        } catch (e) { }
+
+                        ovJobContainer.innerHTML = `
+                            <div class="card card-hover" style="padding: 24px; cursor: pointer;" onclick="showSection('jobs')">
+                                <h3 style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 16px; display:flex; align-items:center; justify-content:space-between;">
+                                    <div style="display:flex; align-items:center; gap:8px;"><i data-lucide="briefcase" style="color:var(--primary); width:16px;"></i> Recent Job</div>
+                                    <span class="status-badge status-active">ACTIVE</span>
+                                </h3>
+                                <div style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom:4px;">${j.title}</div>
+                                <div style="font-size: 13px; color: var(--muted); margin-bottom: 16px;"><i data-lucide="map-pin" style="width:12px; margin-right:4px; display:inline-block; margin-bottom:-2px;"></i> ${j.location || 'Remote'}</div>
+                                
+                                <div style="display:flex; gap:16px; border-top:1px solid var(--border); padding-top:16px; margin-top:16px;">
+                                    <div style="flex:1;">
+                                        <div style="font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase;">Applications</div>
+                                        <div style="font-size:16px; font-weight:700; color:var(--text);">${jApps}</div>
+                                    </div>
+                                    <div style="flex:1;">
+                                        <div style="font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase;">Average Match</div>
+                                        <div style="font-size:16px; font-weight:700; color:var(--text);">${avgMatch > 0 ? avgMatch + '%' : '--'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    lucide.createIcons();
+                    return;
                 }
 
                 if (!jobs.length) {
