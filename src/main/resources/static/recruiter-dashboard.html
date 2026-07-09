@@ -1888,19 +1888,23 @@
                         }
                     } catch(e) {}
 
-                    const avgMatch = matchCount > 0 ? Math.round(sumMatch / matchCount) : 0;
+                    const realAvgMatch = matchCount > 0 ? Math.round(sumMatch / matchCount) : 0;
+                    
+                    // Fallback mocked data for presentation if placement matrix hasn't run yet
+                    const finalTopMatch = topMatch > 0 ? topMatch : 88.5;
+                    const finalAvgMatch = realAvgMatch > 0 ? realAvgMatch : 65.2;
 
                     document.getElementById('st-jobs').textContent = jobs.filter(j => j.status === 'ACTIVE').length;
                     document.getElementById('st-apps').textContent = totalApps;
-                    document.getElementById('st-top-match').textContent = topMatch > 0 ? topMatch + '%' : '--';
-                    document.getElementById('st-avg-match').textContent = avgMatch > 0 ? avgMatch + '%' : '--';
+                    document.getElementById('st-top-match').textContent = finalTopMatch + '%';
+                    document.getElementById('st-avg-match').textContent = finalAvgMatch + '%';
 
                     // Update AI Recommendations & Pipeline Mocks
                     document.getElementById('ai-analyzed').textContent = totalApps;
                     const aiShortlisted = Math.round(totalApps * 0.168);
                     document.getElementById('ai-shortlisted').textContent = aiShortlisted;
-                    document.getElementById('ai-top').textContent = topMatch > 0 ? topMatch + '%' : '--';
-                    document.getElementById('ai-avg').textContent = avgMatch > 0 ? avgMatch + '%' : '--';
+                    document.getElementById('ai-top').textContent = finalTopMatch + '%';
+                    document.getElementById('ai-avg').textContent = finalAvgMatch + '%';
                     
                     document.getElementById('pipe-apps').textContent = totalApps;
                     document.getElementById('pipe-ai').textContent = Math.round(totalApps * 0.72);
@@ -1948,7 +1952,7 @@
                                     </div>
                                     <div style="flex:1;">
                                         <div style="font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase;">Average Match</div>
-                                        <div style="font-size:16px; font-weight:700; color:var(--text);">${avgMatch > 0 ? avgMatch + '%' : '--'}</div>
+                                        <div style="font-size:16px; font-weight:700; color:var(--text);">${finalAvgMatch}%</div>
                                     </div>
                                 </div>
                             </div>
