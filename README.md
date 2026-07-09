@@ -45,9 +45,15 @@ Check out the live platform: [talentsynctech.in](https://www.talentsynctech.in)
 ![Interview Scheduling](docs/screenshots/interview-scheduling.png)
 *(Automated interview panel allocation and slot management with utilization analytics)*
 
-### 4. Candidate Dashboard & AI Suggestions
+### 4. Candidate Experience & Workflows
 ![Candidate Dashboard](docs/screenshots/candidate-dashboard.png)
 *(Displays AI Resume Score, Missing Skills, and dynamically recommended Job Postings)*
+![AI Job Matcher](docs/screenshots/candidate-job-matcher-results.png)
+*(Instantly scans and ranks every active job posting against the uploaded resume)*
+![Application Pipeline](docs/screenshots/candidate-applications.png)
+*(Track application pipeline and real-time ATS filtering scores)*
+![AI Job Board](docs/screenshots/candidate-job-board.png)
+*(Browse and apply to positions perfectly suited to candidate skills)*
 
 ### 5. Automated Rejection Emails
 ![Auto-Reject Email](docs/screenshots/auto-reject-email.png)
