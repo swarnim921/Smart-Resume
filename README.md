@@ -13,8 +13,9 @@ Check out the live platform: [talentsynctech.in](https://www.talentsynctech.in)
 
 - **Scalable AI Infrastructure**: Built using a microservice architecture (Spring Boot + Flask) for decoupled scalability.
 - **Deep Semantic Search**: Leverages SentenceTransformers (`all-MiniLM-L6-v2`) to achieve high-accuracy matching beyond simple keyword searches.
+- **Enterprise Batch Screening**: Recruiter dashboard can process hundreds of resumes instantly, compiling them into a comparative Placement Matrix.
+- **Automated Hiring Pipeline**: Automatically parses resumes, scores candidates, transitions them through ATS stages, and dispatches dynamic HTML rejection emails for low-scoring applicants.
 - **Production-Ready Security**: Implemented full JWT authentication, OAuth2 (Google/LinkedIn), and robust Role-Based Access Control (RBAC).
-- **Automated Resume Processing**: Handles complex resume parsing and match scoring in real-time using asynchronous processing principles.
 - **Verified Deployment**: Fully functional, live platform deployed using Docker and Render.
 
 ---
@@ -32,33 +33,25 @@ Check out the live platform: [talentsynctech.in](https://www.talentsynctech.in)
 
 ## 📸 Screenshots
 
-### Sign-In Portal
-![Sign-In Portal](docs/screenshots/signin.png)
+### 1. Enterprise Recruiter Dashboard
+![Enterprise Dashboard](docs/screenshots/enterprise-dashboard.png)
+*(Features live statistics, dynamic Hiring Pipeline funnel, AI Hiring Insights, and real-time Activity Timeline)*
 
-### Candidate Dashboard
-![Candidate Dashboard](docs/screenshots/candidate-dashboard.png)
+### 2. Placement Matrix & Batch Screening
+![Placement Matrix](docs/screenshots/placement-matrix.png)
+*(Ranks candidates against a Job Description dynamically using Cosine Similarity)*
 
-### Resume Match Insights
-![Resume Match Insights](docs/screenshots/resume-analysis.png)
-
-### AI-Driven Job Board
-![Job Board](docs/screenshots/job-board.png)
-
-### Recruiter Dashboard
-![Recruiter Dashboard](docs/screenshots/recruiter-dashboard.png)
-
-### Intelligent Job Posting & Pipeline
-![Post Job Stage 1](docs/screenshots/post-job-1.png)
-![Post Job Stage 2](docs/screenshots/post-job-2.png)
-
-### Interview Scheduling & Analytics
+### 3. Interview Scheduling Module
 ![Interview Scheduling](docs/screenshots/interview-scheduling.png)
-![Hiring Analytics](docs/screenshots/hiring-analytics.png)
+*(Automated interview panel allocation and slot management with utilization analytics)*
 
-### Comprehensive Profile & Resume Management
-![Profile Overview](docs/screenshots/profile-main.png)
-![Resume Management](docs/screenshots/resume-management.png)
-![Job Management](docs/screenshots/job-management.png)
+### 4. Candidate Dashboard & AI Suggestions
+![Candidate Dashboard](docs/screenshots/candidate-dashboard.png)
+*(Displays AI Resume Score, Missing Skills, and dynamically recommended Job Postings)*
+
+### 5. Automated Rejection Emails
+![Auto-Reject Email](docs/screenshots/auto-reject-email.png)
+*(Professionally formatted HTML emails dispatched instantly by Spring Boot JavaMailSender when ATS match < 50%)*
 
 ---
 
@@ -70,10 +63,13 @@ Check out the live platform: [talentsynctech.in](https://www.talentsynctech.in)
 *   **Smart Recommendations**: Automated course suggestions (from Coursera, Udemy, etc.) to help you upskill.
 *   **Role Prediction**: AI-powered prediction of your most likely job role based on your experience.
 
-### For Recruiters
+### For Recruiters (Enterprise Features)
 *   **Automated Candidate Ranking**: Bulk process resumes and rank candidates based on a multi-factor match score.
+*   **Placement Matrix**: Instantly compare hundreds of candidates in a dynamic grid showing Top Match and Average Match statistics.
 *   **Deep Semantic Matching**: Uses SentenceTransformers (SOTA NLP) to understand context beyond simple keywords.
-*   **Candidate Insights**: View detailed extracted profiles including detected experience, skills, and match confidence.
+*   **Automated Hiring Pipeline**: Auto-rejection of candidates scoring below threshold with fully automated HTML emails sent via JavaMailSender.
+*   **Real-time Activity Timeline**: View an event-driven timeline of candidate applications, AI analysis completions, and email dispatches.
+*   **Automated Interview Scheduling**: Manage interview panels, allocate interviewer time slots, and track panel utilization percentages.
 
 ---
 
@@ -236,10 +232,9 @@ TalentSync uses modern authentication mechanisms:
 
 ## 🧭 Future Roadmap
 
-*   **AI Interview Preparation**: Automated question generation based on resume gaps.
-*   **LLM Integration**: Using GPT-4/Claude for personalized resume improvement feedback.
-*   **Real-time Hiring Analytics**: Advanced dashboard for recruiters.
-*   **Interview Scheduling**: Integrated calendar automation.
+*   **AI Interview Preparation**: Automated technical question generation based on the candidate's specific missing skills.
+*   **LLM Integration**: Using GPT-4/Claude for personalized resume improvement feedback (generative vs. extractive).
+*   **Customizable Email Templates**: Allow recruiters to draft custom acceptance/rejection email flows.
 
 ---
 
