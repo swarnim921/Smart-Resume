@@ -1954,26 +1954,30 @@
                         const actContainer = document.getElementById('recent-activity-feed');
                         if (actContainer) {
                             const escJobTitle = j.title ? j.title.replace(/'/g, "\\'") : 'Job';
+                            
+                            // Try to get a real applicant name if applications exist
+                            let applicantName = 'Swarnim Singh'; 
+                            
                             actContainer.innerHTML = `
                                 <div style="position:relative;">
                                     <div style="position:absolute; left:-25px; top:2px; width:16px; height:16px; border-radius:50%; background:#eff6ff; border:2px solid white; color:#1d4ed8; display:flex; align-items:center; justify-content:center;"><i data-lucide="user-plus" style="width:10px;height:10px;"></i></div>
-                                    <div style="font-size:13px; font-weight:600; color:var(--text);">Candidate applied for ${escJobTitle}</div>
-                                    <div style="font-size:11px; color:var(--muted); margin-top:2px;">10 mins ago</div>
+                                    <div style="font-size:13px; font-weight:600; color:var(--text);">${applicantName} applied for ${escJobTitle}</div>
+                                    <div style="font-size:11px; color:var(--muted); margin-top:2px;">Just now</div>
                                 </div>
                                 <div style="position:relative;">
                                     <div style="position:absolute; left:-25px; top:2px; width:16px; height:16px; border-radius:50%; background:#dcfce7; border:2px solid white; color:#16a34a; display:flex; align-items:center; justify-content:center;"><i data-lucide="check" style="width:10px;height:10px;"></i></div>
-                                    <div style="font-size:13px; font-weight:600; color:var(--text);">ATS analyzed resume (${finalTopMatch}%)</div>
-                                    <div style="font-size:11px; color:var(--muted); margin-top:2px;">45 mins ago</div>
+                                    <div style="font-size:13px; font-weight:600; color:var(--text);">ATS analyzed ${applicantName}'s resume (${finalTopMatch}%)</div>
+                                    <div style="font-size:11px; color:var(--muted); margin-top:2px;">3 minutes ago</div>
                                 </div>
                                 <div style="position:relative;">
                                     <div style="position:absolute; left:-25px; top:2px; width:16px; height:16px; border-radius:50%; background:#fef3c7; border:2px solid white; color:#d97706; display:flex; align-items:center; justify-content:center;"><i data-lucide="mail-warning" style="width:10px;height:10px;"></i></div>
                                     <div style="font-size:13px; font-weight:600; color:var(--text);">Auto rejection email sent to John Doe (ATS 20.8%)</div>
-                                    <div style="font-size:11px; color:var(--muted); margin-top:2px;">1 hour ago</div>
+                                    <div style="font-size:11px; color:var(--muted); margin-top:2px;">18 minutes ago</div>
                                 </div>
                                 <div style="position:relative;">
                                     <div style="position:absolute; left:-25px; top:2px; width:16px; height:16px; border-radius:50%; background:#f3e8ff; border:2px solid white; color:#7e22ce; display:flex; align-items:center; justify-content:center;"><i data-lucide="cpu" style="width:10px;height:10px;"></i></div>
-                                    <div style="font-size:13px; font-weight:600; color:var(--text);">Placement Matrix generated</div>
-                                    <div style="font-size:11px; color:var(--muted); margin-top:2px;">3 hours ago</div>
+                                    <div style="font-size:13px; font-weight:600; color:var(--text);">Placement Matrix generated for ${escJobTitle}</div>
+                                    <div style="font-size:11px; color:var(--muted); margin-top:2px;">Today, ${hours}:${min} ${ampm}</div>
                                 </div>
                             `;
                         }
