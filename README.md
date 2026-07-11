@@ -15,7 +15,7 @@ Check out the live platform: [talentsynctech.in](https://www.talentsynctech.in)
 - **Deep Semantic Search**: Leverages SentenceTransformers (`all-MiniLM-L6-v2`) to achieve high-accuracy matching beyond simple keyword searches.
 - **Enterprise Batch Screening**: Recruiter dashboard can process hundreds of resumes instantly, compiling them into a comparative Placement Matrix.
 - **Automated Hiring Pipeline**: Automatically parses resumes, scores candidates, transitions them through ATS stages, and dispatches dynamic HTML rejection emails for low-scoring applicants.
-- **Production-Ready Security**: Implemented full JWT authentication, OAuth2 (Google/LinkedIn), and robust Role-Based Access Control (RBAC).
+- **Production-Ready Security**: Implemented full JWT authentication, OAuth2 (Google), and robust Role-Based Access Control (RBAC).
 - **Verified Deployment**: Fully functional, live platform deployed using Docker and Render.
 
 ---
@@ -83,7 +83,7 @@ Check out the live platform: [talentsynctech.in](https://www.talentsynctech.in)
 
 | Component | Technology |
 | :--- | :--- |
-| **Backend** | Java 21, Spring Boot 3.1.4, Spring Security, JWT, OAuth2 (Google/LinkedIn) |
+| **Backend** | Java 21, Spring Boot 3.1.4, Spring Security, JWT, OAuth2 (Google) |
 | **ML Microservice** | Python 3.10+, Flask, SentenceTransformers (`all-MiniLM-L6-v2`), PyTorch |
 | **Database** | MongoDB Atlas (GridFS for resume storage, Mongo Sync for metadata) |
 | **Frontend** | HTML5, CSS3 (Glassmorphism), Vanilla JavaScript, Google Fonts |
@@ -131,7 +131,7 @@ TalentSync utilizes a SOTA (State-of-The-Art) NLP pipeline to ensure deep semant
 ```mermaid
 graph TD
     A[Frontend - User/Recruiter] -->|REST API| B[Spring Boot Backend]
-    B -->|OAuth2| C[Google/LinkedIn]
+    B -->|OAuth2| C[Google]
     B -->|Store/Retrieve| D[MongoDB Atlas / GridFS]
     B -->|Analyze| E[Flask ML Service]
     E -->|NLP Transformation| F[SentenceTransformer Model]
@@ -211,7 +211,7 @@ docker-compose up --build
 
 TalentSync uses modern authentication mechanisms:
 *   **JWT Based Authentication**: Secure stateless session management.
-*   **OAuth2 Login**: Seamless integration with Google and LinkedIn.
+*   **OAuth2 Login**: Seamless integration with Google.
 *   **Role-Based Access Control (RBAC)**: Distinct permissions for Candidates, Recruiters, and Admins.
 *   **Secure Password Hashing**: Industry-standard encryption via Spring Security.
 
