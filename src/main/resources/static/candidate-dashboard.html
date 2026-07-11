@@ -2123,10 +2123,19 @@
                                         </div>
                                     </div>
                                     <div class="job-card-footer">
-                                        <div class="salary">
-                                            ${j.salary || 'Competitive'}
-                                        </div>
-                                        <button class="apply-btn" onclick="applyJob('${j.id}')">Apply</button>
+                                        <span class="salary">${j.salary || 'Competitive'}</span>
+                                        ${(() => {
+                                            if (appliedJobsMap.has(j.id)) {
+                                                const status = appliedJobsMap.get(j.id).status;
+                                                if (status === 'REJECTED' || status === 'ATS_REJECTED') {
+                                                    return `<button class="apply-btn" disabled style="background:#fee2e2; color:#ef4444; cursor:default">Rejected</button>`;
+                                                } else if (status === 'OFFERED') {
+                                                    return `<button class="apply-btn" disabled style="background:#dcfce7; color:#16a34a; cursor:default">Offered</button>`;
+                                                }
+                                                return `<button class="apply-btn" disabled style="background:#f1f5f9; color:var(--muted); cursor:default">Applied</button>`;
+                                            }
+                                            return `<button class="apply-btn" onclick="applyToJob('${j.id}',this)">Apply</button>`;
+                                        })()}
                                     </div>
                                 </div>
                             </div>
