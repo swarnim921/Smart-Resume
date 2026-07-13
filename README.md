@@ -128,7 +128,7 @@ TalentSync utilizes a SOTA (State-of-The-Art) NLP pipeline to ensure deep semant
 
 ## 📐 System Architecture
 
-![TalentSync System Architecture](docs/system_architecture.png)
+![TalentSync Detailed System Architecture](docs/detailed_system_architecture.png)
 
 ```mermaid
 graph TD
