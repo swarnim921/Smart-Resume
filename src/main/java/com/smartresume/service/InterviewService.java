@@ -164,7 +164,7 @@ public class InterviewService {
             List<InterviewSlot> free = new ArrayList<>();
             if (panel.getSlots() != null) {
                 panel.getSlots().stream()
-                        .filter(s -> !s.isBooked())
+                        .filter(s -> !s.isBooked() && s.getDateTime() != null)
                         .sorted(Comparator.comparing(InterviewSlot::getDateTime))
                         .forEach(free::add);
             }
