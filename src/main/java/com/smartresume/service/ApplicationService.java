@@ -180,7 +180,9 @@ public class ApplicationService {
     public List<Application> getJobApplications(String jobId, String recruiterEmail) {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
-        if (!job.getPostedBy().equalsIgnoreCase(recruiterEmail)) {
+        // Null-safe ownership check (legacy jobs may have null postedBy)
+        String postedBy = job.getPostedBy();
+        if (postedBy != null && !postedBy.equalsIgnoreCase(recruiterEmail)) {
             throw new RuntimeException("Not authorized to view these applications");
         }
         return applicationRepository.findByJobId(jobId);

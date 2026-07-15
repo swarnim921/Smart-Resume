@@ -2236,7 +2236,11 @@
                     fetch(`${API}/api/jobs/${jobId}`, { headers: { 'Authorization': `Bearer ${token}` } })
                 ]);
 
-                if (!appsRes.ok) throw new Error();
+                if (!appsRes.ok) {
+                    const errData = await appsRes.json().catch(() => ({}));
+                    throw new Error(errData.error || `Server error ${appsRes.status}`);
+                }
+
                 const apps = await appsRes.json();
                 const job = jobRes.ok ? await jobRes.json() : null;
                 const pipeline = job?.hiringPipeline || [];
@@ -2389,8 +2393,9 @@
                     `).join('');
                 lucide.createIcons();
             } catch (e) {
-                document.getElementById('modalApps').innerHTML = '<p style="color:var(--danger);text-align:center">Error loading applications</p>';
+                document.getElementById('modalApps').innerHTML = `<p style="color:var(--danger);text-align:center;padding:20px">⚠️ ${e.message || 'Error loading applications'}</p>`;
             }
+
         }
 
         // Helper for status badge
