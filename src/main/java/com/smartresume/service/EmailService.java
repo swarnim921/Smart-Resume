@@ -295,22 +295,29 @@ public class EmailService {
                                                         java.util.Locale.ENGLISH));
                         String notesText = (notes != null && !notes.isEmpty()) ? notes : "";
 
+                        // Auto-generate a unique Jitsi Meet link for this interview
+                        String meetingRoom = "TalentSync-" + jobTitle.replaceAll("[^a-zA-Z0-9]", "") + "-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+                        String meetingLink = "https://meet.jit.si/" + meetingRoom;
+
                         String subject = "📅 Interview Invitation — " + jobTitle + " | " + company;
                         String body = "Dear " + candidateName + ",\n\n" +
                                         "We are delighted to invite you for an interview for the position of \""
                                         + jobTitle + "\" at "
                                         + company + ".\n\n" +
-                                        "📅 Interview Date & Time: " + formattedDate + "\n" +
-                                        "📍 Format: Please check the calendar invite attached to this email for join details.\n\n"
-                                        +
-                                        "A calendar invite (.ics) is attached — click it to save the event to your calendar."
+                                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                                        "📅 INTERVIEW DETAILS\n" +
+                                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                                        "Date & Time:  " + formattedDate + "\n" +
+                                        "🎥 Meeting Link: " + meetingLink + "\n" +
+                                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                                        "Click the meeting link above at the scheduled time to join your interview.\n" +
+                                        "A calendar invite (.ics) is also attached — add it to your calendar for a reminder."
                                         +
                                         ((notesText != null && !notesText.isEmpty())
                                                         ? "\n\nNote from recruiter: " + notesText
                                                         : "")
                                         + "\n\n" +
-                                        "Please reply to this email to confirm your availability.\n\n" +
-                                        "Best regards,\nRecruitment Team\n" + company;
+                                        "Best of luck!\n\nBest regards,\nRecruitment Team\n" + company;
 
                         // Build ICS content
                         String ics = buildICS(candidateName, jobTitle, company, interviewDt, toEmail);
@@ -394,6 +401,10 @@ public class EmailService {
                                         ? String.join(", ", skillsGap)
                                         : "None identified";
 
+                        // Generate a unique Jitsi Meet link for this interview
+                        String meetingRoomI = "TalentSync-" + jobTitle.replaceAll("[^a-zA-Z0-9]", "") + "-" + candidateName.replaceAll("[^a-zA-Z0-9]", "");
+                        String meetingLinkI = "https://meet.jit.si/" + meetingRoomI;
+
                         String subject = "📋 Interview Assignment — " + candidateName + " | " + jobTitle;
                         String emailBody = "Dear " + interviewerName + ",\n\n" +
                                         "You have been assigned to interview a candidate for the position of \""
@@ -404,13 +415,14 @@ public class EmailService {
                                         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                                         "Name:         " + candidateName + "\n" +
                                         "Email:        " + candidateEmail + "\n" +
-                                        "ATS Score:    " + scoreStr + "\n" +
-                                        "Skills Gap:   " + gapStr + "\n\n" +
+                                        "ATS Score:    " + scoreStr + "\n\n" +
                                         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                                         "📅 INTERVIEW DETAILS\n" +
                                         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                                         "Date & Time:  " + formattedDate + "\n" +
-                                        "Panel:        " + panelName + "\n\n" +
+                                        "Panel:        " + panelName + "\n" +
+                                        "🎥 Meeting Link: " + meetingLinkI + "\n\n" +
+                                        "Please join the meeting link above at the scheduled time to conduct the interview.\n" +
                                         "A calendar invite is attached to this email.\n\n" +
                                         "Best regards,\nTalentSync Recruitment System";
 
