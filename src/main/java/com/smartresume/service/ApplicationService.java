@@ -182,7 +182,11 @@ public class ApplicationService {
                 .orElseThrow(() -> new RuntimeException("Job not found"));
         // Null-safe ownership check (legacy jobs may have null postedBy)
         String postedBy = job.getPostedBy();
+        System.out.println("[DEBUG] getJobApplications: jobId=" + jobId
+                + " | postedBy=" + postedBy + " | recruiterEmail=" + recruiterEmail);
         if (postedBy != null && !postedBy.equalsIgnoreCase(recruiterEmail)) {
+            System.out.println("[DEBUG] MISMATCH: postedBy='" + postedBy
+                    + "' recruiterEmail='" + recruiterEmail + "'");
             throw new RuntimeException("Not authorized to view these applications");
         }
         return applicationRepository.findByJobId(jobId);
