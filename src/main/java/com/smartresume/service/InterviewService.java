@@ -36,7 +36,7 @@ public class InterviewService {
     public Job savePanels(String jobId, List<InterviewPanel> panels, String recruiterEmail) {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
-        if (!job.getPostedBy().equals(recruiterEmail)) {
+        if (!job.getPostedBy().equalsIgnoreCase(recruiterEmail)) {
             throw new RuntimeException("Not authorized");
         }
         // Assign UUIDs to panels and slots
@@ -63,7 +63,7 @@ public class InterviewService {
     public Job getSchedule(String jobId, String recruiterEmail) {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
-        if (!job.getPostedBy().equals(recruiterEmail)) {
+        if (!job.getPostedBy().equalsIgnoreCase(recruiterEmail)) {
             throw new RuntimeException("Not authorized");
         }
         return job;
@@ -80,7 +80,7 @@ public class InterviewService {
     public Map<String, Object> autoSchedule(String jobId, String recruiterEmail) {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
-        if (!job.getPostedBy().equals(recruiterEmail)) {
+        if (!job.getPostedBy().equalsIgnoreCase(recruiterEmail)) {
             throw new RuntimeException("Not authorized");
         }
 
