@@ -1704,6 +1704,45 @@
         </div>
     </div>
 
+    <!-- Interview Scheduler Modal -->
+    <div id="modal-interview-scheduler" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:10000; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:20px; padding:36px; width:90%; max-width:480px; box-shadow:0 24px 64px rgba(0,0,0,0.25);">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                <div style="width:44px; height:44px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px;">📅</div>
+                <div>
+                    <h3 style="font-size:18px; font-weight:800; margin:0;">Schedule Interview</h3>
+                    <p style="font-size:13px; color:#64748b; margin:0;">Set a date & time — the candidate will receive an email with meeting link</p>
+                </div>
+            </div>
+            <hr style="border:none; border-top:1px solid #e2e8f0; margin:20px 0;">
+
+            <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:6px;">📆 Interview Date & Time <span style="color:red">*</span></label>
+            <input type="datetime-local" id="interview-dt-input"
+                style="width:100%; padding:12px 14px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; margin-bottom:16px; box-sizing:border-box; outline:none;"
+                onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
+
+            <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:6px;">📝 Notes to Candidate (optional)</label>
+            <textarea id="interview-notes-input" rows="3" placeholder="e.g. Please join 5 minutes early. Bring your laptop."
+                style="width:100%; padding:12px 14px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:13px; margin-bottom:24px; box-sizing:border-box; resize:none; outline:none; font-family:inherit;"
+                onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+
+            <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:12px 14px; margin-bottom:20px; font-size:12px; color:#166534;">
+                ✅ Candidate will receive: Interview date & time · Jitsi Meet link · Calendar (.ics) attachment
+            </div>
+
+            <div style="display:flex; gap:12px;">
+                <button onclick="document.getElementById('modal-interview-scheduler').style.display='none'"
+                    style="flex:1; padding:13px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; color:#64748b; font-weight:600; cursor:pointer; font-size:14px;">
+                    Cancel
+                </button>
+                <button id="btn-confirm-interview" onclick="confirmInterviewSchedule()"
+                    style="flex:2; padding:13px; border:none; border-radius:10px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:#fff; font-weight:700; cursor:pointer; font-size:14px;">
+                    Confirm & Send Email
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Applications Modal -->
     <div id="appsModal" class="modal">
         <div class="modal-content">
@@ -2491,19 +2530,73 @@
             return btns;
         }
 
-        async function doStatusUpdate(appId, status) {
+        async function doStatusUpdate(appId, status, notes = '') {
+            // If scheduling an interview, show date/time picker first
+            if (status === 'INTERVIEW') {
+                showInterviewScheduler(appId);
+                return;
+            }
             try {
+                const body = { status };
+                if (notes) body.notes = notes;
                 const r = await fetch(`${API}/api/applications/${appId}/status`, {
                     method: 'PUT',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status })
+                    body: JSON.stringify(body)
                 });
                 if (r.ok) {
                     addNotif('success', 'Candidate Moved', `Candidate status updated to ${status.replace('_', ' ')}.`);
                     viewApps(currentJobId, currentJobTitle);
+                } else {
+                    const err = await r.json().catch(() => ({}));
+                    alert('Failed: ' + (err.error || 'Unknown error'));
                 }
             } catch (e) { alert('Failed to update status'); }
         }
+
+        let pendingInterviewAppId = null;
+        function showInterviewScheduler(appId) {
+            pendingInterviewAppId = appId;
+            // Set minimum datetime to now
+            const dtInput = document.getElementById('interview-dt-input');
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            dtInput.min = now.toISOString().slice(0, 16);
+            dtInput.value = '';
+            document.getElementById('interview-notes-input').value = '';
+            document.getElementById('modal-interview-scheduler').style.display = 'flex';
+        }
+
+        async function confirmInterviewSchedule() {
+            const dt = document.getElementById('interview-dt-input').value;
+            const notes = document.getElementById('interview-notes-input').value;
+            if (!dt) { alert('Please select an interview date and time.'); return; }
+
+            const btn = document.getElementById('btn-confirm-interview');
+            btn.disabled = true;
+            btn.textContent = 'Scheduling...';
+
+            try {
+                const r = await fetch(`${API}/api/applications/${pendingInterviewAppId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'INTERVIEW', interviewDateTime: dt, notes })
+                });
+                if (r.ok) {
+                    document.getElementById('modal-interview-scheduler').style.display = 'none';
+                    addNotif('success', '📅 Interview Scheduled', 'Interview email with meeting link sent to candidate!');
+                    viewApps(currentJobId, currentJobTitle);
+                } else {
+                    const err = await r.json().catch(() => ({}));
+                    alert('Failed: ' + (err.error || 'Unknown error'));
+                }
+            } catch (e) { alert('Failed to schedule interview'); }
+            finally {
+                btn.disabled = false;
+                btn.textContent = 'Confirm & Send Email';
+            }
+        }
+
 
         function closeModal() {
             document.getElementById('appsModal').classList.remove('active');
